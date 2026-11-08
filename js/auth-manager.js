@@ -9,10 +9,10 @@ class RadioAuthManager {
   _initMockUsers() {
     if (!localStorage.getItem(this.pendingUsersKey)) {
       const initialUsers = [
-        { id: 'usr_1', email: 'ahmet.kaya@gmail.com', date: 'Bugün 10:14', status: 'pending', role: 'user' },
-        { id: 'usr_2', email: 'zeynep.demir@outlook.com', date: 'Dün 18:30', status: 'pending', role: 'user' },
-        { id: 'usr_3', email: 'mehmet.oz@icloud.com', date: '3 gün önce', status: 'approved', role: 'user' },
-        { id: 'usr_4', email: 'spam_account@temp.com', date: '5 gün önce', status: 'rejected', role: 'user' }
+        { id: 'usr_1', email: 'ahmet_kaya', date: 'Bugün 10:14', status: 'pending', role: 'user' },
+        { id: 'usr_2', email: 'zeynep_demir', date: 'Dün 18:30', status: 'pending', role: 'user' },
+        { id: 'usr_3', email: 'mehmet_oz', date: '3 gün önce', status: 'approved', role: 'user' },
+        { id: 'usr_4', email: 'misafir_user', date: '5 gün önce', status: 'rejected', role: 'user' }
       ];
       localStorage.setItem(this.pendingUsersKey, JSON.stringify(initialUsers));
     }
@@ -32,8 +32,8 @@ class RadioAuthManager {
 
   // Request Access / Register (Async with Cloudflare Pages Function edge support)
   async requestAccess(email, password) {
-    if (!email || !email.includes('@')) {
-      return { success: false, message: 'Lütfen geçerli bir e-posta adresi girin.' };
+    if (!email || email.trim().length < 2) {
+      return { success: false, message: 'Lütfen geçerli bir kullanıcı adı girin.' };
     }
 
     // 1. Try Cloudflare Pages Function Edge API
@@ -74,9 +74,8 @@ class RadioAuthManager {
     }
 
     // Special hardcoded admin for testing demo & owner
-    const masterAdmins = ['admin@radio.app', 'bozkurtraa@gmail.com'];
-    if (masterAdmins.includes(email.toLowerCase())) {
-      const adminSession = { email, role: 'admin', status: 'approved', isAdmin: true };
+    if (email.trim().toLowerCase() === 'admin') {
+      const adminSession = { email: 'admin', role: 'admin', status: 'approved', isAdmin: true };
       RadioStorage.setUser(adminSession);
       this.currentUser = adminSession;
       return { success: true, status: 'approved', isAdmin: true, message: 'Yönetici girişi başarılı!' };
@@ -131,10 +130,9 @@ class RadioAuthManager {
       // Local fallback
     }
 
-    // 2. Local Fallback Simulation
-    const masterAdmins = ['admin@radio.app', 'bozkurtraa@gmail.com'];
-    if (masterAdmins.includes(email.toLowerCase()) && (password === 'admin123' || password.length >= 4)) {
-      const adminSession = { email, role: 'admin', status: 'approved', isAdmin: true };
+    // 2. Master Admin Login
+    if (email.trim().toLowerCase() === 'admin' && password === 'admin') {
+      const adminSession = { email: 'admin', role: 'admin', status: 'approved', isAdmin: true };
       RadioStorage.setUser(adminSession);
       this.currentUser = adminSession;
       return { success: true, user: adminSession, message: 'Yönetici girişi yapıldı.' };

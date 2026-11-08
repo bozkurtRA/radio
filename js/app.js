@@ -1203,7 +1203,7 @@ class RadioApp {
     const pass = passInput.value.trim();
 
     if (!email) {
-      this.showToast('Lütfen e-posta adresinizi girin.', '⚠️');
+      this.showToast('Lütfen kullanıcı adınızı girin.', '⚠️');
       return;
     }
     if (!pass) {

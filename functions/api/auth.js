@@ -3,26 +3,25 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
     const { action, email, password } = body;
+    const username = (email || '').trim().toLowerCase();
 
-    if (!email || !email.includes('@')) {
-      return new Response(JSON.stringify({ success: false, message: 'Geçerli bir e-posta adresi girin.' }), {
+    if (!username) {
+      return new Response(JSON.stringify({ success: false, message: 'Geçerli bir kullanıcı adı girin.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const cleanEmail = email.trim().toLowerCase();
-
     // Secure server-side admin credentials check (Never exposed to client)
-    const adminPassword = context.env.ADMIN_PASSWORD || 'admin123';
-    if (cleanEmail === 'admin@radio.app') {
+    const adminPassword = context.env.ADMIN_PASSWORD || 'admin';
+    if (username === 'admin') {
       if (password === adminPassword) {
         return new Response(JSON.stringify({
           success: true,
           status: 'approved',
           role: 'admin',
           isAdmin: true,
-          email: cleanEmail,
+          email: username,
           message: 'Yönetici girişi başarılı!'
         }), {
           status: 200,
