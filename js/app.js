@@ -1040,7 +1040,7 @@ class RadioApp {
   }
 
   // Handle Form Submission
-  handleAuthSubmit(action) {
+  async handleAuthSubmit(action) {
     const emailInput = document.getElementById('authEmailInput');
     const passInput = document.getElementById('authPasswordInput');
     if (!emailInput || !passInput) return;
@@ -1058,11 +1058,11 @@ class RadioApp {
     }
 
     if (action === 'request') {
-      const res = this.authManager.requestAccess(email, pass);
+      const res = await this.authManager.requestAccess(email, pass);
       this.showToast(res.message, res.success ? '✓' : '⚠️');
       this.checkAuthAndEnforceGate();
     } else {
-      const res = this.authManager.login(email, pass);
+      const res = await this.authManager.login(email, pass);
       this.showToast(res.message, res.success ? '✓' : '⚠️');
       this.checkAuthAndEnforceGate();
     }

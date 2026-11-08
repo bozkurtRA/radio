@@ -30,12 +30,33 @@ class RadioAuthManager {
     localStorage.setItem(this.pendingUsersKey, JSON.stringify(users));
   }
 
-  // Request Access / Register
-  requestAccess(email, password) {
+  // Request Access / Register (Async with Cloudflare Pages Function edge support)
+  async requestAccess(email, password) {
     if (!email || !email.includes('@')) {
       return { success: false, message: 'Lütfen geçerli bir e-posta adresi girin.' };
     }
 
+    // 1. Try Cloudflare Pages Function Edge API
+    try {
+      const resp = await fetch('./api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'request', email, password })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.status) {
+          const session = { email: email.trim(), role: data.role || 'user', status: data.status, isAdmin: !!data.isAdmin };
+          RadioStorage.setUser(session);
+          this.currentUser = session;
+          return data;
+        }
+      }
+    } catch (e) {
+      // Local fallback if edge API offline
+    }
+
+    // 2. Local Fallback Simulation
     const users = this.getAllUsers();
     const existing = users.find(u => u.email.toLowerCase() === email.toLowerCase());
 
@@ -45,7 +66,6 @@ class RadioAuthManager {
       } else if (existing.status === 'rejected') {
         return { success: false, status: 'rejected', message: 'Başvurunuz yönetici tarafından reddedilmiştir. Destek ile iletişime geçin.' };
       } else if (existing.status === 'approved') {
-        // Log in directly
         const session = { email: existing.email, role: existing.role || 'user', status: 'approved', isAdmin: existing.role === 'admin' };
         RadioStorage.setUser(session);
         this.currentUser = session;
@@ -83,8 +103,34 @@ class RadioAuthManager {
     };
   }
 
-  // Login
-  login(email, password) {
+  // Login (Async with Cloudflare Pages Function edge support)
+  async login(email, password) {
+    // 1. Try Cloudflare Pages Function Edge API
+    try {
+      const resp = await fetch('./api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', email, password })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.success && data.status === 'approved') {
+          const session = { email: email.trim(), role: data.role || 'user', status: 'approved', isAdmin: !!data.isAdmin };
+          RadioStorage.setUser(session);
+          this.currentUser = session;
+          return data;
+        } else if (data.status) {
+          const session = { email: email.trim(), role: data.role || 'user', status: data.status, isAdmin: !!data.isAdmin };
+          RadioStorage.setUser(session);
+          this.currentUser = session;
+          return data;
+        }
+      }
+    } catch (e) {
+      // Local fallback
+    }
+
+    // 2. Local Fallback Simulation
     if (email.toLowerCase() === 'admin@radio.app' && password === 'admin123') {
       const adminSession = { email, role: 'admin', status: 'approved', isAdmin: true };
       RadioStorage.setUser(adminSession);
