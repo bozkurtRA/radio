@@ -24,8 +24,14 @@ class RadioAudioEngine {
       loading: [],
       error: [],
       stationChange: [],
-      volumeChange: []
+      volumeChange: [],
+      trackchange: []
     };
+
+    this.metadataService = window.RadioMetadataService ? new window.RadioMetadataService() : null;
+    if (this.metadataService) {
+      this.metadataService.onTrackChange(track => this._onTrackMetadata(track));
+    }
 
     this._setupNativeAudioListeners();
     this._setupMediaSessionHandlers();
@@ -187,6 +193,9 @@ class RadioAudioEngine {
 
     this._playCandidate(this.candidateUrls[0]);
     this._updateMediaSession(station);
+    if (this.metadataService) {
+      this.metadataService.start(station);
+    }
   }
 
   // Play a specific candidate URL
@@ -251,6 +260,9 @@ class RadioAudioEngine {
     this.isIntentionalPause = true;
     this.clearReconnect();
     this.clearWatchdog();
+    if (this.metadataService) {
+      this.metadataService.stop();
+    }
 
     if (this.hls) {
       this.hls.destroy();
@@ -348,6 +360,30 @@ class RadioAudioEngine {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
+  }
+
+  // Dynamic Song / Artist Metadata Handler
+  _onTrackMetadata(track) {
+    if (!this.currentStation || this.currentStation.id !== track.stationId) return;
+
+    // Update MediaSession with exact Track & Artist for iOS Lockscreen / Car / Smartwatch
+    if ('mediaSession' in navigator) {
+      const artworks = [];
+      if (track.coverUrl) {
+        artworks.push({ src: track.coverUrl, sizes: '512x512', type: 'image/jpeg' });
+      }
+      artworks.push({ src: this.currentStation.logo || './assets/brand/icon-192.png', sizes: '192x192', type: 'image/png' });
+      artworks.push({ src: this.currentStation.logo || './assets/brand/icon-512.png', sizes: '512x512', type: 'image/png' });
+
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: `${track.artist} (${this.currentStation.name})`,
+        album: this.currentStation.category || 'Canlı Radyo',
+        artwork: artworks
+      });
+    }
+
+    this.emit('trackchange', track);
   }
 
   // iOS Lock Screen & Bluetooth Headset Media Session Integration

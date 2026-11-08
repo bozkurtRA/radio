@@ -126,6 +126,10 @@ class RadioApp {
     this.audioEngine.on('volumeChange', (vol) => {
       if (this.dom.modalVolSlider) this.dom.modalVolSlider.value = vol;
     });
+
+    this.audioEngine.on('trackchange', (track) => {
+      this._updateTrackMetadataUI(track);
+    });
   }
 
   _updatePlaybackState(isPlaying, station) {
@@ -168,6 +172,10 @@ class RadioApp {
     if (this.dom.modalGenre) this.dom.modalGenre.textContent = `${station.category} • Canlı Radyo`;
     if (this.dom.modalCodec) this.dom.modalCodec.textContent = `${station.format || 'HLS'} Akışı • 128 kbps • ${station.isHttps ? 'HTTPS' : 'HTTP'}`;
 
+    // Reset now-playing track box for new station
+    const trackBox = document.getElementById('modalTrackBox');
+    if (trackBox) trackBox.style.display = 'none';
+
     if (this.dom.modalFavBtn) {
       const isFav = RadioStorage.isFavorite(station.id);
       this.dom.modalFavBtn.textContent = isFav ? '❤️' : '🤍';
@@ -185,6 +193,52 @@ class RadioApp {
     if (minFav) {
       const isFav = RadioStorage.isFavorite(station.id);
       minFav.textContent = isFav ? '❤️' : '🤍';
+    }
+  }
+
+  // Handle Dynamic "Now Playing" Song & Artist Metadata Update
+  _updateTrackMetadataUI(track) {
+    if (!track || !this.audioEngine.currentStation) return;
+    if (this.audioEngine.currentStation.id !== track.stationId) return;
+
+    // 1. Mini Player Subtitle with live music note and bold artist
+    if (this.dom.miniSubtitle) {
+      const songText = track.artist ? `${track.artist} - ${track.title}` : track.title;
+      this.dom.miniSubtitle.innerHTML = `<span class="mini-track-live">🎵 ${songText}</span>`;
+    }
+
+    // 2. Fullscreen Player Modal Track Box
+    const trackBox = document.getElementById('modalTrackBox');
+    const trackTitle = document.getElementById('modalTrackTitle');
+    const trackArtist = document.getElementById('modalTrackArtist');
+
+    if (trackBox && trackTitle && trackArtist) {
+      trackTitle.textContent = track.title || 'Canlı Müzik';
+      trackArtist.textContent = track.artist || this.audioEngine.currentStation.name;
+      trackBox.style.display = 'block';
+    }
+
+    // 3. Dynamic High-Res Album Cover Upgrade
+    if (track.coverUrl && this.dom.modalLogo) {
+      const currentStationId = this.audioEngine.currentStation.id;
+      const originalLogo = this.audioEngine.currentStation.logo || './assets/brand/favicon.svg';
+      const img = new Image();
+      img.onload = () => {
+        if (this.audioEngine.currentStation && this.audioEngine.currentStation.id === currentStationId) {
+          this.dom.modalLogo.src = track.coverUrl;
+          if (this.dom.miniLogo) this.dom.miniLogo.src = track.coverUrl;
+        }
+      };
+      img.onerror = () => {
+        if (this.dom.modalLogo) this.dom.modalLogo.src = originalLogo;
+      };
+      img.src = track.coverUrl;
+    }
+
+    // 4. Update Minimal view subtitle if present
+    const minMeta = document.getElementById('minStationMeta');
+    if (minMeta) {
+      minMeta.textContent = `🎵 ${track.artist || ''} - ${track.title || ''}`;
     }
   }
 
