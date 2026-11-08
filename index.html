@@ -21,12 +21,12 @@
   <link rel="manifest" href="./manifest.webmanifest">
 
   <!-- Stylesheets with versioning -->
-  <link rel="stylesheet" href="./css/main.css?v=2.0.1">
-  <link rel="stylesheet" href="./css/modern.css?v=2.0.1">
-  <link rel="stylesheet" href="./css/minimal.css?v=2.0.1">
-  <link rel="stylesheet" href="./css/directory.css?v=2.0.1">
-  <link rel="stylesheet" href="./css/player.css?v=2.0.1">
-  <link rel="stylesheet" href="./css/auth.css?v=2.0.1">
+  <link rel="stylesheet" href="./css/main.css?v=2.0.4">
+  <link rel="stylesheet" href="./css/modern.css?v=2.0.4">
+  <link rel="stylesheet" href="./css/minimal.css?v=2.0.4">
+  <link rel="stylesheet" href="./css/directory.css?v=2.0.4">
+  <link rel="stylesheet" href="./css/player.css?v=2.0.4">
+  <link rel="stylesheet" href="./css/auth.css?v=2.0.4">
 
   <!-- Hls.js fallback for non-Safari browsers (Safari plays HLS natively) -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
@@ -63,8 +63,9 @@
         </div>
       </div>
       <div class="mini-controls-wrap" onclick="event.stopPropagation()">
-        <button class="mini-play-btn" id="miniPlayBtn" onclick="window.rApp.audioEngine.togglePlayPause()">
-          ▶
+        <button class="mini-play-btn" id="miniPlayBtn" onclick="window.rApp.audioEngine.togglePlayPause()" aria-label="Oynat / Duraklat">
+          <svg class="mini-play-svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="7,5 19,12 7,19"/></svg>
+          <svg class="mini-pause-svg" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
         </button>
       </div>
     </div>
@@ -94,13 +95,19 @@
   <!-- Fullscreen Player Modal Bottom-Sheet -->
   <div class="player-sheet-modal" id="playerSheetModal">
     <div class="sheet-top-bar">
-      <button class="icon-btn" onclick="window.rApp.closePlayerModal()">✕</button>
+      <button class="icon-btn modal-dismiss-btn" onclick="window.rApp.closePlayerModal()" aria-label="Kapat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
       <div class="sheet-handle-pill" onclick="window.rApp.closePlayerModal()"></div>
-      <button class="icon-btn" id="modalFavBtn" onclick="window.rApp.toggleCurrentFavorite()">🤍</button>
+      <button class="icon-btn modal-fav-btn" id="modalFavBtn" onclick="window.rApp.toggleCurrentFavorite()" aria-label="Favori">
+        <svg class="heart-icon empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <svg class="heart-icon filled" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
     </div>
 
-    <!-- Artwork & Equalizer Visualizer -->
+    <!-- Artwork Deck with Ambient Glow & Visualizer -->
     <div class="player-art-stage">
+      <div class="player-ambient-glow" id="playerAmbientGlow"></div>
       <div class="player-art-frame">
         <img id="modalLogo" src="./assets/brand/favicon.svg" alt="Artwork">
       </div>
@@ -110,39 +117,71 @@
         <div class="viz-bar"></div>
         <div class="viz-bar"></div>
         <div class="viz-bar"></div>
+        <div class="viz-bar"></div>
       </div>
     </div>
 
-    <!-- Station Details -->
+    <!-- Station Details & Prominent Now Playing Badge -->
     <div class="player-details-block">
       <div class="player-st-title" id="modalTitle">Power Türk</div>
 
-      <!-- Live Track Now-Playing Box -->
-      <div class="player-track-box" id="modalTrackBox" style="display:none;">
+      <!-- Live Track Now-Playing Card -->
+      <div class="player-track-box" id="modalTrackBox">
         <div class="player-track-badge">
           <span class="pulse-dot"></span>
-          <span>ŞU AN ÇALIYOR</span>
+          <span>CANLI YAYINDA ÇALIYOR</span>
         </div>
-        <div class="player-track-title" id="modalTrackTitle">Şarkı Adı</div>
-        <div class="player-track-artist" id="modalTrackArtist">Sanatçı Adı</div>
+        <div class="player-track-title" id="modalTrackTitle">Canlı Akış Yükleniyor...</div>
+        <div class="player-track-artist" id="modalTrackArtist">Power Türk</div>
       </div>
 
       <div class="player-st-genre" id="modalGenre">Pop • Canlı Radyo</div>
       <div class="player-st-codec" id="modalCodec">HLS Akışı • 128 kbps • HTTPS</div>
     </div>
 
-    <!-- Controls Cluster -->
+    <!-- Controls Cluster with High-End Glassmorphism Buttons -->
     <div class="player-main-controls">
-      <button class="player-skip-btn" onclick="window.rApp.playAdjacentStation(-1)" title="Önceki İstasyon">⏮</button>
-      <button class="player-big-play" id="modalPlayBtn" onclick="window.rApp.audioEngine.togglePlayPause()">▶</button>
-      <button class="player-skip-btn" onclick="window.rApp.playAdjacentStation(1)" title="Sonraki İstasyon">⏭</button>
+      <button class="player-ctrl-btn player-skip-btn" onclick="window.rApp.playAdjacentStation(-1)" title="Önceki İstasyon" aria-label="Önceki İstasyon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="19 20 9 12 19 4 19 20"></polygon>
+          <line x1="5" y1="19" x2="5" y2="5"></line>
+        </svg>
+      </button>
+
+      <button class="player-big-play" id="modalPlayBtn" onclick="window.rApp.audioEngine.togglePlayPause()" aria-label="Oynat / Duraklat">
+        <svg class="play-svg" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="7,4 21,12 7,20"></polygon>
+        </svg>
+        <svg class="pause-svg" viewBox="0 0 24 24" fill="currentColor" style="display:none;">
+          <rect x="6" y="4" width="4" height="16" rx="1.5"></rect>
+          <rect x="14" y="4" width="4" height="16" rx="1.5"></rect>
+        </svg>
+      </button>
+
+      <button class="player-ctrl-btn player-skip-btn" onclick="window.rApp.playAdjacentStation(1)" title="Sonraki İstasyon" aria-label="Sonraki İstasyon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 4 15 12 5 20 5 4"></polygon>
+          <line x1="19" y1="5" x2="19" y2="19"></line>
+        </svg>
+      </button>
     </div>
 
-    <!-- Volume Slider Bar -->
+    <!-- Volume Slider Bar with SVG Audio Icons -->
     <div class="player-volume-container">
-      <span class="player-vol-icon" onclick="window.rApp.audioEngine.setVolume(0)">🔈</span>
+      <button class="player-vol-icon-btn" onclick="window.rApp.audioEngine.setVolume(0)" aria-label="Sesi Kapat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        </svg>
+      </button>
       <input type="range" class="player-vol-slider" id="modalVolSlider" min="0" max="1" step="0.01" value="0.85" oninput="window.rApp.onVolumeChange(this.value)">
-      <span class="player-vol-icon" onclick="window.rApp.audioEngine.setVolume(1)">🔊</span>
+      <button class="player-vol-icon-btn" onclick="window.rApp.audioEngine.setVolume(1)" aria-label="Maksimum Ses">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+      </button>
+    </div>
     </div>
 
     <!-- Sleep Timer Bar Button -->
@@ -246,10 +285,10 @@
   </div>
 
   <!-- JavaScript Modules with versioning -->
-  <script src="./js/storage.js?v=2.0.3"></script>
-  <script src="./js/metadata-service.js?v=2.0.3"></script>
-  <script src="./js/audio-engine.js?v=2.0.3"></script>
-  <script src="./js/auth-manager.js?v=2.0.3"></script>
-  <script src="./js/app.js?v=2.0.3"></script>
+  <script src="./js/storage.js?v=2.0.4"></script>
+  <script src="./js/metadata-service.js?v=2.0.4"></script>
+  <script src="./js/audio-engine.js?v=2.0.4"></script>
+  <script src="./js/auth-manager.js?v=2.0.4"></script>
+  <script src="./js/app.js?v=2.0.4"></script>
 </body>
 </html>

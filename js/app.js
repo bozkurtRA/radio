@@ -83,7 +83,16 @@ class RadioApp {
       this.categories = catsRes;
       this.popularIds = popRes;
       this.cities = citiesRes;
-      this.stations = stationsRes;
+
+      const catMap = {};
+      if (Array.isArray(catsRes)) {
+        catsRes.forEach(c => { catMap[c.id] = c.name; });
+      }
+
+      this.stations = (stationsRes || []).map(st => ({
+        ...st,
+        category: st.category || catMap[st.categoryId] || 'Pop'
+      }));
 
       // Set default station to first popular (Power Türk)
       if (this.stations.length > 0) {
@@ -133,8 +142,31 @@ class RadioApp {
   }
 
   _updatePlaybackState(isPlaying, station) {
-    if (this.dom.miniPlayBtn) this.dom.miniPlayBtn.textContent = isPlaying ? '⏸' : '▶';
-    if (this.dom.modalPlayBtn) this.dom.modalPlayBtn.textContent = isPlaying ? '⏸' : '▶';
+    // Mini Player SVG Play/Pause
+    const miniPlaySvg = this.dom.miniPlayBtn ? this.dom.miniPlayBtn.querySelector('.mini-play-svg') : null;
+    const miniPauseSvg = this.dom.miniPlayBtn ? this.dom.miniPlayBtn.querySelector('.mini-pause-svg') : null;
+    if (miniPlaySvg && miniPauseSvg) {
+      miniPlaySvg.style.display = isPlaying ? 'none' : 'block';
+      miniPauseSvg.style.display = isPlaying ? 'block' : 'none';
+    } else if (this.dom.miniPlayBtn) {
+      this.dom.miniPlayBtn.textContent = isPlaying ? '⏸' : '▶';
+    }
+
+    // Fullscreen Modal SVG Play/Pause
+    const modalPlaySvg = this.dom.modalPlayBtn ? this.dom.modalPlayBtn.querySelector('.play-svg') : null;
+    const modalPauseSvg = this.dom.modalPlayBtn ? this.dom.modalPlayBtn.querySelector('.pause-svg') : null;
+    if (modalPlaySvg && modalPauseSvg) {
+      modalPlaySvg.style.display = isPlaying ? 'none' : 'block';
+      modalPauseSvg.style.display = isPlaying ? 'block' : 'none';
+    } else if (this.dom.modalPlayBtn) {
+      this.dom.modalPlayBtn.textContent = isPlaying ? '⏸' : '▶';
+    }
+
+    // Hero Play Button in Home Tab
+    const heroBtn = document.querySelector('.hero-play-button span');
+    if (heroBtn) {
+      heroBtn.textContent = isPlaying ? '⏸ Duraklat' : '▶ Hemen Dinle';
+    }
 
     // Spectrum Visualizer
     if (this.dom.vizBars) {
@@ -142,6 +174,12 @@ class RadioApp {
         if (isPlaying) b.classList.add('active');
         else b.classList.remove('active');
       });
+    }
+
+    // Ambient Glow behind Artwork
+    const glow = document.getElementById('playerAmbientGlow');
+    if (glow) {
+      glow.style.opacity = isPlaying ? '1' : '0.4';
     }
 
     // Minimal Vinyl Disc
@@ -153,33 +191,57 @@ class RadioApp {
     }
     if (minPlay) minPlay.textContent = isPlaying ? '⏸' : '▶';
 
-    // Subtitle updates
+    // Subtitle updates (preserve track info if active!)
     if (this.dom.miniSubtitle && station) {
-      this.dom.miniSubtitle.textContent = isPlaying ? '● CANLI YAYIN' : 'Duraklatıldı';
+      const lastTrack = this.audioEngine.metadataService ? this.audioEngine.metadataService.lastTrack : null;
+      if (isPlaying && lastTrack && lastTrack.stationId === station.id) {
+        this.dom.miniSubtitle.innerHTML = `<span class="mini-track-live">🎵 <b>${lastTrack.artist}</b> - ${lastTrack.title}</span>`;
+      } else {
+        this.dom.miniSubtitle.textContent = isPlaying ? '● CANLI YAYIN' : 'Duraklatıldı';
+      }
     }
   }
 
   _updatePlayerDisplays(station) {
     if (!station) return;
     const logoSrc = station.logo || './assets/brand/favicon.svg';
+    const lastTrack = this.audioEngine.metadataService ? this.audioEngine.metadataService.lastTrack : null;
+    const isSameStationTrack = lastTrack && lastTrack.stationId === station.id;
 
-    if (this.dom.miniLogo) this.dom.miniLogo.src = logoSrc;
+    if (this.dom.miniLogo) this.dom.miniLogo.src = (isSameStationTrack && lastTrack.coverUrl) ? lastTrack.coverUrl : logoSrc;
     if (this.dom.miniTitle) this.dom.miniTitle.textContent = station.name;
-    if (this.dom.miniSubtitle) this.dom.miniSubtitle.textContent = this.audioEngine.isPlaying ? '● CANLI YAYIN' : station.category;
+    if (this.dom.miniSubtitle) {
+      if (isSameStationTrack) {
+        this.dom.miniSubtitle.innerHTML = `<span class="mini-track-live">🎵 <b>${lastTrack.artist}</b> - ${lastTrack.title}</span>`;
+      } else {
+        this.dom.miniSubtitle.textContent = this.audioEngine.isPlaying ? '● CANLI YAYIN' : (station.category || 'Canlı');
+      }
+    }
 
-    if (this.dom.modalLogo) this.dom.modalLogo.src = logoSrc;
+    if (this.dom.modalLogo) this.dom.modalLogo.src = (isSameStationTrack && lastTrack.coverUrl) ? lastTrack.coverUrl : logoSrc;
     if (this.dom.modalTitle) this.dom.modalTitle.textContent = station.name;
-    if (this.dom.modalGenre) this.dom.modalGenre.textContent = `${station.category} • Canlı Radyo`;
+    if (this.dom.modalGenre) this.dom.modalGenre.textContent = `${station.category || 'Pop'} • Canlı Radyo`;
     if (this.dom.modalCodec) this.dom.modalCodec.textContent = `${station.format || 'HLS'} Akışı • 128 kbps • ${station.isHttps ? 'HTTPS' : 'HTTP'}`;
 
-    // Reset now-playing track box for new station
+    // Track box in modal
     const trackBox = document.getElementById('modalTrackBox');
-    if (trackBox) trackBox.style.display = 'none';
-
-    if (this.dom.modalFavBtn) {
-      const isFav = RadioStorage.isFavorite(station.id);
-      this.dom.modalFavBtn.textContent = isFav ? '❤️' : '🤍';
+    const trackTitle = document.getElementById('modalTrackTitle');
+    const trackArtist = document.getElementById('modalTrackArtist');
+    if (trackBox && trackTitle && trackArtist) {
+      if (isSameStationTrack) {
+        trackTitle.textContent = lastTrack.title || 'Canlı Müzik';
+        trackArtist.textContent = lastTrack.artist || station.name;
+        trackBox.style.display = 'block';
+      } else {
+        trackTitle.textContent = 'Canlı Yayın Yükleniyor...';
+        trackArtist.textContent = station.name;
+        trackBox.style.display = 'block';
+      }
     }
+
+    // Update Favorite Button state
+    const isFav = RadioStorage.isFavorite(station.id);
+    this._updateFavoriteButton(isFav);
 
     // Minimal View Updates
     const minLogo = document.getElementById('minVinylArt');
@@ -189,10 +251,24 @@ class RadioApp {
 
     if (minLogo) minLogo.src = logoSrc;
     if (minTitle) minTitle.textContent = station.name;
-    if (minMeta) minMeta.textContent = `${station.category} • ${station.format || 'Canlı'}`;
+    if (minMeta) minMeta.textContent = `${station.category || 'Pop'} • ${station.format || 'Canlı'}`;
     if (minFav) {
-      const isFav = RadioStorage.isFavorite(station.id);
       minFav.textContent = isFav ? '❤️' : '🤍';
+    }
+
+    this._updatePlaybackState(this.audioEngine.isPlaying, station);
+  }
+
+  _updateFavoriteButton(isFav) {
+    const btn = document.getElementById('modalFavBtn');
+    if (!btn) return;
+    const emptyIcon = btn.querySelector('.heart-icon.empty');
+    const filledIcon = btn.querySelector('.heart-icon.filled');
+    if (emptyIcon && filledIcon) {
+      emptyIcon.style.display = isFav ? 'none' : 'block';
+      filledIcon.style.display = isFav ? 'block' : 'none';
+    } else {
+      btn.textContent = isFav ? '❤️' : '🤍';
     }
   }
 
@@ -203,8 +279,8 @@ class RadioApp {
 
     // 1. Mini Player Subtitle with live music note and bold artist
     if (this.dom.miniSubtitle) {
-      const songText = track.artist ? `${track.artist} - ${track.title}` : track.title;
-      this.dom.miniSubtitle.innerHTML = `<span class="mini-track-live">🎵 ${songText}</span>`;
+      const songText = track.artist ? `🎵 <b>${track.artist}</b> - ${track.title}` : `🎵 ${track.title}`;
+      this.dom.miniSubtitle.innerHTML = `<span class="mini-track-live">${songText}</span>`;
     }
 
     // 2. Fullscreen Player Modal Track Box
@@ -218,7 +294,15 @@ class RadioApp {
       trackBox.style.display = 'block';
     }
 
-    // 3. Dynamic High-Res Album Cover Upgrade
+    // 3. Hero Card Live Track Pill
+    const heroPill = document.getElementById('heroLivePill');
+    const heroText = document.getElementById('heroLiveText');
+    if (heroPill && heroText) {
+      heroText.innerHTML = `🎵 <b>${track.artist}</b> - ${track.title}`;
+      heroPill.style.display = 'inline-flex';
+    }
+
+    // 4. Dynamic High-Res Album Cover Upgrade
     if (track.coverUrl && this.dom.modalLogo) {
       const currentStationId = this.audioEngine.currentStation.id;
       const originalLogo = this.audioEngine.currentStation.logo || './assets/brand/favicon.svg';
@@ -235,7 +319,13 @@ class RadioApp {
       img.src = track.coverUrl;
     }
 
-    // 4. Update Minimal view subtitle if present
+    // 5. Ambient Glow behind Artwork
+    const glow = document.getElementById('playerAmbientGlow');
+    if (glow && track.coverUrl) {
+      glow.style.background = `radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, rgba(139, 92, 246, 0.35) 50%, transparent 75%)`;
+    }
+
+    // 6. Update Minimal view subtitle if present
     const minMeta = document.getElementById('minStationMeta');
     if (minMeta) {
       minMeta.textContent = `🎵 ${track.artist || ''} - ${track.title || ''}`;
@@ -372,7 +462,14 @@ class RadioApp {
           <div class="hero-glow-sphere"></div>
           <div class="hero-tag">ÖNE ÇIKAN İSTASYON</div>
           <div class="hero-title">${cur ? cur.name : 'Power Türk'}</div>
-          <div class="hero-subtitle">${cur ? cur.category : 'Pop'} • Kesintisiz Canlı Yayın</div>
+          <div class="hero-subtitle">${cur ? (cur.category || 'Pop') : 'Pop'} • Kesintisiz Canlı Yayın</div>
+
+          <!-- Live Now Playing Capsule in Hero Card -->
+          <div class="hero-live-track" id="heroLivePill" style="${this.audioEngine.metadataService && this.audioEngine.metadataService.lastTrack ? 'display:inline-flex;' : 'display:none;'}">
+            <span class="pulse-dot"></span>
+            <span id="heroLiveText">${this.audioEngine.metadataService && this.audioEngine.metadataService.lastTrack ? `🎵 <b>${this.audioEngine.metadataService.lastTrack.artist}</b> - ${this.audioEngine.metadataService.lastTrack.title}` : ''}</span>
+          </div>
+
           <button class="hero-play-button" onclick="window.rApp.audioEngine.togglePlayPause()">
             <span>${this.audioEngine.isPlaying ? '⏸ Duraklat' : '▶ Hemen Dinle'}</span>
           </button>
@@ -739,6 +836,9 @@ class RadioApp {
     if (this.dom.playerModal) {
       this.dom.playerModal.classList.add('open');
       this._updatePlayerDisplays(this.audioEngine.currentStation);
+      if (this.audioEngine.metadataService && this.audioEngine.metadataService.lastTrack) {
+        this._updateTrackMetadataUI(this.audioEngine.metadataService.lastTrack);
+      }
     }
   }
 
@@ -751,7 +851,7 @@ class RadioApp {
   toggleCurrentFavorite() {
     if (!this.audioEngine.currentStation) return;
     const isNowFav = RadioStorage.toggleFavorite(this.audioEngine.currentStation.id);
-    this._updatePlayerDisplays(this.audioEngine.currentStation);
+    this._updateFavoriteButton(isNowFav);
     this.showToast(isNowFav ? 'Favorilere eklendi ❤️' : 'Favorilerden çıkarıldı 🤍');
     if (this.activeTab === 'favorites') this.renderFavoritesTab();
   }

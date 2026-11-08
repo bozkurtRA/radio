@@ -1,5 +1,5 @@
 // rAdio PWA Service Worker
-const CACHE_NAME = 'radio-v2.0.3';
+const CACHE_NAME = 'radio-v2.0.4';
 
 // Core assets to pre-cache on install
 const PRECACHE_ASSETS = [

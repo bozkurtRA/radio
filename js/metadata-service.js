@@ -101,14 +101,21 @@ class RadioMetadataService {
     const json = await resp.json();
     if (json && json.data && Array.isArray(json.data.timeline) && json.data.timeline.length > 0) {
       const item = json.data.timeline[0];
-      const title = (item.songTitle || '').trim();
-      const artist = (item.artistTitle || '').trim();
+      let title = (item.songTitle || '').trim();
+      let artist = (item.artistTitle || '').trim();
 
-      if (!title && !artist) return null;
+      if (!title && !artist) {
+        if (json.data.nowPlaying) {
+          title = json.data.nowPlaying.trim();
+          artist = station.name;
+        } else {
+          return null;
+        }
+      }
 
       let coverUrl = null;
       if (item.image && item.image.prefix && item.image.suffix) {
-        coverUrl = item.image.prefix + item.image.suffix;
+        coverUrl = item.image.prefix.replace(/\/+$/, '') + '/' + item.image.suffix.replace(/^\/+/, '');
       }
 
       return {
