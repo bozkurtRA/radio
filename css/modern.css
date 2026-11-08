@@ -316,6 +316,14 @@
   box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
 }
 
+.mini-play-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  flex-shrink: 0;
+  fill: #ffffff;
+}
+
 /* iOS Bottom Tab Bar */
 .modern-tab-nav {
   position: fixed;

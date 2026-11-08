@@ -117,6 +117,14 @@ html, body {
   transition: all 0.2s;
 }
 
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
 .icon-btn:active {
   transform: scale(0.92);
   background: rgba(255, 255, 255, 0.12);
