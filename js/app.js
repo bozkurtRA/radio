@@ -49,6 +49,7 @@ class RadioApp {
     this.dom.playerModal = document.getElementById('playerSheetModal');
     this.dom.authModal = document.getElementById('authModal');
     this.dom.adminModal = document.getElementById('adminModal');
+    this.dom.aboutModal = document.getElementById('aboutModal');
     this.dom.toastContainer = document.getElementById('toastContainer');
     this.dom.a2hsBanner = document.getElementById('a2hsBanner');
 
@@ -800,18 +801,33 @@ class RadioApp {
 
         <!-- Account & Security Section -->
         <div style="background:var(--surface-card); border:1px solid var(--glass-border); border-radius:20px; padding:18px;">
-          <div style="font-size:15px; font-weight:800; margin-bottom:4px;">🔐 Hesap ve Güvenlik</div>
+          <div style="font-size:15px; font-weight:800; margin-bottom:4px;">🔐 Hesap ve Oturum</div>
           <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
-            Oturum: <strong>${user ? user.email : 'Misafir'}</strong> • Durum: <span class="badge ${user && user.status === 'approved' ? 'badge-live' : ''}">${user ? user.status.toUpperCase() : 'YOK'}</span>
+            Oturum: <strong>${user ? (user.username || user.email || 'Kullanıcı') : 'Misafir'}</strong> • Durum: <span class="badge ${user && user.status === 'approved' ? 'badge-live' : ''}">${user ? user.status.toUpperCase() : 'YOK'}</span>
           </div>
-          <div style="display:flex; gap:10px;">
+          <div style="display:flex; flex-wrap:wrap; gap:10px;">
             <button class="filter-chip-btn" onclick="window.rApp.openAuthModal()">
               Hesap Değiştir / Giriş
             </button>
-            <button class="filter-chip-btn" style="border-color:var(--accent-purple);" onclick="window.rApp.openAdminModal()">
-              👑 Yönetici Onay Paneli
-            </button>
+            ${user && user.isAdmin ? `
+              <button class="filter-chip-btn" style="border-color:var(--accent-purple);" onclick="window.rApp.openAdminModal()">
+                👑 Yönetici Onay Paneli
+              </button>
+            ` : ''}
           </div>
+        </div>
+
+        <!-- About & Legal / DMCA Section -->
+        <div style="background:var(--surface-card); border:1px solid var(--glass-border); border-radius:20px; padding:18px;">
+          <div style="font-size:15px; font-weight:800; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+            <span>ℹ️</span> <span>Hakkında & Telif Hakları (DMCA)</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;">
+            rAdio, kamuya açık ve ücretsiz radyo akışlarını derleyen bağımsız bir oynatıcıdır. Sunucularımızda hiçbir ses veya medya dosyası barındırılmaz (0 bayt barındırma).
+          </div>
+          <button class="filter-chip-btn" style="border-color:var(--accent-cyan); color:#38bdf8;" onclick="window.rApp.openAboutModal()">
+            Yasal Bilgilendirme ve DMCA Bildirimi 📄
+          </button>
         </div>
 
         <!-- iOS PWA Install Guide Action -->
@@ -1191,6 +1207,19 @@ class RadioApp {
 
   closeAdminModal() {
     if (this.dom.adminModal) this.dom.adminModal.classList.remove('open');
+  }
+
+  // About & Legal Modal
+  openAboutModal() {
+    if (this.dom.aboutModal) {
+      this.dom.aboutModal.classList.add('open');
+    }
+  }
+
+  closeAboutModal() {
+    if (this.dom.aboutModal) {
+      this.dom.aboutModal.classList.remove('open');
+    }
   }
 
   openSettingsModal() {

@@ -37,7 +37,7 @@ export async function onRequestPost(context) {
 
     // Cloudflare KV Persistent Storage Support (if bound in Cloudflare Dashboard)
     if (context.env.RADIO_KV) {
-      const userData = await context.env.RADIO_KV.get(`user:${cleanEmail}`, 'json');
+      const userData = await context.env.RADIO_KV.get(`user:${username}`, 'json');
       if (action === 'login') {
         if (!userData) {
           return new Response(JSON.stringify({ success: false, message: 'Kayıt bulunamadı. Lütfen erişim talebi gönderin.' }), {
@@ -61,7 +61,7 @@ export async function onRequestPost(context) {
           success: true,
           status: 'approved',
           role: 'user',
-          email: cleanEmail,
+          email: username,
           message: 'Giriş başarılı!'
         }), {
           status: 200,
@@ -81,12 +81,12 @@ export async function onRequestPost(context) {
         }
         const newUser = {
           id: 'usr_' + Date.now().toString(36),
-          email: cleanEmail,
+          email: username,
           date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
           status: 'pending',
           role: 'user'
         };
-        await context.env.RADIO_KV.put(`user:${cleanEmail}`, JSON.stringify(newUser));
+        await context.env.RADIO_KV.put(`user:${username}`, JSON.stringify(newUser));
         return new Response(JSON.stringify({
           success: true,
           status: 'pending',
@@ -102,7 +102,7 @@ export async function onRequestPost(context) {
     return new Response(JSON.stringify({
       success: true,
       status: action === 'request' ? 'pending' : 'approved',
-      email: cleanEmail,
+      email: username,
       message: action === 'request' ? 'Başvurunuz alındı. Yönetici onayı bekleniyor.' : 'Giriş başarılı.'
     }), {
       status: 200,

@@ -27,9 +27,9 @@ export async function onRequest(context) {
     return new Response(JSON.stringify({
       success: true,
       users: [
-        { id: 'usr_1', email: 'ahmet.kaya@gmail.com', date: 'Bugün 10:14', status: 'pending', role: 'user' },
-        { id: 'usr_2', email: 'zeynep.demir@outlook.com', date: 'Dün 18:30', status: 'pending', role: 'user' },
-        { id: 'usr_3', email: 'mehmet.oz@icloud.com', date: '3 gün önce', status: 'approved', role: 'user' }
+        { id: 'usr_1', email: 'ahmet_kaya', date: 'Bugün 10:14', status: 'pending', role: 'user' },
+        { id: 'usr_2', email: 'zeynep_demir', date: 'Dün 18:30', status: 'pending', role: 'user' },
+        { id: 'usr_3', email: 'mehmet_oz', date: '3 gün önce', status: 'approved', role: 'user' }
       ]
     }), {
       headers: { 'Content-Type': 'application/json' }

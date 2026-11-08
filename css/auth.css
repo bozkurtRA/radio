@@ -263,3 +263,126 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+/* About & Legal / DMCA Disclaimer Modal */
+.about-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 10, 18, 0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  z-index: 640;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--safe-top) + 16px) 18px calc(var(--safe-bottom) + 24px);
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  box-sizing: border-box;
+}
+
+.about-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.about-card-panel {
+  background: var(--surface-card);
+  border: 1px solid var(--glass-border-light);
+  border-radius: 24px;
+  padding: 22px 18px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.about-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 12px;
+}
+
+.about-app-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.about-app-brand img {
+  height: 32px;
+}
+
+.about-version-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+
+.about-legal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-legal-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.about-item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.about-item-text {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.about-item-text strong {
+  color: #e2e8f0;
+}
+
+.about-contact-box {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.12));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+
+.about-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 18px;
+  border-radius: 12px;
+  margin-top: 8px;
+  border: none;
+  cursor: pointer;
+}

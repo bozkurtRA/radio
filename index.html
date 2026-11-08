@@ -21,12 +21,12 @@
   <link rel="manifest" href="./manifest.webmanifest">
 
   <!-- Stylesheets with versioning -->
-  <link rel="stylesheet" href="./css/main.css?v=2.0.9">
-  <link rel="stylesheet" href="./css/modern.css?v=2.0.9">
-  <link rel="stylesheet" href="./css/minimal.css?v=2.0.9">
-  <link rel="stylesheet" href="./css/directory.css?v=2.0.9">
-  <link rel="stylesheet" href="./css/player.css?v=2.0.9">
-  <link rel="stylesheet" href="./css/auth.css?v=2.0.9">
+  <link rel="stylesheet" href="./css/main.css?v=2.1.0">
+  <link rel="stylesheet" href="./css/modern.css?v=2.1.0">
+  <link rel="stylesheet" href="./css/minimal.css?v=2.1.0">
+  <link rel="stylesheet" href="./css/directory.css?v=2.1.0">
+  <link rel="stylesheet" href="./css/player.css?v=2.1.0">
+  <link rel="stylesheet" href="./css/auth.css?v=2.1.0">
 
   <!-- Hls.js fallback for non-Safari browsers (Safari plays HLS natively) -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
@@ -38,13 +38,22 @@
     
     <!-- Top Safe Area App Header -->
     <header class="app-header">
-      <div class="app-brand" onclick="window.rApp.switchTab('home')">
+      <div class="app-brand" onclick="window.rApp.switchTab('home')" style="cursor:pointer;" title="Ana Sayfa">
         <img src="./assets/brand/logo.svg" alt="rAdio">
       </div>
       <div class="header-actions">
-        <button class="icon-btn" onclick="window.rApp.applyTheme('directory')" title="Radyo Arama & Rehber">🔍</button>
-        <button class="icon-btn" onclick="window.rApp.openAuthModal()" title="Hesap / Giriş">👤</button>
-        <button class="icon-btn" onclick="window.rApp.switchTab('settings')" title="Ayarlar & Tasarım">⚙️</button>
+        <button class="icon-btn" onclick="window.rApp.applyTheme('directory')" title="Radyo Arama & Rehber" aria-label="Arama">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button class="icon-btn" onclick="window.rApp.openAboutModal()" title="Hakkında & Yasal Bilgilendirme / Telif" aria-label="Hakkında">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </button>
+        <button class="icon-btn" onclick="window.rApp.openAuthModal()" title="Hesap / Giriş" aria-label="Hesap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+        <button class="icon-btn" onclick="window.rApp.switchTab('settings')" title="Ayarlar & Tasarım" aria-label="Ayarlar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
       </div>
     </header>
 
@@ -198,8 +207,8 @@
       </div>
       <div class="auth-card-header">
         <img src="./assets/brand/logo.svg" alt="rAdio">
-        <div class="auth-card-title">rAdio Giriş & Başvuru</div>
-        <div class="auth-card-subtitle">Uygulamaya kontrollü erişim sağlanmaktadır. Yeni kayıtlar yönetici onayıyla aktifleşir.</div>
+        <div class="auth-card-title">rAdio Giriş</div>
+        <div class="auth-card-subtitle">Kesintisiz ve kaliteli canlı radyo deneyimi için kullanıcı adınızla giriş yapın.</div>
       </div>
 
       <div class="auth-nav-tabs" id="authNavTabs">
@@ -215,11 +224,11 @@
         <div class="auth-input-group">
           <div class="auth-input-field">
             <label>Kullanıcı Adı</label>
-            <input type="text" id="authEmailInput" placeholder="admin" autocomplete="username" autocapitalize="none">
+            <input type="text" id="authEmailInput" placeholder="Kullanıcı adınızı girin" autocomplete="username" autocapitalize="none">
           </div>
           <div class="auth-input-field">
             <label>Şifre</label>
-            <input type="password" id="authPasswordInput" placeholder="admin" autocomplete="current-password">
+            <input type="password" id="authPasswordInput" placeholder="••••••••" autocomplete="current-password">
           </div>
         </div>
 
@@ -238,12 +247,6 @@
           <button class="filter-chip-btn" style="font-size:11px; color:#ef4444;" onclick="window.rApp.logoutUser()">Çıkış Yap</button>
         </div>
       </div>
-
-      <div style="text-align:center; margin-top:14px;">
-        <button class="filter-chip-btn" style="border-color:var(--accent-purple); font-size:11px;" onclick="window.rApp.openAdminModal();">
-          👑 Yönetici Onay Paneli
-        </button>
-      </div>
     </div>
   </div>
 
@@ -261,6 +264,71 @@
     </div>
     <div class="admin-requests-list" id="adminRequestsContainer">
       <!-- Injected by app.js -->
+    </div>
+  </div>
+
+  <!-- About & Legal / DMCA Disclaimer Modal -->
+  <div class="about-modal" id="aboutModal">
+    <div class="about-card-panel">
+      <div class="about-header-top">
+        <div class="about-app-brand">
+          <img src="./assets/brand/logo.svg" alt="rAdio">
+          <span class="about-version-badge">v2.1.0 PWA</span>
+        </div>
+        <button class="icon-btn" onclick="window.rApp.closeAboutModal()" aria-label="Kapat">✕</button>
+      </div>
+
+      <div class="about-legal-section">
+        <div class="about-legal-item">
+          <div class="about-item-title">
+            <span>📻</span> <span>Hizmet & Platform Tanımı</span>
+          </div>
+          <div class="about-item-text">
+            <strong>rAdio</strong>, internet ortamında radyo kuruluşları ve bağımsız platformlar tarafından halka açık, lisanslı ve ücretsiz (open public stream) olarak sunulan canlı radyo yayın akışlarını tek bir modern arayüzde bir araya getiren bağımsız bir radyo oynatıcı ve dizin hizmetidir.
+          </div>
+        </div>
+
+        <div class="about-legal-item">
+          <div class="about-item-title">
+            <span>🔒</span> <span>Sıfır Medya Barındırma (0 Byte Media Hosting)</span>
+          </div>
+          <div class="about-item-text">
+            <strong>rAdio sunucularında hiçbir ses dosyası, radyo yayını, şarkı veya telifli medya materyali barındırılmaz ve depolanmaz.</strong> Uygulama, dinleyicinin doğrudan radyo istasyonunun kendi açık CDN/streaming sunucularına bağlanmasını sağlayan bir köprü / oynatıcı istemcisi işlevi görmektedir.
+          </div>
+        </div>
+
+        <div class="about-legal-item">
+          <div class="about-item-title">
+            <span>⚖️</span> <span>Fikri Mülkiyet ve Marka Hakları</span>
+          </div>
+          <div class="about-item-text">
+            Uygulamada yer alan tüm radyo logoları, istasyon isimleri, ticari markalar ve müzik yayın hakları münhasıran ilgili yayın kuruluşlarına ve hak sahiplerine aittir. rAdio'nun bu kurumlarla herhangi bir ticari ortaklığı, mülkiyet veya sponsorluk bağı bulunmamaktadır.
+          </div>
+        </div>
+
+        <div class="about-legal-item">
+          <div class="about-item-title">
+            <span>📩</span> <span>Telif Bildirimi & DMCA Prosedürü</span>
+          </div>
+          <div class="about-item-text">
+            rAdio, telif haklarına ve yasal düzenlemelere azami hassasiyet ve saygı göstermektedir. Telif hakkı sahibi veya yetkili yasal temsilcisi olduğunuz bir yayının veya bilginin dizinden kaldırılmasını talep ediyorsanız, hak sahipliği teyidiyle birlikte bize bildirmeniz halinde en geç <strong>24-48 saat</strong> içerisinde ilgili istasyon sistemden derhal ve kalıcı olarak kaldırılacaktır.
+          </div>
+        </div>
+
+        <div class="about-contact-box">
+          <div style="font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:4px;">Yasal & İletişim Masası</div>
+          <div style="font-size:11px; color:#94a3b8;">Telif talepleri, bildirim ve geri bildirimleriniz için:</div>
+          <a href="mailto:iletisim@radio.app" class="about-contact-btn">
+            ✉️ iletisim@radio.app
+          </a>
+        </div>
+      </div>
+
+      <div style="text-align:center; padding-top:4px;">
+        <button class="filter-chip-btn" style="width:100%; padding:10px; font-weight:700;" onclick="window.rApp.closeAboutModal()">
+          Anladım ve Kapat
+        </button>
+      </div>
     </div>
   </div>
 
@@ -284,10 +352,10 @@
   </div>
 
   <!-- JavaScript Modules with versioning -->
-  <script src="./js/storage.js?v=2.0.9"></script>
-  <script src="./js/metadata-service.js?v=2.0.9"></script>
-  <script src="./js/audio-engine.js?v=2.0.9"></script>
-  <script src="./js/auth-manager.js?v=2.0.9"></script>
-  <script src="./js/app.js?v=2.0.9"></script>
+  <script src="./js/storage.js?v=2.1.0"></script>
+  <script src="./js/metadata-service.js?v=2.1.0"></script>
+  <script src="./js/audio-engine.js?v=2.1.0"></script>
+  <script src="./js/auth-manager.js?v=2.1.0"></script>
+  <script src="./js/app.js?v=2.1.0"></script>
 </body>
 </html>

@@ -236,25 +236,26 @@
 /* Floating Modern Mini Player */
 .modern-mini-player-bar {
   position: fixed;
-  bottom: calc(var(--tabbar-height) + var(--safe-bottom) + 8px);
+  bottom: calc(var(--tabbar-height) + var(--safe-bottom) + 6px);
   left: 12px;
   right: 12px;
   max-width: 516px;
   margin: 0 auto;
   height: var(--miniplayer-height);
-  background: rgba(18, 24, 44, 0.92);
-  border: 1px solid var(--glass-border-light);
-  border-radius: 20px;
-  padding: 8px 14px;
+  background: rgba(18, 24, 46, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  padding: 6px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   z-index: 80;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.55);
   cursor: pointer;
   transition: transform 0.2s;
+  box-sizing: border-box;
 }
 
 .modern-mini-player-bar:active {
@@ -269,8 +270,8 @@
 }
 
 .mini-media-info img {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   object-fit: cover;
   background: #111422;
@@ -333,14 +334,16 @@
   max-width: 540px;
   margin: 0 auto;
   height: calc(var(--tabbar-height) + var(--safe-bottom));
+  padding-top: 5px;
   padding-bottom: var(--safe-bottom);
-  background: rgba(10, 12, 22, 0.95);
-  border-top: 1px solid var(--glass-border);
+  box-sizing: border-box;
+  background: rgba(10, 12, 24, 0.97);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-around;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   z-index: 85;
 }
 
@@ -348,22 +351,25 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   color: var(--text-tertiary);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: color 0.15s;
-  padding: 6px 14px;
+  transition: all 0.15s ease;
+  padding: 3px 12px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tab-nav-btn.active {
-  color: var(--accent-cyan);
+  color: #38bdf8;
+  transform: translateY(-1px);
 }
 
 .tab-nav-btn svg {
   width: 22px;
   height: 22px;
+  display: block;
 }
