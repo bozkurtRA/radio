@@ -27,3 +27,6 @@ remote_config.json
 RadiiGo 2.6.apk
 turkey_radio.sqlite
 export_data.py
+
+# Cloudflare
+.wrangler/
