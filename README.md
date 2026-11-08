@@ -8,6 +8,9 @@
 
 **rAdio**, iPhone ve iOS Safari cihazlar başta olmak üzere tüm mobil tarayıcılarda tam ekran, akıcı ve kesintisiz radyo dinleme deneyimi sunmak için sıfırdan geliştirilmiş bir **Progressive Web App (PWA)** radyo uygulamasıdır.
 
+🌐 **Canlı Yayın Adresi (GitHub Pages):** [https://bozkurtra.github.io/radio/](https://bozkurtra.github.io/radio/)  
+📱 **iPhone Çerçeveli Karşılaştırma Vitrini:** [https://bozkurtra.github.io/radio/preview/index.html](https://bozkurtra.github.io/radio/preview/index.html)
+
 Eski Android APK (`RadiiGo 2.6.apk`) analiz edilerek veritabanı (AES-256) çözülmüş; çıkarılan **1.426 aktif radyo istasyonu**, **24 kategori**, **176 popüler kanal** ve **81 il listesi** modern ve temiz JSON veri mimarisine taşınmıştır.
 
 Uygulamanın adı kesin ve değişmez şekilde **rAdio**'dur.
