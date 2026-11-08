@@ -145,7 +145,7 @@
   <div class="auth-modal" id="authModal">
     <div class="auth-card-panel">
       <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
-        <button class="icon-btn" onclick="window.rApp.closeAuthModal()">✕</button>
+        <button class="icon-btn auth-close-btn" onclick="window.rApp.closeAuthModal()">✕</button>
       </div>
       <div class="auth-card-header">
         <img src="./assets/brand/logo.svg" alt="rAdio">
@@ -153,33 +153,46 @@
         <div class="auth-card-subtitle">Uygulamaya kontrollü erişim sağlanmaktadır. Yeni kayıtlar yönetici onayıyla aktifleşir.</div>
       </div>
 
-      <div class="auth-nav-tabs">
-        <button class="auth-tab-btn active" id="tabLoginBtn" onclick="document.getElementById('authActionBtn').setAttribute('data-action', 'login'); this.classList.add('active'); document.getElementById('tabReqBtn').classList.remove('active');">
+      <div class="auth-nav-tabs" id="authNavTabs">
+        <button class="auth-tab-btn active" id="tabLoginBtn" onclick="window.rApp.switchAuthTab('login')">
           Giriş Yap
         </button>
-        <button class="auth-tab-btn" id="tabReqBtn" onclick="document.getElementById('authActionBtn').setAttribute('data-action', 'request'); this.classList.add('active'); document.getElementById('tabLoginBtn').classList.remove('active');">
+        <button class="auth-tab-btn" id="tabReqBtn" onclick="window.rApp.switchAuthTab('request')">
           Erişim Talebi
         </button>
       </div>
 
-      <div class="auth-input-group">
-        <div class="auth-input-field">
-          <label>E-posta Adresi</label>
-          <input type="email" id="authEmailInput" placeholder="ornek@domain.com" value="dinleyici@radio.app">
+      <div id="authFormFields">
+        <div class="auth-input-group">
+          <div class="auth-input-field">
+            <label>E-posta Adresi</label>
+            <input type="email" id="authEmailInput" placeholder="adiniz@example.com" autocomplete="email">
+          </div>
+          <div class="auth-input-field">
+            <label>Şifre</label>
+            <input type="password" id="authPasswordInput" placeholder="••••••••" autocomplete="current-password">
+          </div>
         </div>
-        <div class="auth-input-field">
-          <label>Şifre</label>
-          <input type="password" id="authPasswordInput" placeholder="••••••••" value="sifre123">
+
+        <button class="auth-submit-btn" id="authActionBtn" data-action="login" onclick="window.rApp.handleAuthSubmit(this.getAttribute('data-action'))">
+          Giriş Yap
+        </button>
+      </div>
+
+      <!-- Pending Status Banner (Shown when user is registered but pending approval) -->
+      <div class="auth-status-banner" id="authPendingBanner" style="display:none;">
+        <span class="status-badge-pending">⏳ BAŞVURU BEKLEMEDE</span>
+        <div style="font-size:13px; font-weight:700; color:#fbbf24; margin-bottom:4px;">Başvurunuz İnceleniyor</div>
+        <div style="font-size:12px; color:#cbd5e1; line-height:1.4;">Yönetici onayından sonra radyo yayınları anında açılacaktır.</div>
+        <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
+          <button class="filter-chip-btn" style="font-size:11px;" onclick="window.rApp.checkUserAuthStatus()">Durumu Yenile 🔄</button>
+          <button class="filter-chip-btn" style="font-size:11px; color:#ef4444;" onclick="window.rApp.logoutUser()">Çıkış Yap</button>
         </div>
       </div>
 
-      <button class="auth-submit-btn" id="authActionBtn" data-action="login" onclick="window.rApp.handleAuthSubmit(this.getAttribute('data-action'))">
-        Devam Et
-      </button>
-
       <div style="text-align:center; margin-top:14px;">
-        <button class="filter-chip-btn" style="border-color:var(--accent-purple); font-size:11px;" onclick="window.rApp.closeAuthModal(); window.rApp.openAdminModal();">
-          👑 Yönetici Onay Paneline Git (Demo)
+        <button class="filter-chip-btn" style="border-color:var(--accent-purple); font-size:11px;" onclick="window.rApp.openAdminModal();">
+          👑 Yönetici Onay Paneli
         </button>
       </div>
     </div>

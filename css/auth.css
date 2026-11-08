@@ -22,6 +22,16 @@
   pointer-events: auto;
 }
 
+/* Zorunlu Giriş Modu (Oturum açılmadan kapatılamaz) */
+.auth-modal.gate-locked .auth-close-btn {
+  display: none !important;
+}
+
+.auth-modal.gate-locked {
+  background: radial-gradient(circle at 50% 30%, #171d34 0%, #070910 100%);
+  z-index: 9999 !important;
+}
+
 .auth-card-panel {
   background: var(--surface-card);
   border: 1px solid var(--glass-border-light);

@@ -22,6 +22,8 @@ verify_sample_streams.py
 read_rc.py
 remote_config.json
 
-# Keep APK locally, don't force large binary push to git
-# RadiiGo 2.6.apk
+# Keep APK and extraction scripts locally, never push to GitHub
+*.apk
+RadiiGo 2.6.apk
 turkey_radio.sqlite
+export_data.py

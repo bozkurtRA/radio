@@ -76,15 +76,11 @@ class RadioStorage {
   static getUser() {
     try {
       const data = localStorage.getItem(this.KEYS.USER);
-      if (data) return JSON.parse(data);
+      if (data) {
+        return JSON.parse(data);
+      }
     } catch {}
-    // Default authorized guest session for smooth initial demo experience
-    return {
-      email: 'dinleyici@radio.app',
-      role: 'user',
-      status: 'approved',
-      isAdmin: false
-    };
+    return null; // İlk açılışta oturum yok, doğrudan login/kayıt zorunlu
   }
 
   static setUser(userData) {

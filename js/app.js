@@ -24,6 +24,7 @@ class RadioApp {
 
   async init() {
     this._cacheDom();
+    this._setupAntiCopyProtections();
     this._registerServiceWorker();
     this._setupAudioEngineListeners();
     this._setupGlobalKeyboardShortcuts();
@@ -32,6 +33,7 @@ class RadioApp {
     this.applyTheme(this.theme, false);
     this.renderActiveTab();
     this._checkA2HSPrompt();
+    this.checkAuthAndEnforceGate();
   }
 
   _cacheDom() {
@@ -776,13 +778,242 @@ class RadioApp {
     return map[id] || '📻';
   }
 
+  // ==========================================
+  // ANTI-COPY & INTELLECTUAL PROPERTY SHIELD
+  // ==========================================
+  _setupAntiCopyProtections() {
+    // 1. Disable Right-Click Context Menu
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      return false;
+    }, { capture: true });
+
+    // 2. Disable Copy & Cut outside input elements
+    document.addEventListener('copy', (e) => {
+      if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    document.addEventListener('cut', (e) => {
+      if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 3. Disable Dragging of Images & Media
+    document.addEventListener('dragstart', (e) => {
+      e.preventDefault();
+      return false;
+    });
+
+    // 4. Disable Text Selection outside input fields
+    document.addEventListener('selectstart', (e) => {
+      if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 5. Intercept DevTools and View-Source Shortcuts
+    window.addEventListener('keydown', (e) => {
+      // F12
+      if (e.key === 'F12' || e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+Shift+I / J / C
+      if (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+U (View Source), Ctrl+S (Save Page)
+      if (e.ctrlKey && ['u', 'U', 's', 'S'].includes(e.key)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 6. Anti-Clickjacking / Frame-Busting
+    try {
+      if (window.top !== window.self) {
+        window.top.location = window.self.location;
+      }
+    } catch (e) {
+      console.warn('[rAdio] Embedded in frame, redirecting...');
+      window.location = 'about:blank';
+    }
+  }
+
+  // ==========================================
+  // AUTHENTICATION & MANDATORY ACCESS GATE (Section 12)
+  // ==========================================
+  checkAuthAndEnforceGate() {
+    const user = RadioStorage.getUser();
+    const modal = this.dom.authModal;
+    const formFields = document.getElementById('authFormFields');
+    const navTabs = document.getElementById('authNavTabs');
+    const pendingBanner = document.getElementById('authPendingBanner');
+
+    // 1. No Active Session: Lock App Shell and force Login / Access Request
+    if (!user) {
+      if (modal) {
+        modal.classList.add('open', 'gate-locked');
+      }
+      if (formFields) formFields.style.display = 'block';
+      if (navTabs) navTabs.style.display = 'flex';
+      if (pendingBanner) pendingBanner.style.display = 'none';
+      this.switchAuthTab('login');
+      return false;
+    }
+
+    // 2. Pending Approval: Lock App Shell and show Waiting Banner
+    if (user.status === 'pending') {
+      if (modal) {
+        modal.classList.add('open', 'gate-locked');
+      }
+      if (formFields) formFields.style.display = 'none';
+      if (navTabs) navTabs.style.display = 'none';
+      if (pendingBanner) {
+        pendingBanner.style.display = 'block';
+        pendingBanner.innerHTML = `
+          <span class="status-badge-pending">⏳ BAŞVURU BEKLEMEDE</span>
+          <div style="font-size:13px; font-weight:700; color:#fbbf24; margin-bottom:4px;">Başvurunuz İnceleniyor</div>
+          <div style="font-size:12px; color:#cbd5e1; line-height:1.4;">Yönetici onayından sonra radyo yayınları anında açılacaktır.</div>
+          <div style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">Kayıtlı E-posta: <strong>${user.email}</strong></div>
+          <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
+            <button class="filter-chip-btn" style="font-size:11px;" onclick="window.rApp.checkUserAuthStatus()">Durumu Yenile 🔄</button>
+            <button class="filter-chip-btn" style="font-size:11px; color:#ef4444;" onclick="window.rApp.logoutUser()">Çıkış Yap</button>
+          </div>
+        `;
+      }
+      return false;
+    }
+
+    // 3. Rejected Access
+    if (user.status === 'rejected') {
+      if (modal) {
+        modal.classList.add('open', 'gate-locked');
+      }
+      if (formFields) formFields.style.display = 'none';
+      if (navTabs) navTabs.style.display = 'none';
+      if (pendingBanner) {
+        pendingBanner.style.display = 'block';
+        pendingBanner.innerHTML = `
+          <span class="status-badge-pending" style="color:var(--accent-red); border-color:var(--accent-red); background:rgba(239,68,68,0.15);">✕ ERİŞİM REDDEDİLDİ</span>
+          <div style="font-size:13px; font-weight:700; color:#f87171; margin-bottom:4px;">Erişim İptal Edildi</div>
+          <div style="font-size:12px; color:#cbd5e1; line-height:1.4;">Hesap erişiminiz yönetici tarafından durdurulmuştur.</div>
+          <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
+            <button class="filter-chip-btn" style="font-size:11px;" onclick="window.rApp.checkUserAuthStatus()">Tekrar Kontrol Et 🔄</button>
+            <button class="filter-chip-btn" style="font-size:11px; color:#ef4444;" onclick="window.rApp.logoutUser()">Çıkış Yap</button>
+          </div>
+        `;
+      }
+      return false;
+    }
+
+    // 4. Approved User / Admin: Unlock gate!
+    if (user.status === 'approved') {
+      if (modal) {
+        modal.classList.remove('open', 'gate-locked');
+      }
+      if (formFields) formFields.style.display = 'block';
+      if (navTabs) navTabs.style.display = 'flex';
+      if (pendingBanner) pendingBanner.style.display = 'none';
+      return true;
+    }
+
+    return false;
+  }
+
+  switchAuthTab(tab) {
+    const tabLogin = document.getElementById('tabLoginBtn');
+    const tabReq = document.getElementById('tabReqBtn');
+    const actionBtn = document.getElementById('authActionBtn');
+
+    if (tab === 'request') {
+      if (tabLogin) tabLogin.classList.remove('active');
+      if (tabReq) tabReq.classList.add('active');
+      if (actionBtn) {
+        actionBtn.textContent = 'Erişim Talebi Gönder';
+        actionBtn.setAttribute('data-action', 'request');
+      }
+    } else {
+      if (tabLogin) tabLogin.classList.add('active');
+      if (tabReq) tabReq.classList.remove('active');
+      if (actionBtn) {
+        actionBtn.textContent = 'Giriş Yap';
+        actionBtn.setAttribute('data-action', 'login');
+      }
+    }
+  }
+
+  checkUserAuthStatus() {
+    const currentUser = RadioStorage.getUser();
+    if (!currentUser || !currentUser.email) {
+      this.checkAuthAndEnforceGate();
+      return;
+    }
+
+    const users = this.authManager.getAllUsers();
+    const found = users.find(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+
+    if (found) {
+      if (found.status === 'approved') {
+        const updated = { ...currentUser, status: 'approved' };
+        RadioStorage.setUser(updated);
+        this.authManager.currentUser = updated;
+        this.checkAuthAndEnforceGate();
+        this.showToast('Tebrikler! Hesabınız onaylandı. Keyifli dinlemeler! 🎉', '✓');
+      } else if (found.status === 'rejected') {
+        const updated = { ...currentUser, status: 'rejected' };
+        RadioStorage.setUser(updated);
+        this.authManager.currentUser = updated;
+        this.checkAuthAndEnforceGate();
+        this.showToast('Başvurunuz onaylanmadı.', '✕');
+      } else {
+        this.showToast('Başvurunuz henüz onay beklemektedir. Lütfen bekleyin.', '⏳');
+      }
+    } else {
+      this.showToast('Kullanıcı kaydı bulunamadı. Lütfen yeni başvuru yapın.', '⚠️');
+      this.logoutUser();
+    }
+  }
+
+  logoutUser() {
+    this.authManager.logout();
+    if (this.audioEngine.isPlaying) {
+      this.audioEngine.pause();
+    }
+    const emailInput = document.getElementById('authEmailInput');
+    const passInput = document.getElementById('authPasswordInput');
+    if (emailInput) emailInput.value = '';
+    if (passInput) passInput.value = '';
+
+    this.checkAuthAndEnforceGate();
+    if (this.activeTab === 'settings') this.renderSettingsTab();
+    this.showToast('Oturum kapatıldı.', 'ℹ️');
+  }
+
   // Auth & Admin Modals
   openAuthModal() {
-    if (this.dom.authModal) this.dom.authModal.classList.add('open');
+    if (this.dom.authModal) {
+      this.checkAuthAndEnforceGate();
+      this.dom.authModal.classList.add('open');
+    }
   }
 
   closeAuthModal() {
-    if (this.dom.authModal) this.dom.authModal.classList.remove('open');
+    const user = RadioStorage.getUser();
+    if (!user || user.status !== 'approved') {
+      this.showToast('Uygulamayı kullanmak için giriş yapmanız gerekmektedir.', '🔒');
+      return;
+    }
+    if (this.dom.authModal) {
+      this.dom.authModal.classList.remove('open', 'gate-locked');
+    }
   }
 
   openAdminModal() {
@@ -809,22 +1040,23 @@ class RadioApp {
     const email = emailInput.value.trim();
     const pass = passInput.value.trim();
 
+    if (!email) {
+      this.showToast('Lütfen e-posta adresinizi girin.', '⚠️');
+      return;
+    }
+    if (!pass) {
+      this.showToast('Lütfen şifrenizi girin.', '⚠️');
+      return;
+    }
+
     if (action === 'request') {
       const res = this.authManager.requestAccess(email, pass);
-      if (res.success) {
-        this.showToast(res.message, '✓');
-        this.closeAuthModal();
-      } else {
-        this.showToast(res.message, '⚠️');
-      }
+      this.showToast(res.message, res.success ? '✓' : '⚠️');
+      this.checkAuthAndEnforceGate();
     } else {
       const res = this.authManager.login(email, pass);
-      if (res.success) {
-        this.showToast(res.message, '✓');
-        this.closeAuthModal();
-      } else {
-        this.showToast(res.message, '⚠️');
-      }
+      this.showToast(res.message, res.success ? '✓' : '⚠️');
+      this.checkAuthAndEnforceGate();
     }
     if (this.activeTab === 'settings') this.renderSettingsTab();
   }
@@ -857,12 +1089,14 @@ class RadioApp {
     this.authManager.approveUser(id);
     this.renderAdminRequests();
     this.showToast('Kullanıcı onaylandı! Yayın erişimi açıldı.', '✓');
+    this.checkAuthAndEnforceGate();
   }
 
   adminRejectUser(id) {
     this.authManager.rejectUser(id);
     this.renderAdminRequests();
     this.showToast('Kullanıcı erişimi durduruldu.', '✕');
+    this.checkAuthAndEnforceGate();
   }
 
   // Toast Notification

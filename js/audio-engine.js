@@ -74,10 +74,13 @@ class RadioAudioEngine {
   playStation(station) {
     if (!station || !station.url) return;
 
-    // Check if user has approved access
+    // Check if user has approved access (mandatory login & approval)
     const user = RadioStorage.getUser();
-    if (user && user.status !== 'approved') {
-      alert('Radyo yayınlarını dinleyebilmek için hesabınızın yönetici tarafından onaylanması gerekmektedir.');
+    if (!user || user.status !== 'approved') {
+      this.emit('error', 'Radyo yayınlarını dinleyebilmek için giriş yapmalı ve yönetici onayına sahip olmalısınız.');
+      if (window.rApp && typeof window.rApp.checkAuthAndEnforceGate === 'function') {
+        window.rApp.checkAuthAndEnforceGate();
+      }
       return;
     }
 

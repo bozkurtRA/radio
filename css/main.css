@@ -27,6 +27,23 @@
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none !important; /* iOS uzun basınca çıkan menüyü engelle */
+  -webkit-user-select: none !important;   /* Metin seçmeyi engelle */
+  user-select: none !important;
+  -webkit-user-drag: none !important;     /* Resim sürüklemeyi engelle */
+}
+
+img {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+  pointer-events: auto;
+}
+
+input, textarea {
+  -webkit-user-select: text !important;
+  user-select: text !important;
 }
 
 html, body {
