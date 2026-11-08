@@ -841,6 +841,17 @@ class RadioApp {
           </button>
         </div>
 
+        <!-- App Version & Force Reload -->
+        <div style="background:var(--surface-card); border:1px solid var(--glass-border); border-radius:20px; padding:18px; text-align:center;">
+          <div style="font-size:14px; font-weight:700; margin-bottom:4px;">🔄 Sürüm Bilgisi (v2.1.2)</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
+            En güncel arayüz ve yayın listesini anında çekmek için önbelleği sıfırlayıp yenileyebilirsiniz.
+          </div>
+          <button class="filter-chip-btn" style="background:linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color:#fff; border:none; padding:10px 18px; font-weight:700;" onclick="window.rApp.forceAppUpdate()">
+            Önbelleği Temizle & Yenile 🔄
+          </button>
+        </div>
+
       </div>
     `;
   }
@@ -1344,14 +1355,41 @@ class RadioApp {
     });
   }
 
+  async forceAppUpdate() {
+    this.showToast('Önbellek temizleniyor ve uygulama yenileniyor...', '⏳');
+    if ('caches' in window) {
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      } catch (e) {}
+    }
+    if (navigator.serviceWorker) {
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) await r.unregister();
+      } catch (e) {}
+    }
+    setTimeout(() => {
+      window.location.href = window.location.pathname + '?reload=' + Date.now();
+    }, 400);
+  }
+
   _registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=2.0.1').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=2.1.2').then((reg) => {
           console.log('[rAdio] Service Worker registered with scope:', reg.scope);
           reg.update();
         }).catch((err) => {
           console.log('[rAdio] SW registration notice:', err.message);
+        });
+
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
         });
       });
     }

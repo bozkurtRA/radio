@@ -17,8 +17,9 @@
   --text-tertiary: #64748b;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --tabbar-height: 50px;
-  --miniplayer-height: 56px;
+  --tab-safe-gap: max(calc(var(--safe-bottom) - 14px), 6px);
+  --tabbar-height: calc(44px + var(--tab-safe-gap));
+  --miniplayer-height: 52px;
 }
 
 * {
@@ -60,7 +61,9 @@ html, body {
 #app {
   width: 100%;
   max-width: 540px; /* Constrains nicely if opened on tablet/desktop, 100% on phone */
+  height: 100vh;
   height: 100dvh;
+  min-height: 100%;
   margin: 0 auto;
   position: relative;
   display: flex;
@@ -142,7 +145,7 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--tabbar-height) + var(--miniplayer-height) + var(--safe-bottom) + 20px);
+  padding-bottom: calc(var(--tabbar-height) + var(--miniplayer-height) + 16px);
 }
 
 .main-viewport.no-bottom-nav {

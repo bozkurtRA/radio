@@ -1,5 +1,5 @@
 // rAdio PWA Service Worker
-const CACHE_NAME = 'radio-v2.1.0';
+const CACHE_NAME = 'radio-v2.1.2';
 
 // Core assets to pre-cache on install
 const PRECACHE_ASSETS = [
@@ -25,7 +25,8 @@ const PRECACHE_ASSETS = [
   './assets/brand/favicon.svg',
   './assets/brand/apple-touch-icon.png',
   './assets/brand/icon-192.png',
-  './assets/brand/icon-512.png'
+  './assets/brand/icon-512.png',
+  './assets/brand/dmca-contact.png'
 ];
 
 // Install: Cache core app shell
