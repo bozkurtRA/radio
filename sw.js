@@ -1,5 +1,5 @@
 // rAdio PWA Service Worker
-const CACHE_NAME = 'radio-v1.0.0';
+const CACHE_NAME = 'radio-v2.0.1';
 
 // Core assets to pre-cache on install
 const PRECACHE_ASSETS = [
@@ -93,28 +93,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Static App Shell: Cache-First, fallback to Network
+  // 3. Static App Shell: Network-First with Cache Fallback (Ensures fast updates while supporting offline)
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
+    fetch(event.request).then((networkResponse) => {
+      if (
+        networkResponse &&
+        networkResponse.status === 200 &&
+        event.request.method === 'GET' &&
+        url.origin === self.location.origin
+      ) {
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
       }
-      return fetch(event.request).then((networkResponse) => {
-        // Cache same-origin valid GET requests
-        if (
-          networkResponse &&
-          networkResponse.status === 200 &&
-          event.request.method === 'GET' &&
-          url.origin === self.location.origin
-        ) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+      return networkResponse;
+    }).catch(() => {
+      // Offline fallback: return cached version
+      return caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
-        return networkResponse;
-      }).catch(() => {
-        // Offline fallback for navigation
         if (event.request.mode === 'navigate') {
           return caches.match('./index.html');
         }

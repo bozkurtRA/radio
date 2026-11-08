@@ -25,6 +25,10 @@ class RadioApp {
   async init() {
     this._cacheDom();
     this._setupAntiCopyProtections();
+
+    // Enforce gate IMMEDIATELY before fetching data or rendering tabs
+    this.checkAuthAndEnforceGate();
+
     this._registerServiceWorker();
     this._setupAudioEngineListeners();
     this._setupGlobalKeyboardShortcuts();
@@ -33,6 +37,8 @@ class RadioApp {
     this.applyTheme(this.theme, false);
     this.renderActiveTab();
     this._checkA2HSPrompt();
+
+    // Re-verify gate
     this.checkAuthAndEnforceGate();
   }
 
@@ -1154,8 +1160,9 @@ class RadioApp {
   _registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=2.0.1').then((reg) => {
           console.log('[rAdio] Service Worker registered with scope:', reg.scope);
+          reg.update();
         }).catch((err) => {
           console.log('[rAdio] SW registration notice:', err.message);
         });

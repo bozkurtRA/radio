@@ -5,7 +5,7 @@ class RadioStorage {
     FAVORITES: 'radio_favorites',
     RECENT: 'radio_recent',
     VOLUME: 'radio_volume',
-    USER: 'radio_user_session',
+    USER: 'radio_auth_user_v2',
     SLEEP: 'radio_sleep_minutes',
     A2HS_DISMISSED: 'radio_a2hs_dismissed'
   };
@@ -75,9 +75,16 @@ class RadioStorage {
   // User Session & Role
   static getUser() {
     try {
+      // Clear legacy/cached session from previous versions
+      if (localStorage.getItem('radio_user_session')) {
+        localStorage.removeItem('radio_user_session');
+      }
       const data = localStorage.getItem(this.KEYS.USER);
       if (data) {
-        return JSON.parse(data);
+        const parsed = JSON.parse(data);
+        if (parsed && parsed.email && parsed.status) {
+          return parsed;
+        }
       }
     } catch {}
     return null; // İlk açılışta oturum yok, doğrudan login/kayıt zorunlu
