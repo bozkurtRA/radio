@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>rAdio – Mobil Arayüz & Mimari Önizleme Paneli</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/brand/favicon.svg">
+  <link rel="stylesheet" href="preview.css">
+</head>
+<body>
+
+  <!-- Top Prototype Control Panel -->
+  <header class="proto-header">
+    <div class="proto-brand">
+      <img src="../assets/brand/logo.svg" alt="rAdio">
+      <div class="proto-badges">
+        <span class="badge badge-live" id="externalAudioStatus">Canlı Yayın Hazır</span>
+        <span class="badge">iPhone 16 Pro • iOS 18</span>
+        <span class="badge">PWA Standalone</span>
+      </div>
+    </div>
+
+    <!-- Theme & View Controls -->
+    <div class="proto-controls">
+      <!-- Theme Switcher -->
+      <div class="pill-group">
+        <button class="pill-btn active" data-set-theme="modern" onclick="window.protoEngine.applyTheme('modern')">
+          <span>🎨</span> Modern
+        </button>
+        <button class="pill-btn" data-set-theme="minimal" onclick="window.protoEngine.applyTheme('minimal')">
+          <span>⚡</span> Minimal
+        </button>
+        <button class="pill-btn" data-set-theme="directory" onclick="window.protoEngine.applyTheme('directory')">
+          <span>📋</span> Rehber
+        </button>
+      </div>
+
+      <!-- Screen Switcher -->
+      <div class="pill-group">
+        <button class="pill-btn active" data-set-screen="home" onclick="window.protoEngine.showScreen('home')">
+          <span>🏠</span> Ana Ekran
+        </button>
+        <button class="pill-btn" data-set-screen="categories" onclick="window.protoEngine.showScreen('categories')">
+          <span>🏷️</span> Kategoriler
+        </button>
+        <button class="pill-btn" data-set-screen="player" onclick="window.protoEngine.showScreen('player')">
+          <span>📻</span> Oynatıcı
+        </button>
+        <button class="pill-btn" data-set-screen="auth" onclick="window.protoEngine.showScreen('auth')">
+          <span>🔐</span> Giriş / Onay
+        </button>
+        <button class="pill-btn" data-set-screen="admin" onclick="window.protoEngine.showScreen('admin')">
+          <span>👑</span> Yönetici
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Stage: Phone + Side Analysis Info -->
+  <main class="proto-stage">
+    
+    <!-- iPhone Device Frame Shell -->
+    <div class="iphone-frame" id="iphoneScreen">
+      
+      <!-- Dynamic Island with Interactive Pulse -->
+      <div class="dynamic-island">
+        <div class="island-cam"></div>
+        <div class="island-wave">
+          <div class="island-bar"></div>
+          <div class="island-bar"></div>
+          <div class="island-bar"></div>
+        </div>
+      </div>
+
+      <!-- iOS Status Bar (Safe Area Top) -->
+      <div class="ios-status-bar">
+        <span>09:41</span>
+        <div class="ios-status-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+            <path d="M0 10h2v2H0zm4-3h2v5H4zm4-3h2v8H8zm4-4h2v12h-2z"/>
+          </svg>
+          <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor">
+            <path d="M7.5 2.5C9.8 2.5 11.9 3.4 13.5 5l1.5-1.5C13 1.3 10.4 0 7.5 0S2 1.3 0 3.5L1.5 5C3.1 3.4 5.2 2.5 7.5 2.5zm0 4c1.3 0 2.5.5 3.4 1.4L12.4 6.4C11.1 5.2 9.4 4.5 7.5 4.5S3.9 5.2 2.6 6.4L4.1 7.9c.9-.9 2.1-1.4 3.4-1.4zm0 4c.8 0 1.5-.7 1.5-1.5s-.7-1.5-1.5-1.5-1.5.7-1.5 1.5.7 1.5 1.5 1.5z"/>
+          </svg>
+          <svg width="22" height="11" viewBox="0 0 22 11" fill="currentColor">
+            <rect x="0.5" y="0.5" width="18" height="10" rx="3" fill="none" stroke="currentColor"/>
+            <rect x="2" y="2" width="12" height="7" rx="1.5"/>
+            <path d="M20 3.5v4c.6-.3 1-1 1-2s-.4-1.7-1-2z"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Inner Screen Layers -->
+      <div class="screen-container">
+        
+        <!-- View 1: Modern Home Screen -->
+        <div class="view-layer active" id="viewModernHome"></div>
+
+        <!-- View 2: Minimal Home Screen -->
+        <div class="view-layer" id="viewMinimalHome"></div>
+
+        <!-- View 3: Directory Home Screen -->
+        <div class="view-layer" id="viewDirectoryHome"></div>
+
+        <!-- View 4: Full Categories View -->
+        <div class="view-layer" id="viewCategories"></div>
+
+        <!-- View 5: Player Modal (Bottom Sheet Fullscreen) -->
+        <div class="view-layer" id="viewPlayerModal"></div>
+
+        <!-- View 6: Auth & Access Request -->
+        <div class="view-layer" id="viewAuthScreen"></div>
+
+        <!-- View 7: Admin Approval Panel -->
+        <div class="view-layer" id="viewAdminScreen"></div>
+
+        <!-- Sticky Mini Player (Visible across screens in Modern/Directory) -->
+        <div class="modern-mini-player" id="modernMiniPlayer" onclick="window.protoEngine.showScreen('player')">
+          <div class="mini-meta">
+            <img id="modernMiniLogo" src="https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/powerturk3.png" alt="Logo">
+            <div class="mini-text">
+              <div class="mini-name" id="modernMiniName">Power Türk</div>
+              <div class="mini-status" id="modernMiniCat">● CANLI YAYIN</div>
+            </div>
+          </div>
+          <div class="mini-actions" onclick="event.stopPropagation()">
+            <button class="play-circle-btn" id="modernMiniPlayBtn" onclick="window.protoEngine.togglePlayPause()">▶</button>
+          </div>
+        </div>
+
+        <!-- iOS Bottom Tab Bar (Safe Area Bottom) -->
+        <nav class="modern-bottom-nav" id="modernBottomNav">
+          <div class="nav-item active" onclick="window.protoEngine.showScreen('home')">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Keşfet</span>
+          </div>
+          <div class="nav-item" onclick="window.protoEngine.showScreen('categories')">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+            <span>Kategoriler</span>
+          </div>
+          <div class="nav-item" onclick="window.protoEngine.applyTheme('directory')">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <span>Şehirler</span>
+          </div>
+          <div class="nav-item" onclick="window.protoEngine.showScreen('auth')">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <span>Hesap</span>
+          </div>
+        </nav>
+
+      </div>
+
+      <!-- iOS Home Indicator Line -->
+      <div class="ios-home-indicator"></div>
+    </div>
+
+    <!-- Side Analysis & Comparison Sidebar -->
+    <aside class="proto-sidebar">
+      
+      <!-- Audio Player Control Dock -->
+      <div class="audio-control-bar">
+        <div>
+          <div style="font-size:11px; color:var(--text-dim); text-transform:uppercase; font-weight:700;">Çalan İstasyon</div>
+          <div style="font-size:15px; font-weight:800;" id="externalStationName">Power Türk</div>
+        </div>
+        <button class="play-circle-btn" id="externalPlayBtn" onclick="window.protoEngine.togglePlayPause()">▶</button>
+      </div>
+
+      <!-- Current Theme Overview Card -->
+      <div class="info-card">
+        <h3>🎨 Aktif Tasarım Modu</h3>
+        <p id="themeDescription" style="font-size:13px; color:var(--text-muted); line-height:1.5;">
+          <strong>Tasarım 1 – Modern:</strong> Renkli vitrin kartları, popüler radyolar kaydırma şeridi, kategori ızgarası ve altta sabit mini oynatıcı.
+        </p>
+      </div>
+
+      <!-- Veri ve Doğrulama Durumu Card -->
+      <div class="info-card">
+        <h3>📊 Veri Seti & Doğrulama Durumu</h3>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <span class="icon">✓</span>
+            <div><strong>1.426 Canlı Radyo İstasyonu:</strong> <code>data/stations.json</code> dosyasına yapılandırıldı.</div>
+          </li>
+          <li class="feature-item">
+            <span class="icon">✓</span>
+            <div><strong>24 Kategori & 81 İl:</strong> <code>data/categories.json</code> ve <code>data/cities.json</code> oluşturuldu.</div>
+          </li>
+          <li class="feature-item">
+            <span class="icon">✓</span>
+            <div><strong>Yayın Doğrulama Testi:</strong> Popüler ilk 30 istasyon canlı ağ testi yapıldı; <strong>30/30 (%100)</strong> başarıyla bağlandı.</div>
+          </li>
+          <li class="feature-item">
+            <span class="icon">✓</span>
+            <div><strong>Protokoller:</strong> 1.163 HTTPS akışı (%81.5), 249 HLS (.m3u8), 53 AAC, 161 MP3.</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Kullanıcı Girişi & Yönetici Onay Mimarisi Card -->
+      <div class="info-card">
+        <h3>🔐 Giriş & Yönetici Onay Sistemi</h3>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <span class="icon">🛡️</span>
+            <div><strong>Kayıt → Onay Akışı:</strong> Kullanıcı kaydolduğunda <code>status: 'pending'</code> olur. Radyo akışlarına doğrudan erişemez.</div>
+          </li>
+          <li class="feature-item">
+            <span class="icon">👑</span>
+            <div><strong>Yönetici Paneli:</strong> Yetkili yönetici paneli üzerinden tek dokunuşla Onayla / Reddet / Engelle işlemleri yapılır.</div>
+          </li>
+          <li class="feature-item">
+            <span class="icon">🔒</span>
+            <div><strong>Supabase Auth & RLS:</strong> GitHub Pages statik olduğu için kullanıcı doğrulama ve yetkilendirme Supabase Row-Level Security (RLS) politikalarıyla sunucu tarafında korunur.</div>
+          </li>
+        </ul>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <script src="data-sample.js"></script>
+  <script src="preview.js"></script>
+</body>
+</html>

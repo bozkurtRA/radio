@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS Metadata
+.DS_Store
+Thumbs.db
+
+# Scratch Analysis Scripts
+analyze_apk.py
+dump_*.py
+find_*.py
+check_*.py
+disasm_*.py
+decrypt_radio_db.py
+fetch_remote_config.py
+generate_icons.py
+inspect_data.py
+test_firebase.py
+verify_sample_streams.py
+read_rc.py
+remote_config.json
+
+# Keep APK locally, don't force large binary push to git
+# RadiiGo 2.6.apk
+turkey_radio.sqlite

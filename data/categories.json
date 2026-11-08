@@ -1,0 +1,122 @@
+[
+  {
+    "id": 990,
+    "name": "Pop",
+    "tag": "pop"
+  },
+  {
+    "id": 1000,
+    "name": "Arabesk",
+    "tag": "arabesk"
+  },
+  {
+    "id": 1010,
+    "name": "Yabancı",
+    "tag": "yabancı"
+  },
+  {
+    "id": 1030,
+    "name": "Haber - Spor",
+    "tag": "haber"
+  },
+  {
+    "id": 1040,
+    "name": "Slow",
+    "tag": "slow"
+  },
+  {
+    "id": 1050,
+    "name": "Halk Müziği",
+    "tag": "halkmüzik"
+  },
+  {
+    "id": 1060,
+    "name": "Nostalji",
+    "tag": "nostalji"
+  },
+  {
+    "id": 1070,
+    "name": "Dini",
+    "tag": "dini"
+  },
+  {
+    "id": 1080,
+    "name": "Rock",
+    "tag": "rock"
+  },
+  {
+    "id": 1090,
+    "name": "Rap",
+    "tag": "rap"
+  },
+  {
+    "id": 1100,
+    "name": "Jazz",
+    "tag": "jazz"
+  },
+  {
+    "id": 1105,
+    "name": "K-Pop",
+    "tag": "kpop"
+  },
+  {
+    "id": 1110,
+    "name": "Yerel",
+    "tag": "yerel"
+  },
+  {
+    "id": 1120,
+    "name": "Oyun Havası",
+    "tag": "oyunhavası"
+  },
+  {
+    "id": 1130,
+    "name": "Klasik",
+    "tag": "klasik"
+  },
+  {
+    "id": 1140,
+    "name": "Akustik",
+    "tag": "akustik"
+  },
+  {
+    "id": 1150,
+    "name": "Özgün",
+    "tag": "özgün"
+  },
+  {
+    "id": 1160,
+    "name": "Lounge",
+    "tag": "lounge"
+  },
+  {
+    "id": 1170,
+    "name": "Karışık",
+    "tag": "karışık"
+  },
+  {
+    "id": 1180,
+    "name": "Kürtçe",
+    "tag": "kürtçe"
+  },
+  {
+    "id": 1190,
+    "name": "Karadeniz",
+    "tag": "karadeniz"
+  },
+  {
+    "id": 1200,
+    "name": "Bebek",
+    "tag": "bebek"
+  },
+  {
+    "id": 1210,
+    "name": "Azerbaycan",
+    "tag": "azeri"
+  },
+  {
+    "id": 1220,
+    "name": "Kültür - Sanat",
+    "tag": "kültür"
+  }
+]

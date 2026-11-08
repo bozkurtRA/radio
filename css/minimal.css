@@ -1,0 +1,175 @@
+/* rAdio Design 2: Minimal Layout Styles */
+
+.minimal-container {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: calc(100dvh - 80px);
+  text-align: center;
+}
+
+.minimal-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.minimal-brand-title {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.minimal-brand-title span {
+  color: var(--accent-orange);
+}
+
+/* Vinyl Disc Wrapper */
+.vinyl-deck {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  margin: 30px auto 20px;
+}
+
+.vinyl-record {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a3149 12%, #121626 48%, #060810 100%);
+  border: 4px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), inset 0 0 40px rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.vinyl-record.is-playing {
+  animation: vinyl-spin 18s linear infinite;
+}
+
+@keyframes vinyl-spin {
+  100% { transform: rotate(360deg); }
+}
+
+.vinyl-center-art {
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.vinyl-spindle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #000000;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Minimal Station Info */
+.minimal-station-info {
+  margin-bottom: 24px;
+}
+
+.minimal-station-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.minimal-station-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Minimal Touch Controls */
+.minimal-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 28px;
+}
+
+.minimal-btn-side {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.minimal-btn-side:active {
+  transform: scale(0.9);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.minimal-btn-side.is-fav {
+  color: #ef4444;
+}
+
+/* Giant 76px Play/Pause Button */
+.minimal-btn-play {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #000000;
+  border: none;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 12px 36px rgba(255, 255, 255, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.minimal-btn-play:active {
+  transform: scale(0.92);
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+}
+
+/* Minimalist Drawer Pill */
+.minimal-browse-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: background 0.2s;
+  margin-bottom: 12px;
+}
+
+.minimal-browse-pill:active {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+}

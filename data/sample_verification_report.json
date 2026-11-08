@@ -1,0 +1,272 @@
+[
+  {
+    "id": 2,
+    "name": "Power Türk",
+    "url": "https://live.powerapp.com.tr/powerturk/abr/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 176,
+    "error": ""
+  },
+  {
+    "id": 6,
+    "name": "Kral FM",
+    "url": "https://dygedge2.radyotvonline.net/kralfm/playlist.m3u8?awparams=companionAds%3Afalse",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 1053,
+    "error": ""
+  },
+  {
+    "id": 3,
+    "name": "Süper FM",
+    "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FM128AAC.aac",
+    "status": "OK",
+    "contentType": "audio/aac",
+    "elapsedMs": 1672,
+    "error": ""
+  },
+  {
+    "id": 1,
+    "name": "Alem FM",
+    "url": "https://turkmedya.radyotvonline.net/alemfmaac",
+    "status": "OK",
+    "contentType": "audio/aac",
+    "elapsedMs": 353,
+    "error": ""
+  },
+  {
+    "id": 36,
+    "name": "Slow Türk",
+    "url": "https://stream.radyotvonline.net/hls/play/slowturk.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 77,
+    "error": ""
+  },
+  {
+    "id": 106,
+    "name": "Radyo 7",
+    "url": "https://moondigitaledge.radyotvonline.net/radyo7/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 150,
+    "error": ""
+  },
+  {
+    "id": 1149,
+    "name": "Kafa Radyo",
+    "url": "https://stream.radyotvonline.net/hls/play/kafaradyo.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 55,
+    "error": ""
+  },
+  {
+    "id": 4,
+    "name": "Best Fm",
+    "url": "https://ssldyg.radyotvonline.com/best/bestfm.stream/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 588,
+    "error": ""
+  },
+  {
+    "id": 19,
+    "name": "Radyo Fenomen",
+    "url": "https://live.radyofenomen.com/fenomen/abr/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 178,
+    "error": ""
+  },
+  {
+    "id": 8,
+    "name": "Alaturka",
+    "url": "https://yayin.jumboserver.net:9100/stream",
+    "status": "OK",
+    "contentType": "audio/aac",
+    "elapsedMs": 1601,
+    "error": ""
+  },
+  {
+    "id": 107,
+    "name": "Number 1 Türk Fm",
+    "url": "https://ssldyg2.radyotvonline.com/live/numberoneturk.stream/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 432,
+    "error": ""
+  },
+  {
+    "id": 23,
+    "name": "Metro FM",
+    "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM128AAC.aac",
+    "status": "OK",
+    "contentType": "audio/aac",
+    "elapsedMs": 1575,
+    "error": ""
+  },
+  {
+    "id": 28,
+    "name": "TRT Radyo Haber",
+    "url": "https://trt.radyotvonline.net/trthaber",
+    "status": "OK",
+    "contentType": "audio/aacp",
+    "elapsedMs": 662,
+    "error": ""
+  },
+  {
+    "id": 29,
+    "name": "CNN Türk Radyo",
+    "url": "https://moondigitaledge2.radyotvonline.net/cnnturk/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 1179,
+    "error": ""
+  },
+  {
+    "id": 12,
+    "name": "Kral Pop",
+    "url": "https://dygedge.radyotvonline.net/kralpop/playlist.m3u8?awparams=companionAds%3Afalse",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 782,
+    "error": ""
+  },
+  {
+    "id": 27,
+    "name": "Habertürk Radyo",
+    "url": "https://haberturkradyo.radyotvonline.net/haberturkradyo",
+    "status": "OK",
+    "contentType": "audio/aac",
+    "elapsedMs": 370,
+    "error": ""
+  },
+  {
+    "id": 5,
+    "name": "Baba Radyo",
+    "url": "https://ssldyg.radyotvonline.com/best/babaradyo.stream/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 454,
+    "error": ""
+  },
+  {
+    "id": 17,
+    "name": "Arabeskin Merkezi Fm",
+    "url": "https://canli.arabeskinmerkezi.com/9180/stream",
+    "status": "OK",
+    "contentType": "audio/mpeg",
+    "elapsedMs": 437,
+    "error": ""
+  },
+  {
+    "id": 13,
+    "name": "Arabesk Alemi",
+    "url": "https://arabeskrd.radyotvonline.net:9025/",
+    "status": "OK",
+    "contentType": "audio/mpeg",
+    "elapsedMs": 537,
+    "error": ""
+  },
+  {
+    "id": 26,
+    "name": "NTV Radyo",
+    "url": "https://dygedge.radyotvonline.net/ntvradyo/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 781,
+    "error": ""
+  },
+  {
+    "id": 59,
+    "name": "TRT Türkü",
+    "url": "https://rd-trtturku.medya.trt.com.tr/master.m3u8",
+    "status": "OK",
+    "contentType": "application/x-mpegURL",
+    "elapsedMs": 212,
+    "error": ""
+  },
+  {
+    "id": 104,
+    "name": "A Haber Radyo",
+    "url": "https://trkvz-radyolar.ercdn.net/ahaberradyo/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 337,
+    "error": ""
+  },
+  {
+    "id": 62,
+    "name": "Seymen Fm",
+    "url": "http://yayin.radyoseymen.com.tr:1070/stream",
+    "status": "OK",
+    "contentType": "audio/aacp",
+    "elapsedMs": 324,
+    "error": ""
+  },
+  {
+    "id": 885,
+    "name": "A Spor Radyo",
+    "url": "https://trkvz-radyolar.ercdn.net/asporradyo/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 238,
+    "error": ""
+  },
+  {
+    "id": 25,
+    "name": "Virgin Radio Türkiye",
+    "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/VIRGIN_RADIO128AAC.aac",
+    "status": "OK",
+    "contentType": "audio/aac",
+    "elapsedMs": 1508,
+    "error": ""
+  },
+  {
+    "id": 16,
+    "name": "Arabesk Vadisi",
+    "url": "http://arabeskv.80.yayin.com.tr/stream",
+    "status": "OK",
+    "contentType": "audio/mpeg",
+    "elapsedMs": 294,
+    "error": ""
+  },
+  {
+    "id": 60,
+    "name": "Radyo 7 Türkü",
+    "url": "https://moondigitaledge2.radyotvonline.net/radyo7turku/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 1151,
+    "error": ""
+  },
+  {
+    "id": 33,
+    "name": "Radyo Spor",
+    "url": "https://moondigitaledge.radyotvonline.net/radyospor/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 143,
+    "error": ""
+  },
+  {
+    "id": 10,
+    "name": "Show Radyo",
+    "url": "https://listen.radyotvonline.net/hls/play/adsonline_showradyo.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 97,
+    "error": ""
+  },
+  {
+    "id": 11,
+    "name": "Pal FM",
+    "url": "https://moondigitaledge.radyotvonline.net/palfm/playlist.m3u8",
+    "status": "OK",
+    "contentType": "application/vnd.apple.mpegurl",
+    "elapsedMs": 132,
+    "error": ""
+  }
+]

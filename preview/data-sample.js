@@ -1,0 +1,217 @@
+// rAdio Demo Data Sample for Instant Preview
+const RADIO_DATA = {
+  categories: [
+    { id: 990, name: "Pop", tag: "pop", icon: "🎵", color: "from-pink-500 to-rose-600" },
+    { id: 1000, name: "Arabesk", tag: "arabesk", icon: "🎻", color: "from-amber-600 to-red-700" },
+    { id: 1010, name: "Yabancı", tag: "yabancı", icon: "🌍", color: "from-blue-500 to-indigo-600" },
+    { id: 1030, name: "Haber - Spor", tag: "haber", icon: "📰", color: "from-emerald-500 to-teal-700" },
+    { id: 1040, name: "Slow", tag: "slow", icon: "🌙", color: "from-purple-500 to-indigo-800" },
+    { id: 1050, name: "Halk Müziği", tag: "halkmüzik", icon: "🪕", color: "from-yellow-600 to-orange-700" },
+    { id: 1060, name: "Nostalji", tag: "nostalji", icon: "📻", color: "from-amber-500 to-yellow-600" },
+    { id: 1070, name: "Dini", tag: "dini", icon: "🕌", color: "from-teal-600 to-cyan-800" },
+    { id: 1080, name: "Rock", tag: "rock", icon: "⚡", color: "from-red-600 to-zinc-900" },
+    { id: 1090, name: "Rap", tag: "rap", icon: "🎤", color: "from-violet-600 to-purple-900" },
+    { id: 1100, name: "Jazz", tag: "jazz", icon: "🎷", color: "from-amber-700 to-stone-900" },
+    { id: 1120, name: "Oyun Havası", tag: "oyunhavası", icon: "🪘", color: "from-lime-500 to-emerald-700" },
+    { id: 1130, name: "Klasik", tag: "klasik", icon: "🎹", color: "from-cyan-600 to-blue-800" },
+    { id: 1190, name: "Karadeniz", tag: "karadeniz", icon: "🌊", color: "from-teal-500 to-blue-700" }
+  ],
+  cities: [
+    "İstanbul", "Ankara", "İzmir", "Bursa", "Antalya", "Adana", "Konya", "Gaziantep", 
+    "Trabzon", "Samsun", "Eskişehir", "Diyarbakır", "Mersin", "Kayseri"
+  ],
+  stations: [
+    {
+      id: 2,
+      name: "Power Türk",
+      category: "Pop",
+      categoryId: 990,
+      city: "İstanbul",
+      url: "https://live.powerapp.com.tr/powerturk/abr/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/powerturk3.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 3,
+      name: "Süper FM",
+      category: "Pop",
+      categoryId: 990,
+      city: "İstanbul",
+      url: "https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FM128AAC.aac",
+      format: "AAC",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/superfm5.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 1,
+      name: "Alem FM",
+      category: "Pop",
+      categoryId: 990,
+      city: "İstanbul",
+      url: "https://turkmedya.radyotvonline.net/alemfmaac",
+      format: "AAC",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/alemfm2.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 4,
+      name: "Best FM",
+      category: "Pop",
+      categoryId: 990,
+      city: "İstanbul",
+      url: "https://ssldyg.radyotvonline.com/best/bestfm.stream/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/bestfm.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 5,
+      name: "Baba Radyo",
+      category: "Arabesk",
+      categoryId: 1000,
+      city: "İstanbul",
+      url: "https://ssldyg.radyotvonline.com/best/babaradyo.stream/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/babaradyo.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 6,
+      name: "Kral FM",
+      category: "Arabesk",
+      categoryId: 1000,
+      city: "İstanbul",
+      url: "https://ssldyg.radyotvonline.com/smil/kralfm.smil/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kralfm5.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 7,
+      name: "Kral Pop",
+      category: "Pop",
+      categoryId: 990,
+      city: "İstanbul",
+      url: "https://ssldyg.radyotvonline.com/smil/kralpop.smil/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kralpop.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 8,
+      name: "Slow Türk",
+      category: "Slow",
+      categoryId: 1040,
+      city: "İstanbul",
+      url: "https://moondigitaledge2.radyotvonline.net/slowturk/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/slowturk.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 9,
+      name: "Radyo Fenomen",
+      category: "Yabancı",
+      categoryId: 1010,
+      city: "İstanbul",
+      url: "https://live.radyofenomen.com/fenomen/abr/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyofenomen.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 10,
+      name: "Virgin Radio Türkiye",
+      category: "Yabancı",
+      categoryId: 1010,
+      city: "İstanbul",
+      url: "https://playerservices.streamtheworld.com/api/livestream-redirect/VIRGIN_RADIO128AAC.aac",
+      format: "AAC",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/virgin3.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 11,
+      name: "Kafa Radyo",
+      category: "Pop",
+      categoryId: 990,
+      city: "İstanbul",
+      url: "https://turkmedya.radyotvonline.net/kafaradyoaac",
+      format: "AAC",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kafaradyo.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 12,
+      name: "CNN Türk Radyo",
+      category: "Haber - Spor",
+      categoryId: 1030,
+      city: "İstanbul",
+      url: "https://moondigitaledge2.radyotvonline.net/cnnturk/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/cnnturk3.png",
+      bitrate: "96 kbps",
+      isPopular: true
+    },
+    {
+      id: 13,
+      name: "NTV Radyo",
+      category: "Haber - Spor",
+      categoryId: 1030,
+      city: "İstanbul",
+      url: "https://ssldyg.radyotvonline.com/smil/ntvradyo.smil/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/ntvradyo.png",
+      bitrate: "96 kbps",
+      isPopular: true
+    },
+    {
+      id: 14,
+      name: "Radyo Spor",
+      category: "Haber - Spor",
+      categoryId: 1030,
+      city: "İstanbul",
+      url: "https://moondigitaledge2.radyotvonline.net/radyospor/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyospor.png",
+      bitrate: "96 kbps",
+      isPopular: true
+    },
+    {
+      id: 15,
+      name: "Radyo 7",
+      category: "Pop",
+      categoryId: 990,
+      city: "İstanbul",
+      url: "https://moondigitaledge2.radyotvonline.net/radyo7/playlist.m3u8",
+      format: "HLS",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyo7.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    },
+    {
+      id: 16,
+      name: "TRT Türkü",
+      category: "Halk Müziği",
+      categoryId: 1050,
+      city: "Ankara",
+      url: "https://trtturku.radyotvonline.net/trtturku",
+      format: "AAC",
+      logo: "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/trtturku.png",
+      bitrate: "128 kbps",
+      isPopular: true
+    }
+  ]
+};

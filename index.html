@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <!-- iPhone Safe Area & No Scalable Viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>rAdio – Mobil Canlı Radyo</title>
+
+  <!-- iOS PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="rAdio">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0c16">
+  <meta name="description" content="iOS öncelikli modern, hızlı ve kesintisiz mobil canlı radyo uygulaması.">
+
+  <!-- Icons & Manifest -->
+  <link rel="icon" type="image/svg+xml" href="./assets/brand/favicon.svg">
+  <link rel="icon" type="image/png" sizes="64x64" href="./assets/brand/favicon.png">
+  <link rel="apple-touch-icon" href="./assets/brand/apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/modern.css">
+  <link rel="stylesheet" href="./css/minimal.css">
+  <link rel="stylesheet" href="./css/directory.css">
+  <link rel="stylesheet" href="./css/player.css">
+  <link rel="stylesheet" href="./css/auth.css">
+
+  <!-- Hls.js fallback for non-Safari browsers (Safari plays HLS natively) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
+</head>
+<body>
+
+  <!-- Main Mobile App Shell -->
+  <div id="app">
+    
+    <!-- Top Safe Area App Header -->
+    <header class="app-header">
+      <div class="app-brand" onclick="window.rApp.switchTab('home')">
+        <img src="./assets/brand/logo.svg" alt="rAdio">
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="window.rApp.applyTheme('directory')" title="Radyo Arama & Rehber">🔍</button>
+        <button class="icon-btn" onclick="window.rApp.openAuthModal()" title="Hesap / Giriş">👤</button>
+        <button class="icon-btn" onclick="window.rApp.switchTab('settings')" title="Ayarlar & Tasarım">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Dynamic Main Content Viewport -->
+    <main class="main-viewport" id="mainViewport">
+      <!-- Active tab content rendered here by JavaScript -->
+    </main>
+
+    <!-- Floating Modern Mini Player (Sticky above tab bar) -->
+    <div class="modern-mini-player-bar" id="modernMiniPlayer" onclick="window.rApp.openPlayerModal()">
+      <div class="mini-media-info">
+        <img id="miniLogo" src="./assets/brand/favicon.svg" alt="Logo">
+        <div class="mini-media-text">
+          <div class="mini-title" id="miniTitle">Power Türk</div>
+          <div class="mini-subtitle" id="miniSubtitle">● CANLI YAYIN</div>
+        </div>
+      </div>
+      <div class="mini-controls-wrap" onclick="event.stopPropagation()">
+        <button class="mini-play-btn" id="miniPlayBtn" onclick="window.rApp.audioEngine.togglePlayPause()">
+          ▶
+        </button>
+      </div>
+    </div>
+
+    <!-- iOS Bottom Navigation Tab Bar -->
+    <nav class="modern-tab-nav" id="modernTabNav">
+      <button class="tab-nav-btn active" data-tab="home" onclick="window.rApp.switchTab('home')">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Keşfet</span>
+      </button>
+      <button class="tab-nav-btn" data-tab="categories" onclick="window.rApp.switchTab('categories')">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+        <span>Kategoriler</span>
+      </button>
+      <button class="tab-nav-btn" data-tab="favorites" onclick="window.rApp.switchTab('favorites')">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <span>Favoriler</span>
+      </button>
+      <button class="tab-nav-btn" data-tab="settings" onclick="window.rApp.switchTab('settings')">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        <span>Ayarlar</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Fullscreen Player Modal Bottom-Sheet -->
+  <div class="player-sheet-modal" id="playerSheetModal">
+    <div class="sheet-top-bar">
+      <button class="icon-btn" onclick="window.rApp.closePlayerModal()">✕</button>
+      <div class="sheet-handle-pill" onclick="window.rApp.closePlayerModal()"></div>
+      <button class="icon-btn" id="modalFavBtn" onclick="window.rApp.toggleCurrentFavorite()">🤍</button>
+    </div>
+
+    <!-- Artwork & Equalizer Visualizer -->
+    <div class="player-art-stage">
+      <div class="player-art-frame">
+        <img id="modalLogo" src="./assets/brand/favicon.svg" alt="Artwork">
+      </div>
+      <div class="player-visualizer">
+        <div class="viz-bar"></div>
+        <div class="viz-bar"></div>
+        <div class="viz-bar"></div>
+        <div class="viz-bar"></div>
+        <div class="viz-bar"></div>
+      </div>
+    </div>
+
+    <!-- Station Details -->
+    <div class="player-details-block">
+      <div class="player-st-title" id="modalTitle">Power Türk</div>
+      <div class="player-st-genre" id="modalGenre">Pop • Canlı Radyo</div>
+      <div class="player-st-codec" id="modalCodec">HLS Akışı • 128 kbps • HTTPS</div>
+    </div>
+
+    <!-- Controls Cluster -->
+    <div class="player-main-controls">
+      <button class="player-skip-btn" onclick="window.rApp.playAdjacentStation(-1)" title="Önceki İstasyon">⏮</button>
+      <button class="player-big-play" id="modalPlayBtn" onclick="window.rApp.audioEngine.togglePlayPause()">▶</button>
+      <button class="player-skip-btn" onclick="window.rApp.playAdjacentStation(1)" title="Sonraki İstasyon">⏭</button>
+    </div>
+
+    <!-- Volume Slider Bar -->
+    <div class="player-volume-container">
+      <span class="player-vol-icon" onclick="window.rApp.audioEngine.setVolume(0)">🔈</span>
+      <input type="range" class="player-vol-slider" id="modalVolSlider" min="0" max="1" step="0.01" value="0.85" oninput="window.rApp.onVolumeChange(this.value)">
+      <span class="player-vol-icon" onclick="window.rApp.audioEngine.setVolume(1)">🔊</span>
+    </div>
+
+    <!-- Sleep Timer Bar Button -->
+    <div class="sleep-timer-bar" onclick="window.rApp.switchTab('settings'); window.rApp.closePlayerModal();">
+      <span>🌙 <span id="sleepTimerText">Uyku: Kapalı</span></span>
+      <span style="color:var(--accent-cyan); font-weight:700;">Ayarla ›</span>
+    </div>
+  </div>
+
+  <!-- User Login & Access Request Modal (Section 12) -->
+  <div class="auth-modal" id="authModal">
+    <div class="auth-card-panel">
+      <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+        <button class="icon-btn" onclick="window.rApp.closeAuthModal()">✕</button>
+      </div>
+      <div class="auth-card-header">
+        <img src="./assets/brand/logo.svg" alt="rAdio">
+        <div class="auth-card-title">rAdio Giriş & Başvuru</div>
+        <div class="auth-card-subtitle">Uygulamaya kontrollü erişim sağlanmaktadır. Yeni kayıtlar yönetici onayıyla aktifleşir.</div>
+      </div>
+
+      <div class="auth-nav-tabs">
+        <button class="auth-tab-btn active" id="tabLoginBtn" onclick="document.getElementById('authActionBtn').setAttribute('data-action', 'login'); this.classList.add('active'); document.getElementById('tabReqBtn').classList.remove('active');">
+          Giriş Yap
+        </button>
+        <button class="auth-tab-btn" id="tabReqBtn" onclick="document.getElementById('authActionBtn').setAttribute('data-action', 'request'); this.classList.add('active'); document.getElementById('tabLoginBtn').classList.remove('active');">
+          Erişim Talebi
+        </button>
+      </div>
+
+      <div class="auth-input-group">
+        <div class="auth-input-field">
+          <label>E-posta Adresi</label>
+          <input type="email" id="authEmailInput" placeholder="ornek@domain.com" value="dinleyici@radio.app">
+        </div>
+        <div class="auth-input-field">
+          <label>Şifre</label>
+          <input type="password" id="authPasswordInput" placeholder="••••••••" value="sifre123">
+        </div>
+      </div>
+
+      <button class="auth-submit-btn" id="authActionBtn" data-action="login" onclick="window.rApp.handleAuthSubmit(this.getAttribute('data-action'))">
+        Devam Et
+      </button>
+
+      <div style="text-align:center; margin-top:14px;">
+        <button class="filter-chip-btn" style="border-color:var(--accent-purple); font-size:11px;" onclick="window.rApp.closeAuthModal(); window.rApp.openAdminModal();">
+          👑 Yönetici Onay Paneline Git (Demo)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Approval Dashboard Modal (Section 12) -->
+  <div class="admin-modal" id="adminModal">
+    <div class="admin-panel-top">
+      <div class="admin-panel-title">
+        <span>👑</span>
+        <span>Yönetici Onay Paneli</span>
+      </div>
+      <button class="icon-btn" onclick="window.rApp.closeAdminModal()">✕</button>
+    </div>
+    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:14px; line-height:1.4;">
+      Bekleyen erişim taleplerini onaylayabilir veya reddedebilirsiniz. Onaylanan kullanıcılar radyo akışlarına anında erişir.
+    </div>
+    <div class="admin-requests-list" id="adminRequestsContainer">
+      <!-- Injected by app.js -->
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- iOS Add to Home Screen (A2HS) Modal Prompt -->
+  <div class="a2hs-banner" id="a2hsBanner" style="display:none;">
+    <div class="a2hs-header">
+      <div class="a2hs-title">
+        <span>📱</span>
+        <span>rAdio'yu Ana Ekrana Ekleyin</span>
+      </div>
+      <button class="icon-btn" style="width:28px; height:28px; font-size:12px;" onclick="window.rApp.dismissA2HS()">✕</button>
+    </div>
+    <div class="a2hs-steps">
+      1. Safari altındaki <span class="icon">Paylaş</span> simgesine dokunun.<br>
+      2. Açılan menüden <span class="icon">"Ana Ekrana Ekle"</span> seçeneğini seçin.<br>
+      3. rAdio'yu tam ekran, kesintisiz bir iOS uygulaması olarak kullanın!
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="./js/storage.js"></script>
+  <script src="./js/audio-engine.js"></script>
+  <script src="./js/auth-manager.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
