@@ -233,7 +233,7 @@ class RadioApp {
         trackArtist.textContent = lastTrack.artist || station.name;
         trackBox.style.display = 'block';
       } else {
-        trackTitle.textContent = 'Canlı Yayın Yükleniyor...';
+        trackTitle.textContent = this.audioEngine.isPlaying ? 'Kesintisiz Canlı Yayın' : 'Canlı Radyo Yayını';
         trackArtist.textContent = station.name;
         trackBox.style.display = 'block';
       }
@@ -836,8 +836,12 @@ class RadioApp {
     if (this.dom.playerModal) {
       this.dom.playerModal.classList.add('open');
       this._updatePlayerDisplays(this.audioEngine.currentStation);
-      if (this.audioEngine.metadataService && this.audioEngine.metadataService.lastTrack) {
-        this._updateTrackMetadataUI(this.audioEngine.metadataService.lastTrack);
+      if (this.audioEngine.metadataService) {
+        if (this.audioEngine.metadataService.lastTrack) {
+          this._updateTrackMetadataUI(this.audioEngine.metadataService.lastTrack);
+        } else if (this.audioEngine.currentStation) {
+          this.audioEngine.metadataService.fetchMetadata(this.audioEngine.currentStation);
+        }
       }
     }
   }
