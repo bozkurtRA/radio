@@ -146,6 +146,16 @@ class RadioAudioEngine {
       candidates.push(base + 'stream');
     }
 
+    // AzuraCast / Netradyom radio.mp3 fallback
+    if (u.includes('stream.netradyom.com') && !u.includes('.mp3')) {
+      const parts = u.split('/').filter(Boolean);
+      const slug = parts[parts.length - 1];
+      if (slug && !slug.includes('.')) {
+        candidates.push(`https://stream.netradyom.com/radio/${slug}/radio.mp3`);
+        candidates.push(`https://stream.netradyom.com/listen/${slug}/radio.mp3`);
+      }
+    }
+
     // Deduplicate preserving order
     return [...new Set(candidates.filter(c => c && c.length > 8))];
   }
