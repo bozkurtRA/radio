@@ -61,7 +61,19 @@
     });
   }
 
+  function cleanStreamUrl(rawUrl) {
+    let u = (rawUrl || '').trim();
+    if (u.startsWith('icy://')) u = 'https://' + u.slice(6);
+    if (u.toLowerCase().includes('listen.pls')) {
+      u = u.replace(/\/listen\.pls.*/i, '/;').replace(/listen\.pls.*/i, ';');
+    }
+    if (/:\d{2,5}$/.test(u)) u = u + '/;';
+    else if (/:\d{2,5}\/$/.test(u)) u = u + ';';
+    return u;
+  }
+
   function playStation(station) {
+    if (!station || !station.url) return;
     if (state.currentStation && state.currentStation.id === station.id && state.isPlaying) {
       pauseAudio();
       return;
@@ -71,7 +83,7 @@
       state.recentPlayed.unshift(station.id);
     }
 
-    audio.src = station.url;
+    audio.src = cleanStreamUrl(station.url);
     audio.play().then(() => {
       state.isPlaying = true;
       updatePlaybackUI();

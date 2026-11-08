@@ -9,9 +9,14 @@ class RadioAudioEngine {
     this.currentStation = null;
     this.isPlaying = false;
     this.isLoading = false;
+    this.isIntentionalPause = true;
+
+    this.candidateUrls = [];
+    this.currentCandidateIndex = 0;
     this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
+    this.maxReconnectAttempts = 4;
     this.reconnectTimer = null;
+    this.watchdogTimer = null;
 
     this.listeners = {
       play: [],
@@ -45,29 +50,98 @@ class RadioAudioEngine {
     this.audio.addEventListener('playing', () => {
       this.isPlaying = true;
       this.isLoading = false;
+      this.isIntentionalPause = false;
+      this.clearWatchdog();
       this.reconnectAttempts = 0;
       this.emit('play', this.currentStation);
     });
 
     this.audio.addEventListener('waiting', () => {
-      this.isLoading = true;
-      this.emit('loading', this.currentStation);
+      if (!this.isIntentionalPause) {
+        this.isLoading = true;
+        this.emit('loading', this.currentStation);
+        this._startWatchdog();
+      }
+    });
+
+    this.audio.addEventListener('stalled', () => {
+      if (!this.isIntentionalPause && !this.isPlaying) {
+        this.isLoading = true;
+        this.emit('loading', this.currentStation);
+        this._startWatchdog();
+      }
     });
 
     this.audio.addEventListener('pause', () => {
       this.isPlaying = false;
-      this.isLoading = false;
-      this.emit('pause', this.currentStation);
+      this.clearWatchdog();
+
+      // Only emit pause if explicitly paused by user!
+      // If paused due to network glitch or buffer stall, do NOT falsely report "Duraklatıldı"!
+      if (this.isIntentionalPause) {
+        this.isLoading = false;
+        this.emit('pause', this.currentStation);
+      }
     });
 
     this.audio.addEventListener('error', (e) => {
-      console.warn('[AudioEngine] Stream playback error:', e);
+      if (this.isIntentionalPause) return;
+      console.warn('[AudioEngine] Audio element error:', this.audio.error);
       this.handleStreamFailure();
     });
 
     this.audio.addEventListener('volumechange', () => {
       this.emit('volumeChange', this.audio.volume);
     });
+  }
+
+  // Generate smart fallback candidates for stream resilience
+  _getCandidateUrls(rawUrl) {
+    const candidates = [];
+    let u = (rawUrl || '').trim();
+
+    // 1. Clean icy:// protocol
+    if (u.startsWith('icy://')) {
+      u = 'https://' + u.slice(6);
+    }
+
+    // 2. Clean listen.pls
+    if (u.toLowerCase().includes('listen.pls')) {
+      u = u.replace(/\/listen\.pls.*/i, '/;').replace(/listen\.pls.*/i, ';');
+    }
+
+    // 3. If bare port shoutcast (e.g. :8080 or :8080/), append /;
+    if (/:\d{2,5}$/.test(u)) {
+      u = u + '/;';
+    } else if (/:\d{2,5}\/$/.test(u)) {
+      u = u + ';';
+    }
+
+    // Add primary cleaned URL
+    candidates.push(u);
+
+    // If HTTP, offer HTTPS
+    if (u.startsWith('http://')) {
+      candidates.push(u.replace('http://', 'https://'));
+    }
+    // If HTTPS, offer HTTP fallback
+    if (u.startsWith('https://')) {
+      candidates.push(u.replace('https://', 'http://'));
+    }
+
+    // Shoutcast semicolon path variations
+    if (u.endsWith('/;') || u.endsWith(';')) {
+      const base = u.replace(/\/;$/, '').replace(/;$/, '');
+      candidates.push(base + '/stream');
+      candidates.push(base + '/');
+    } else if (!u.toLowerCase().includes('.m3u8')) {
+      const base = u.endsWith('/') ? u : u + '/';
+      candidates.push(base + ';');
+      candidates.push(base + 'stream');
+    }
+
+    // Deduplicate preserving order
+    return [...new Set(candidates.filter(c => c && c.length > 8))];
   }
 
   // Play a radio station
@@ -84,25 +158,46 @@ class RadioAudioEngine {
       return;
     }
 
+    // Toggle pause if user taps currently playing station
     if (this.currentStation && this.currentStation.id === station.id && this.isPlaying) {
       this.pause();
       return;
     }
 
-    // Clean up previous timer / HLS instance
+    // Clean up previous timers / HLS instance
     this.clearReconnect();
+    this.clearWatchdog();
     if (this.hls) {
       this.hls.destroy();
       this.hls = null;
     }
 
     this.currentStation = station;
+    this.isIntentionalPause = false;
     this.isLoading = true;
+    this.isPlaying = false;
+    this.reconnectAttempts = 0;
+
+    this.candidateUrls = this._getCandidateUrls(station.url);
+    this.currentCandidateIndex = 0;
+
     RadioStorage.addRecent(station.id);
     this.emit('stationChange', station);
     this.emit('loading', station);
 
-    const streamUrl = station.url;
+    this._playCandidate(this.candidateUrls[0]);
+    this._updateMediaSession(station);
+  }
+
+  // Play a specific candidate URL
+  _playCandidate(streamUrl) {
+    this._startWatchdog();
+
+    if (this.hls) {
+      this.hls.destroy();
+      this.hls = null;
+    }
+
     const isHls = streamUrl.toLowerCase().includes('.m3u8');
 
     // 1. iOS Safari native HLS check
@@ -123,17 +218,16 @@ class RadioAudioEngine {
       });
       this.hls.on(window.Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
+          console.warn('[Hls.js] Fatal HLS error:', data.type, data.details);
           this.handleStreamFailure();
         }
       });
     }
-    // 3. Direct HTML5 Audio (AAC, MP3, Icecast)
+    // 3. Direct HTML5 Audio (AAC, MP3, Icecast, Shoutcast)
     else {
       this.audio.src = streamUrl;
       this._attemptPlay();
     }
-
-    this._updateMediaSession(station);
   }
 
   _attemptPlay() {
@@ -142,18 +236,31 @@ class RadioAudioEngine {
       playPromise.then(() => {
         this.isPlaying = true;
         this.isLoading = false;
+        this.clearWatchdog();
         this.emit('play', this.currentStation);
       }).catch((err) => {
-        console.log('[AudioEngine] Play attempt notification:', err.message);
-        this.isLoading = false;
-        this.emit('pause', this.currentStation);
+        console.warn('[AudioEngine] Play attempt catch:', err.name, err.message);
+        if (!this.isIntentionalPause) {
+          this.handleStreamFailure();
+        }
       });
     }
   }
 
   pause() {
+    this.isIntentionalPause = true;
     this.clearReconnect();
+    this.clearWatchdog();
+
+    if (this.hls) {
+      this.hls.destroy();
+      this.hls = null;
+    }
+
     this.audio.pause();
+    this.audio.removeAttribute('src'); // Stop streaming bandwidth
+    this.audio.load();
+
     this.isPlaying = false;
     this.isLoading = false;
     this.emit('pause', this.currentStation);
@@ -179,27 +286,60 @@ class RadioAudioEngine {
     return this.audio.volume;
   }
 
-  // Auto-reconnect watchdog with exponential backoff
+  // Multi-candidate failover and auto-reconnect watchdog
   handleStreamFailure() {
-    if (!this.currentStation) return;
+    if (!this.currentStation || this.isIntentionalPause) return;
+    this.clearWatchdog();
 
+    // 1. Try next candidate URL if available
+    if (this.currentCandidateIndex + 1 < this.candidateUrls.length) {
+      this.currentCandidateIndex++;
+      const nextCandidate = this.candidateUrls[this.currentCandidateIndex];
+      console.log(`[AudioEngine] Candidate failed. Trying candidate [${this.currentCandidateIndex}]: ${nextCandidate}`);
+      this.isLoading = true;
+      this.emit('loading', this.currentStation);
+      this._playCandidate(nextCandidate);
+      return;
+    }
+
+    // 2. All candidates exhausted: start exponential backoff reconnect
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      const delay = Math.pow(2, this.reconnectAttempts - 1) * 1000;
-      console.log(`[AudioEngine] Stream dropped. Reconnecting attempt ${this.reconnectAttempts} in ${delay}ms...`);
+      this.currentCandidateIndex = 0; // Reset candidates for new attempt
+      const delay = Math.min(Math.pow(2, this.reconnectAttempts - 1) * 1200, 8000);
+      console.log(`[AudioEngine] Reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms...`);
       this.isLoading = true;
       this.emit('loading', this.currentStation);
 
       this.reconnectTimer = setTimeout(() => {
-        if (this.currentStation) {
-          this.playStation(this.currentStation);
+        if (!this.isIntentionalPause && this.currentStation) {
+          this._playCandidate(this.candidateUrls[0]);
         }
       }, delay);
     } else {
-      console.warn('[AudioEngine] Reconnect failed after max attempts.');
+      console.warn('[AudioEngine] Reconnect failed after all candidate attempts.');
       this.isLoading = false;
       this.isPlaying = false;
-      this.emit('error', 'Yayın bağlantısı kurulamadı. Lütfen internetinizi veya başka bir istasyonu deneyin.');
+      this.isIntentionalPause = true;
+      this.emit('error', 'Yayın sunucusuna bağlanılamadı. Lütfen internetinizi veya başka bir istasyonu deneyin.');
+      this.emit('pause', this.currentStation);
+    }
+  }
+
+  _startWatchdog() {
+    this.clearWatchdog();
+    this.watchdogTimer = setTimeout(() => {
+      if (this.isLoading && !this.isPlaying && !this.isIntentionalPause) {
+        console.warn('[AudioEngine] Stream loading timed out (7s). Triggering failover...');
+        this.handleStreamFailure();
+      }
+    }, 7000);
+  }
+
+  clearWatchdog() {
+    if (this.watchdogTimer) {
+      clearTimeout(this.watchdogTimer);
+      this.watchdogTimer = null;
     }
   }
 

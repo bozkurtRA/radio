@@ -113,6 +113,8 @@ class RadioApp {
     this.audioEngine.on('error', (msg) => {
       this.showToast(msg, '⚠️');
       this._updatePlaybackState(false, this.audioEngine.currentStation);
+      if (this.dom.miniSubtitle) this.dom.miniSubtitle.textContent = 'Yayın Kapalı';
+      if (this.dom.modalGenre) this.dom.modalGenre.textContent = 'Yayın sunucusu yanıt vermiyor';
     });
 
     this.audioEngine.on('volumeChange', (vol) => {
