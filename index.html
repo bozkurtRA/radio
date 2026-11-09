@@ -21,12 +21,11 @@
   <link rel="manifest" href="./manifest.webmanifest">
 
   <!-- Stylesheets with versioning -->
-  <link rel="stylesheet" href="./css/main.css?v=2.1.2">
-  <link rel="stylesheet" href="./css/modern.css?v=2.1.2">
-  <link rel="stylesheet" href="./css/minimal.css?v=2.1.2">
-  <link rel="stylesheet" href="./css/directory.css?v=2.1.2">
-  <link rel="stylesheet" href="./css/player.css?v=2.1.2">
-  <link rel="stylesheet" href="./css/auth.css?v=2.1.2">
+  <link rel="stylesheet" href="./css/main.css?v=2.2.0">
+  <link rel="stylesheet" href="./css/modern.css?v=2.2.0">
+  <link rel="stylesheet" href="./css/directory.css?v=2.2.0">
+  <link rel="stylesheet" href="./css/player.css?v=2.2.0">
+  <link rel="stylesheet" href="./css/auth.css?v=2.2.0">
 
   <!-- Hls.js fallback for non-Safari browsers (Safari plays HLS natively) -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
@@ -42,16 +41,13 @@
         <img src="./assets/brand/logo.svg" alt="rAdio">
       </div>
       <div class="header-actions">
-        <button class="icon-btn" onclick="window.rApp.applyTheme('directory')" title="Radyo Arama & Rehber" aria-label="Arama">
+        <button class="icon-btn" onclick="window.rApp.focusSearch()" title="Radyo Ara" aria-label="Arama">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </button>
         <button class="icon-btn" onclick="window.rApp.openAboutModal()" title="Hakkında & Yasal Bilgilendirme / Telif" aria-label="Hakkında">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         </button>
-        <button class="icon-btn" onclick="window.rApp.openAuthModal()" title="Hesap / Giriş" aria-label="Hesap">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </button>
-        <button class="icon-btn" onclick="window.rApp.switchTab('settings')" title="Ayarlar & Tasarım" aria-label="Ayarlar">
+        <button class="icon-btn" onclick="window.rApp.switchTab('settings')" title="Ayarlar" aria-label="Ayarlar">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
       </div>
@@ -82,12 +78,8 @@
     <!-- iOS Bottom Navigation Tab Bar -->
     <nav class="modern-tab-nav" id="modernTabNav">
       <button class="tab-nav-btn active" data-tab="home" onclick="window.rApp.switchTab('home')">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <span>Keşfet</span>
-      </button>
-      <button class="tab-nav-btn" data-tab="categories" onclick="window.rApp.switchTab('categories')">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
-        <span>Kategoriler</span>
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12c0 1.1.89 2 2 2h16c1.11 0 2-.9 2-2V8c0-1.11-.89-2-2-2H8.3l8.26-3.34-.75-1.85-12.57 5.34zM7 20c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-8h-2v-2h-2v2H4V8h16v4z"/></svg>
+        <span>Radyolar</span>
       </button>
       <button class="tab-nav-btn" data-tab="favorites" onclick="window.rApp.switchTab('favorites')">
         <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -199,81 +191,13 @@
     </div>
   </div>
 
-  <!-- User Login & Access Request Modal (Section 12) - Locked by default until verified -->
-  <div class="auth-modal open gate-locked" id="authModal">
-    <div class="auth-card-panel">
-      <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
-        <button class="icon-btn auth-close-btn" onclick="window.rApp.closeAuthModal()">✕</button>
-      </div>
-      <div class="auth-card-header">
-        <img src="./assets/brand/logo.svg" alt="rAdio">
-        <div class="auth-card-title">rAdio Giriş</div>
-        <div class="auth-card-subtitle">Kesintisiz ve kaliteli canlı radyo deneyimi için kullanıcı adınızla giriş yapın.</div>
-      </div>
-
-      <div class="auth-nav-tabs" id="authNavTabs">
-        <button class="auth-tab-btn active" id="tabLoginBtn" onclick="window.rApp.switchAuthTab('login')">
-          Giriş Yap
-        </button>
-        <button class="auth-tab-btn" id="tabReqBtn" onclick="window.rApp.switchAuthTab('request')">
-          Erişim Talebi
-        </button>
-      </div>
-
-      <div id="authFormFields">
-        <div class="auth-input-group">
-          <div class="auth-input-field">
-            <label>Kullanıcı Adı</label>
-            <input type="text" id="authEmailInput" placeholder="Kullanıcı adınızı girin" autocomplete="username" autocapitalize="none">
-          </div>
-          <div class="auth-input-field">
-            <label>Şifre</label>
-            <input type="password" id="authPasswordInput" placeholder="••••••••" autocomplete="current-password">
-          </div>
-        </div>
-
-        <button class="auth-submit-btn" id="authActionBtn" data-action="login" onclick="window.rApp.handleAuthSubmit(this.getAttribute('data-action'))">
-          Giriş Yap
-        </button>
-      </div>
-
-      <!-- Pending Status Banner (Shown when user is registered but pending approval) -->
-      <div class="auth-status-banner" id="authPendingBanner" style="display:none;">
-        <span class="status-badge-pending">⏳ BAŞVURU BEKLEMEDE</span>
-        <div style="font-size:13px; font-weight:700; color:#fbbf24; margin-bottom:4px;">Başvurunuz İnceleniyor</div>
-        <div style="font-size:12px; color:#cbd5e1; line-height:1.4;">Yönetici onayından sonra radyo yayınları anında açılacaktır.</div>
-        <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
-          <button class="filter-chip-btn" style="font-size:11px;" onclick="window.rApp.checkUserAuthStatus()">Durumu Yenile 🔄</button>
-          <button class="filter-chip-btn" style="font-size:11px; color:#ef4444;" onclick="window.rApp.logoutUser()">Çıkış Yap</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Admin Approval Dashboard Modal (Section 12) -->
-  <div class="admin-modal" id="adminModal">
-    <div class="admin-panel-top">
-      <div class="admin-panel-title">
-        <span>👑</span>
-        <span>Yönetici Onay Paneli</span>
-      </div>
-      <button class="icon-btn" onclick="window.rApp.closeAdminModal()">✕</button>
-    </div>
-    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:14px; line-height:1.4;">
-      Bekleyen erişim taleplerini onaylayabilir veya reddedebilirsiniz. Onaylanan kullanıcılar radyo akışlarına anında erişir.
-    </div>
-    <div class="admin-requests-list" id="adminRequestsContainer">
-      <!-- Injected by app.js -->
-    </div>
-  </div>
-
   <!-- About & Legal / DMCA Disclaimer Modal -->
   <div class="about-modal" id="aboutModal">
     <div class="about-card-panel">
       <div class="about-header-top">
         <div class="about-app-brand">
           <img src="./assets/brand/logo.svg" alt="rAdio">
-          <span class="about-version-badge">v2.1.0 PWA</span>
+          <span class="about-version-badge">v2.2.0 PWA</span>
         </div>
         <button class="icon-btn" onclick="window.rApp.closeAboutModal()" aria-label="Kapat">✕</button>
       </div>
@@ -357,10 +281,9 @@
   </div>
 
   <!-- JavaScript Modules with versioning -->
-  <script src="./js/storage.js?v=2.1.2"></script>
-  <script src="./js/metadata-service.js?v=2.1.2"></script>
-  <script src="./js/audio-engine.js?v=2.1.2"></script>
-  <script src="./js/auth-manager.js?v=2.1.2"></script>
-  <script src="./js/app.js?v=2.1.2"></script>
+  <script src="./js/storage.js?v=2.2.0"></script>
+  <script src="./js/metadata-service.js?v=2.2.0"></script>
+  <script src="./js/audio-engine.js?v=2.2.0"></script>
+  <script src="./js/app.js?v=2.2.0"></script>
 </body>
 </html>

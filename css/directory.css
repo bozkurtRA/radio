@@ -58,8 +58,16 @@
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-tertiary);
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
+}
+
+.dir-search-lens svg {
+  width: 17px;
+  height: 17px;
+  display: block;
 }
 
 .dir-clear-btn {
@@ -198,13 +206,42 @@
 .dir-row-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
-.dir-mini-play-btn {
+.dir-fav-btn {
   width: 32px;
   height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dir-fav-btn:active {
+  transform: scale(0.85);
+}
+
+.dir-fav-btn.is-fav {
+  color: #ef4444;
+}
+
+.dir-fav-btn svg {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
+
+.dir-mini-play-btn {
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--glass-border);
@@ -212,9 +249,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
+}
+
+.dir-mini-play-btn svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  fill: currentColor;
 }
 
 .dir-station-row.active .dir-mini-play-btn {

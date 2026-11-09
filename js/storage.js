@@ -10,13 +10,13 @@ class RadioStorage {
     A2HS_DISMISSED: 'radio_a2hs_dismissed'
   };
 
-  // Design Theme ('modern' | 'minimal' | 'directory')
+  // Design Theme (Locked to Design 3: Directory)
   static getTheme() {
-    return localStorage.getItem(this.KEYS.THEME) || 'modern';
+    return 'directory';
   }
 
   static setTheme(theme) {
-    localStorage.setItem(this.KEYS.THEME, theme);
+    localStorage.setItem(this.KEYS.THEME, 'directory');
   }
 
   // Favorites (Array of station IDs)

@@ -23,34 +23,17 @@ Uygulamanın adı kesin ve değişmez şekilde **rAdio**'dur.
 - **Tek Elle Kullanım Ergonomisi:** Büyük dokunmatik butonlar (44px – 76px), alt navigasyon menüsü, yatay taşmasız ekran akışı.
 - **PWA & Ana Ekrana Ekleme (A2HS):** Safari'de `Paylaş → Ana Ekrana Ekle` yapıldığında tarayıcı çubukları gizlenir, tam ekran bağımsız (standalone) bir iOS uygulaması gibi çalışır.
 
-### 🎨 Üç Farklı Arayüz Tasarımı (Ayarlar'dan Anında Seçilebilir)
-1. **Tasarım 1 – Modern (Varsayılan):**
-   - Renkli neon vitrin kartları, öne çıkan istasyon hero banner'ı.
-   - Popüler radyolar kaydırma şeridi (176 popüler kanal).
-   - 2 sütunlu kategori gridi.
-   - Yüzen cam (Glassmorphism) Mini Oynatıcı ve alt menü.
-2. **Tasarım 2 – Minimal:**
-   - Dönen dev vinil plak artwork'ü.
-   - 76px dev dokunmatik Oynat/Durdur butonu.
-   - Oynatıcı odaklı, dikkat dağıtmayan saf dinleme deneyimi.
-3. **Tasarım 3 – Radyo Rehberi (Directory):**
-   - İstasyon ve frekans listeleri ön planda.
-   - Anlık Türkçe karakter duyarlı arama çubuğu.
-   - 81 il ve kategori filtre hapları (chips).
-   - Kompakt, hızlı satırlar.
-- **ÖNEMLİ:** Tasarım değişikliği sırasında **radyo yayını milisaniye dahi kesilmez, çalmaya devam eder.** Kullanıcı tercihi cihazda kalıcıdır.
+### 🎨 Tek Ekranlı Modern Rehber Tasarımı
+- **Tüm Radyolar Tek Ekranda:** Giriş engeli veya karmaşık kategori/il sayfaları olmadan 1.400+ canlı radyo istasyonunun tamamı tek bir hızlı, kesintisiz kaydırılabilir liste halinde sunulur.
+- **Anlık Arama:** Türkçe karakter uyumlu anında arama çubuğu ile istasyon adı yazıldığı anda filtrelenir.
+- **Yüzen Mini Oynatıcı & Tam Ekran Oynatıcı:** Çalan şarkı/sanatçı bilgisi, albüm kapağı ve tek dokunuşla favoriye ekleme desteği.
 
 ### 📻 Profesyonel Ses Motoru (Audio Engine)
 - **HTML5 Audio & HLS:** iOS Safari'de yerel HLS (`.m3u8`) donanımsal oynatımı; diğer tarayıcılarda hafif Hls.js desteği.
 - **Media Session API:** iOS Kilit Ekranı (Lock Screen) kontrolleri, Bluetooth kulaklık ileri/geri/durdur butonları ve yüksek çözünürlüklü kilit ekranı albüm kapağı.
 - **Otomatik Yeniden Bağlanma (Watchdog):** Bağlantı koptuğunda katlanarak artan gecikmeyle (exponential backoff) otomatik yeniden bağlanma.
 - **Uyku Zamanlayıcısı:** 15, 30, 45, 60, 90 dakika seçenekleriyle süresi dolunca sesi otomatik duraklatma.
-- **Favoriler ve Geçmiş:** Yerel hafızada kalıcı olarak saklanan favori istasyonlar ve son dinlenenler listesi.
-
-### 🔐 Kullanıcı Girişi ve Yönetici Onay Sistemi
-- **Kontrollü Erişim:** Uygulama doğrudan herkese açık değildir. İlk açılışta güvenli giriş ve başvuru ekranı karşılar.
-- **Onay Süreci:** Yeni başvuran kullanıcılar yönetici onayına düşer. Onaylanmamış hesaplar radyo akışlarına erişemez.
-- **Yönetici Paneli:** Yetkili yönetici bekleyen başvuruları tek dokunuşla onaylayabilir, reddedebilir veya erişimi durdurabilir.
+- **Favoriler:** Yerel hafızada kalıcı olarak saklanan favori istasyonlar.
 
 ---
 

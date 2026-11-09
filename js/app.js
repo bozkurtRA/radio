@@ -2,18 +2,13 @@
 class RadioApp {
   constructor() {
     this.audioEngine = new RadioAudioEngine();
-    this.authManager = new RadioAuthManager();
-    this.theme = RadioStorage.getTheme(); // 'modern' | 'minimal' | 'directory'
-    this.activeTab = 'home'; // 'home' | 'categories' | 'favorites' | 'settings'
+    this.theme = 'directory';
+    this.activeTab = 'home'; // 'home' | 'favorites' | 'settings'
 
     this.stations = [];
-    this.categories = [];
-    this.popularIds = [];
-    this.cities = [];
-
     this.searchQuery = '';
-    this.selectedCategory = null;
-    this.selectedCity = 'Tümü';
+    this.renderedLimit = 120;
+    this._dirObserver = null;
 
     this.sleepTimerMinutes = 0;
     this.sleepTimerInterval = null;
@@ -26,20 +21,13 @@ class RadioApp {
     this._cacheDom();
     this._setupAntiCopyProtections();
 
-    // Enforce gate IMMEDIATELY before fetching data or rendering tabs
-    this.checkAuthAndEnforceGate();
-
     this._registerServiceWorker();
     this._setupAudioEngineListeners();
     this._setupGlobalKeyboardShortcuts();
 
     await this.loadData();
-    this.applyTheme(this.theme, false);
     this.renderActiveTab();
     this._checkA2HSPrompt();
-
-    // Re-verify gate
-    this.checkAuthAndEnforceGate();
   }
 
   _cacheDom() {
@@ -47,8 +35,6 @@ class RadioApp {
     this.dom.modernNav = document.getElementById('modernTabNav');
     this.dom.miniPlayer = document.getElementById('modernMiniPlayer');
     this.dom.playerModal = document.getElementById('playerSheetModal');
-    this.dom.authModal = document.getElementById('authModal');
-    this.dom.adminModal = document.getElementById('adminModal');
     this.dom.aboutModal = document.getElementById('aboutModal');
     this.dom.toastContainer = document.getElementById('toastContainer');
     this.dom.a2hsBanner = document.getElementById('a2hsBanner');
@@ -71,28 +57,29 @@ class RadioApp {
     this.dom.vizBars = document.querySelectorAll('.viz-bar');
   }
 
-  // Load JSON datasets
+  // Turkish-friendly search normalization
+  _normalizeText(str) {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .replace(/ç/g, 'c')
+      .replace(/ğ/g, 'g')
+      .replace(/ı/g, 'i')
+      .replace(/İ/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ş/g, 's')
+      .replace(/ü/g, 'u')
+      .trim();
+  }
+
+  // Load stations dataset
   async loadData() {
     try {
-      const [catsRes, popRes, citiesRes, stationsRes] = await Promise.all([
-        fetch('./data/categories.json').then(r => r.json()),
-        fetch('./data/popular.json').then(r => r.json()),
-        fetch('./data/cities.json').then(r => r.json()),
-        fetch('./data/stations.json').then(r => r.json())
-      ]);
-
-      this.categories = catsRes;
-      this.popularIds = popRes;
-      this.cities = citiesRes;
-
-      const catMap = {};
-      if (Array.isArray(catsRes)) {
-        catsRes.forEach(c => { catMap[c.id] = c.name; });
-      }
-
+      const stationsRes = await fetch('./data/stations.json').then(r => r.json());
       this.stations = (stationsRes || []).map(st => ({
         ...st,
-        category: st.category || catMap[st.categoryId] || 'Pop'
+        _normName: this._normalizeText(st.name),
+        _normTags: Array.isArray(st.tags) ? st.tags.map(t => this._normalizeText(t)).join(' ') : ''
       }));
 
       // Set default station to first popular (Power Türk)
@@ -101,7 +88,7 @@ class RadioApp {
         this._updatePlayerDisplays(this.stations[0]);
       }
     } catch (err) {
-      console.error('[rAdio] Error loading data JSONs:', err);
+      console.error('[rAdio] Error loading stations:', err);
       this.showToast('İstasyon verileri yüklenirken bir sorun oluştu.', '⚠️');
     }
   }
@@ -149,8 +136,6 @@ class RadioApp {
     if (miniPlaySvg && miniPauseSvg) {
       miniPlaySvg.style.display = isPlaying ? 'none' : 'block';
       miniPauseSvg.style.display = isPlaying ? 'block' : 'none';
-    } else if (this.dom.miniPlayBtn) {
-      this.dom.miniPlayBtn.textContent = isPlaying ? '⏸' : '▶';
     }
 
     // Fullscreen Modal SVG Play/Pause
@@ -159,15 +144,22 @@ class RadioApp {
     if (modalPlaySvg && modalPauseSvg) {
       modalPlaySvg.style.display = isPlaying ? 'none' : 'block';
       modalPauseSvg.style.display = isPlaying ? 'block' : 'none';
-    } else if (this.dom.modalPlayBtn) {
-      this.dom.modalPlayBtn.textContent = isPlaying ? '⏸' : '▶';
     }
 
-    // Hero Play Button in Home Tab
-    const heroBtn = document.querySelector('.hero-play-button span');
-    if (heroBtn) {
-      heroBtn.textContent = isPlaying ? '⏸ Duraklat' : '▶ Hemen Dinle';
-    }
+    // Directory Row Play/Pause SVGs
+    const currentId = station ? station.id : (this.audioEngine.currentStation ? this.audioEngine.currentStation.id : null);
+    document.querySelectorAll('.dir-station-row').forEach(row => {
+      const id = parseInt(row.getAttribute('data-st-id'));
+      const isRowPlaying = isPlaying && id === currentId;
+      const playSvg = row.querySelector('.row-play-svg');
+      const pauseSvg = row.querySelector('.row-pause-svg');
+      if (playSvg && pauseSvg) {
+        playSvg.style.display = isRowPlaying ? 'none' : 'block';
+        pauseSvg.style.display = isRowPlaying ? 'block' : 'none';
+      }
+      if (id === currentId) row.classList.add('active');
+      else row.classList.remove('active');
+    });
 
     // Spectrum Visualizer
     if (this.dom.vizBars) {
@@ -183,16 +175,7 @@ class RadioApp {
       glow.style.opacity = isPlaying ? '1' : '0.4';
     }
 
-    // Minimal Vinyl Disc
-    const vinyl = document.getElementById('vinylDisc');
-    const minPlay = document.getElementById('minPlayBtn');
-    if (vinyl) {
-      if (isPlaying) vinyl.classList.add('is-playing');
-      else vinyl.classList.remove('is-playing');
-    }
-    if (minPlay) minPlay.textContent = isPlaying ? '⏸' : '▶';
-
-    // Subtitle updates (preserve track info if active!)
+    // Subtitle updates (preserve track info if active)
     if (this.dom.miniSubtitle && station) {
       const lastTrack = this.audioEngine.metadataService ? this.audioEngine.metadataService.lastTrack : null;
       if (isPlaying && lastTrack && lastTrack.stationId === station.id) {
@@ -215,14 +198,14 @@ class RadioApp {
       if (isSameStationTrack) {
         this.dom.miniSubtitle.innerHTML = `<span class="mini-track-live">🎵 <b>${lastTrack.artist}</b> - ${lastTrack.title}</span>`;
       } else {
-        this.dom.miniSubtitle.textContent = this.audioEngine.isPlaying ? '● CANLI YAYIN' : (station.category || 'Canlı');
+        this.dom.miniSubtitle.textContent = this.audioEngine.isPlaying ? '● CANLI YAYIN' : 'Canlı Radyo';
       }
     }
 
     if (this.dom.modalLogo) this.dom.modalLogo.src = (isSameStationTrack && lastTrack.coverUrl) ? lastTrack.coverUrl : logoSrc;
     if (this.dom.modalTitle) this.dom.modalTitle.textContent = station.name;
-    if (this.dom.modalGenre) this.dom.modalGenre.textContent = `${station.category || 'Pop'} • Canlı Radyo`;
-    if (this.dom.modalCodec) this.dom.modalCodec.textContent = `${station.format || 'HLS'} Akışı • 128 kbps • ${station.isHttps ? 'HTTPS' : 'HTTP'}`;
+    if (this.dom.modalGenre) this.dom.modalGenre.textContent = this.audioEngine.isPlaying ? 'Canlı Yayın Akışı' : 'Hazır';
+    if (this.dom.modalCodec) this.dom.modalCodec.textContent = `${(station.format || 'HLS').toUpperCase()} Akışı • 128 kbps • ${station.isHttps ? 'HTTPS' : 'HTTP'}`;
 
     // Track box in modal
     const trackBox = document.getElementById('modalTrackBox');
@@ -244,19 +227,6 @@ class RadioApp {
     const isFav = RadioStorage.isFavorite(station.id);
     this._updateFavoriteButton(isFav);
 
-    // Minimal View Updates
-    const minLogo = document.getElementById('minVinylArt');
-    const minTitle = document.getElementById('minStationTitle');
-    const minMeta = document.getElementById('minStationMeta');
-    const minFav = document.getElementById('minFavBtn');
-
-    if (minLogo) minLogo.src = logoSrc;
-    if (minTitle) minTitle.textContent = station.name;
-    if (minMeta) minMeta.textContent = `${station.category || 'Pop'} • ${station.format || 'Canlı'}`;
-    if (minFav) {
-      minFav.textContent = isFav ? '❤️' : '🤍';
-    }
-
     this._updatePlaybackState(this.audioEngine.isPlaying, station);
   }
 
@@ -268,8 +238,6 @@ class RadioApp {
     if (emptyIcon && filledIcon) {
       emptyIcon.style.display = isFav ? 'none' : 'block';
       filledIcon.style.display = isFav ? 'block' : 'none';
-    } else {
-      btn.textContent = isFav ? '❤️' : '🤍';
     }
   }
 
@@ -278,13 +246,11 @@ class RadioApp {
     if (!track || !this.audioEngine.currentStation) return;
     if (this.audioEngine.currentStation.id !== track.stationId) return;
 
-    // 1. Mini Player Subtitle with live music note and bold artist
     if (this.dom.miniSubtitle) {
       const songText = track.artist ? `🎵 <b>${track.artist}</b> - ${track.title}` : `🎵 ${track.title}`;
       this.dom.miniSubtitle.innerHTML = `<span class="mini-track-live">${songText}</span>`;
     }
 
-    // 2. Fullscreen Player Modal Track Box
     const trackBox = document.getElementById('modalTrackBox');
     const trackTitle = document.getElementById('modalTrackTitle');
     const trackArtist = document.getElementById('modalTrackArtist');
@@ -295,15 +261,6 @@ class RadioApp {
       trackBox.style.display = 'block';
     }
 
-    // 3. Hero Card Live Track Pill
-    const heroPill = document.getElementById('heroLivePill');
-    const heroText = document.getElementById('heroLiveText');
-    if (heroPill && heroText) {
-      heroText.innerHTML = `🎵 <b>${track.artist}</b> - ${track.title}`;
-      heroPill.style.display = 'inline-flex';
-    }
-
-    // 4. Dynamic High-Res Album Cover Upgrade
     if (track.coverUrl && this.dom.modalLogo) {
       const currentStationId = this.audioEngine.currentStation.id;
       const originalLogo = this.audioEngine.currentStation.logo || './assets/brand/favicon.svg';
@@ -320,16 +277,9 @@ class RadioApp {
       img.src = track.coverUrl;
     }
 
-    // 5. Ambient Glow behind Artwork
     const glow = document.getElementById('playerAmbientGlow');
     if (glow && track.coverUrl) {
       glow.style.background = `radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, rgba(139, 92, 246, 0.35) 50%, transparent 75%)`;
-    }
-
-    // 6. Update Minimal view subtitle if present
-    const minMeta = document.getElementById('minStationMeta');
-    if (minMeta) {
-      minMeta.textContent = `🎵 ${track.artist || ''} - ${track.title || ''}`;
     }
   }
 
@@ -355,31 +305,9 @@ class RadioApp {
     this.audioEngine.playStation(this.stations[nextIdx]);
   }
 
-  // Design Theme Switcher (Crucial: never interrupts audio!)
-  applyTheme(themeName, showToastMsg = true) {
-    this.theme = themeName;
-    RadioStorage.setTheme(themeName);
-
-    // Update bottom nav and miniplayer visibility
-    if (themeName === 'minimal') {
-      if (this.dom.modernNav) this.dom.modernNav.style.display = 'none';
-      if (this.dom.miniPlayer) this.dom.miniPlayer.style.display = 'none';
-      if (this.dom.viewport) this.dom.viewport.classList.add('no-bottom-nav');
-    } else {
-      if (this.dom.modernNav) this.dom.modernNav.style.display = 'flex';
-      if (this.dom.miniPlayer) this.dom.miniPlayer.style.display = 'flex';
-      if (this.dom.viewport) this.dom.viewport.classList.remove('no-bottom-nav');
-    }
-
-    this.renderActiveTab();
-    if (showToastMsg) {
-      const nameMap = { modern: 'Modern Vitrin', minimal: 'Minimal Plak', directory: 'Radyo Rehberi' };
-      this.showToast(`Arayüz değiştirildi: ${nameMap[themeName] || themeName}`, '🎨');
-    }
-  }
-
   // Switch Bottom Nav Tabs
   switchTab(tabName) {
+    if (tabName === 'categories') tabName = 'home';
     this.activeTab = tabName;
     document.querySelectorAll('.tab-nav-btn').forEach(btn => {
       if (btn.getAttribute('data-tab') === tabName) {
@@ -391,294 +319,186 @@ class RadioApp {
     this.renderActiveTab();
   }
 
+  focusSearch() {
+    if (this.activeTab !== 'home') {
+      this.switchTab('home');
+    }
+    if (this.dom.viewport) {
+      this.dom.viewport.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    setTimeout(() => {
+      const input = document.getElementById('dirSearchInput');
+      if (input) input.focus();
+    }, 80);
+  }
+
   // Main Render Dispatcher
   renderActiveTab() {
     if (!this.dom.viewport) return;
 
-    if (this.activeTab === 'categories') {
-      this.renderCategoriesTab();
-    } else if (this.activeTab === 'favorites') {
+    if (this.activeTab === 'favorites') {
       this.renderFavoritesTab();
     } else if (this.activeTab === 'settings') {
       this.renderSettingsTab();
     } else {
-      // Home tab renders based on active theme
-      if (this.theme === 'minimal') {
-        this.renderMinimalHome();
-      } else if (this.theme === 'directory') {
-        this.renderDirectoryHome();
+      this.renderDirectoryHome();
+    }
+  }
+
+  // ==========================================
+  // VIEW: ALL RADIOS SINGLE SCREEN (DESIGN 3)
+  // ==========================================
+  _getFilteredStations() {
+    const q = this._normalizeText(this.searchQuery);
+    if (!q) return this.stations;
+    return this.stations.filter(s => s._normName.includes(q) || s._normTags.includes(q));
+  }
+
+  _buildStationRowHtml(st) {
+    const cur = this.audioEngine.currentStation;
+    const isPlaying = this.audioEngine.isPlaying;
+    const isCur = cur && cur.id === st.id;
+    const isFav = RadioStorage.isFavorite(st.id);
+
+    return `
+      <div class="dir-station-row ${isCur ? 'active' : ''}" data-st-id="${st.id}" onclick="window.rApp.handleStationRowClick(${st.id})">
+        <div class="dir-row-left">
+          <img class="dir-row-logo" src="${st.logo || './assets/brand/favicon.svg'}" alt="${st.name}" loading="lazy">
+          <div class="dir-row-details">
+            <div class="dir-row-name">${st.name}</div>
+            <div class="dir-row-tags">
+              <span class="dir-tag-badge dir-tag-format">${(st.format || 'AAC').toUpperCase()}</span>
+              ${st.isPopular ? '<span class="badge badge-live" style="font-size:9px; padding:1px 5px;">POPÜLER</span>' : ''}
+            </div>
+          </div>
+        </div>
+        <div class="dir-row-right">
+          <button class="dir-fav-btn ${isFav ? 'is-fav' : ''}" onclick="event.stopPropagation(); window.rApp.toggleRowFavorite(${st.id}, this)" aria-label="Favori">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="${isFav ? '#ef4444' : 'none'}" stroke="${isFav ? '#ef4444' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <button class="dir-mini-play-btn" aria-label="Oynat / Duraklat">
+            <svg class="row-play-svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="${isCur && isPlaying ? 'display:none;' : 'display:block;'}"><polygon points="7,5 19,12 7,19"/></svg>
+            <svg class="row-pause-svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="${isCur && isPlaying ? 'display:block;' : 'display:none;'}"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  _renderStationList(reset = true) {
+    const table = document.getElementById('dirStationsTable');
+    const badge = document.getElementById('dirStatsBadge');
+    const sentinel = document.getElementById('dirLoadMoreSentinel');
+    if (!table) return;
+
+    const filtered = this._getFilteredStations();
+    if (badge) badge.textContent = `${filtered.length} İstasyon`;
+
+    if (reset) {
+      this.renderedLimit = 120;
+      const slice = filtered.slice(0, this.renderedLimit);
+      table.innerHTML = slice.length > 0
+        ? slice.map(st => this._buildStationRowHtml(st)).join('')
+        : '<div style="text-align:center; padding:48px 20px; color:var(--text-tertiary);">Aramanıza uygun radyo bulunamadı.</div>';
+    } else {
+      const oldLimit = this.renderedLimit;
+      const nextLimit = oldLimit + 150;
+      const slice = filtered.slice(oldLimit, nextLimit);
+      if (slice.length > 0) {
+        table.insertAdjacentHTML('beforeend', slice.map(st => this._buildStationRowHtml(st)).join(''));
+        this.renderedLimit = nextLimit;
+      }
+    }
+
+    if (sentinel) {
+      if (this.renderedLimit < filtered.length) {
+        sentinel.style.display = 'flex';
+        sentinel.textContent = `Daha fazla radyo yükleniyor (${Math.min(this.renderedLimit, filtered.length)} / ${filtered.length})...`;
       } else {
-        this.renderModernHome();
+        sentinel.style.display = 'none';
       }
     }
   }
 
-  // ==========================================
-  // VIEW: DESIGN 1 (MODERN HOME)
-  // ==========================================
-  renderModernHome() {
-    const cur = this.audioEngine.currentStation || this.stations[0];
-    const popularStations = this.stations.filter(s => s.isPopular).slice(0, 20);
-    const recentIds = RadioStorage.getRecent();
-    const recentStations = this.stations.filter(s => recentIds.includes(s.id)).slice(0, 10);
+  _setupInfiniteScroll() {
+    if (this._dirObserver) {
+      this._dirObserver.disconnect();
+      this._dirObserver = null;
+    }
+    const sentinel = document.getElementById('dirLoadMoreSentinel');
+    if (!sentinel || !this.dom.viewport) return;
 
-    let popChipsHtml = popularStations.map(st => `
-      <div class="station-card-chip ${cur && cur.id === st.id ? 'active' : ''}" data-st-id="${st.id}" onclick="window.rApp.audioEngine.playStation(window.rApp.getStationById(${st.id}))">
-        <img src="${st.logo || './assets/brand/favicon.svg'}" alt="${st.name}" loading="lazy">
-        <div class="station-card-name">${st.name}</div>
-        <div class="station-card-genre">${st.category}</div>
-      </div>
-    `).join('');
+    this._dirObserver = new IntersectionObserver((entries) => {
+      if (entries[0] && entries[0].isIntersecting) {
+        const filtered = this._getFilteredStations();
+        if (this.renderedLimit < filtered.length) {
+          this._renderStationList(false);
+        }
+      }
+    }, {
+      root: this.dom.viewport,
+      rootMargin: '250px'
+    });
 
-    let recentChipsHtml = recentStations.length > 0 ? `
-      <div class="section-header">
-        <div class="section-title"><span>🕒</span> Son Dinlenenler</div>
-      </div>
-      <div class="horizontal-scroll-row">
-        ${recentStations.map(st => `
-          <div class="station-card-chip ${cur && cur.id === st.id ? 'active' : ''}" data-st-id="${st.id}" onclick="window.rApp.audioEngine.playStation(window.rApp.getStationById(${st.id}))">
-            <img src="${st.logo || './assets/brand/favicon.svg'}" alt="${st.name}">
-            <div class="station-card-name">${st.name}</div>
-            <div class="station-card-genre">${st.category}</div>
-          </div>
-        `).join('')}
-      </div>
-    ` : '';
-
-    let categoriesGridHtml = this.categories.slice(0, 8).map(c => `
-      <div class="modern-cat-card" onclick="window.rApp.filterByCategory(${c.id})">
-        <div class="modern-cat-icon">${this._getCategoryEmoji(c.id)}</div>
-        <div class="modern-cat-info">
-          <div class="cat-name">${c.name}</div>
-          <div class="cat-count">Radyoları Gör ›</div>
-        </div>
-      </div>
-    `).join('');
-
-    this.dom.viewport.innerHTML = `
-      <div class="modern-container">
-        
-        <!-- Hero Featured Card -->
-        <div class="hero-card">
-          <div class="hero-glow-sphere"></div>
-          <div class="hero-tag">ÖNE ÇIKAN İSTASYON</div>
-          <div class="hero-title">${cur ? cur.name : 'Power Türk'}</div>
-          <div class="hero-subtitle">${cur ? (cur.category || 'Pop') : 'Pop'} • Kesintisiz Canlı Yayın</div>
-
-          <!-- Live Now Playing Capsule in Hero Card -->
-          <div class="hero-live-track" id="heroLivePill" style="${this.audioEngine.metadataService && this.audioEngine.metadataService.lastTrack ? 'display:inline-flex;' : 'display:none;'}">
-            <span class="pulse-dot"></span>
-            <span id="heroLiveText">${this.audioEngine.metadataService && this.audioEngine.metadataService.lastTrack ? `🎵 <b>${this.audioEngine.metadataService.lastTrack.artist}</b> - ${this.audioEngine.metadataService.lastTrack.title}` : ''}</span>
-          </div>
-
-          <button class="hero-play-button" onclick="window.rApp.audioEngine.togglePlayPause()">
-            <span>${this.audioEngine.isPlaying ? '⏸ Duraklat' : '▶ Hemen Dinle'}</span>
-          </button>
-        </div>
-
-        ${recentChipsHtml}
-
-        <!-- Popüler Radyolar -->
-        <div>
-          <div class="section-header">
-            <div class="section-title"><span>🔥</span> Popüler Radyolar</div>
-            <div class="section-action" onclick="window.rApp.applyTheme('directory')">Tümü (176) ›</div>
-          </div>
-          <div class="horizontal-scroll-row">
-            ${popChipsHtml}
-          </div>
-        </div>
-
-        <!-- Kategoriler -->
-        <div>
-          <div class="section-header">
-            <div class="section-title"><span>🏷️</span> Kategoriler</div>
-            <div class="section-action" onclick="window.rApp.switchTab('categories')">Tümünü Gör (24) ›</div>
-          </div>
-          <div class="modern-categories-grid">
-            ${categoriesGridHtml}
-          </div>
-        </div>
-
-      </div>
-    `;
+    this._dirObserver.observe(sentinel);
   }
 
-  // ==========================================
-  // VIEW: DESIGN 2 (MINIMAL HOME)
-  // ==========================================
-  renderMinimalHome() {
-    const cur = this.audioEngine.currentStation || this.stations[0];
-    const isPlaying = this.audioEngine.isPlaying;
-    const isFav = cur ? RadioStorage.isFavorite(cur.id) : false;
-
-    this.dom.viewport.innerHTML = `
-      <div class="minimal-container">
-        
-        <div class="minimal-header">
-          <div class="minimal-brand-title">r<span>A</span>dio</div>
-          <div style="display:flex; gap:8px;">
-            <button class="icon-btn" onclick="window.rApp.openSettingsModal()" title="Ayarlar">⚙️</button>
-            <button class="icon-btn" onclick="window.rApp.applyTheme('modern')" title="Modern Tasarım">🎨</button>
-          </div>
-        </div>
-
-        <!-- Vinyl Turntable Disc -->
-        <div class="vinyl-deck" onclick="window.rApp.audioEngine.togglePlayPause()">
-          <div class="vinyl-record ${isPlaying ? 'is-playing' : ''}" id="vinylDisc">
-            <img class="vinyl-center-art" id="minVinylArt" src="${cur ? (cur.logo || './assets/brand/favicon.svg') : './assets/brand/favicon.svg'}" alt="Artwork">
-            <div class="vinyl-spindle"></div>
-          </div>
-        </div>
-
-        <!-- Station Info -->
-        <div class="minimal-station-info">
-          <div class="minimal-station-title" id="minStationTitle">${cur ? cur.name : 'Power Türk'}</div>
-          <div class="minimal-station-meta" id="minStationMeta">
-            <span class="badge ${isPlaying ? 'badge-live' : ''}">${isPlaying ? 'CANLI' : 'BEKLEMEDE'}</span>
-            <span>${cur ? cur.category : 'Pop'}</span>
-            <span>•</span>
-            <span>${cur ? cur.format : 'HLS'} 128K</span>
-          </div>
-        </div>
-
-        <!-- Giant Touch Controls -->
-        <div class="minimal-controls-row">
-          <button class="minimal-btn-side ${isFav ? 'is-fav' : ''}" id="minFavBtn" onclick="window.rApp.toggleCurrentFavorite()">
-            ${isFav ? '❤️' : '🤍'}
-          </button>
-          <button class="minimal-btn-play" id="minPlayBtn" onclick="window.rApp.audioEngine.togglePlayPause()">
-            ${isPlaying ? '⏸' : '▶'}
-          </button>
-          <button class="minimal-btn-side" onclick="window.rApp.applyTheme('directory')" title="Radyo Listesi">
-            📋
-          </button>
-        </div>
-
-        <!-- Gesture Browse Pill -->
-        <div class="minimal-browse-pill" onclick="window.rApp.applyTheme('directory')">
-          <span>▲</span>
-          <span>1.426 İstasyon Arasında Gezin</span>
-        </div>
-
-      </div>
-    `;
-  }
-
-  // ==========================================
-  // VIEW: DESIGN 3 (DIRECTORY HOME)
-  // ==========================================
   renderDirectoryHome() {
-    let filtered = this.stations;
-
-    // Filter by city
-    if (this.selectedCity !== 'Tümü') {
-      const qCity = this.selectedCity.toLowerCase();
-      filtered = filtered.filter(s => (s.tags && s.tags.includes(qCity)) || (s.name.toLowerCase().includes(qCity)));
-    }
-
-    // Filter by category
-    if (this.selectedCategory !== null) {
-      filtered = filtered.filter(s => s.categoryId === this.selectedCategory);
-    }
-
-    // Filter by search query
-    if (this.searchQuery.trim()) {
-      const q = this.searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(s => s.name.toLowerCase().includes(q) || s.tags.some(t => t.toLowerCase().includes(q)));
-    }
-
-    const cur = this.audioEngine.currentStation;
-    const isPlaying = this.audioEngine.isPlaying;
-
-    let cityPills = ['Tümü', 'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Trabzon', 'Konya'].map(c => `
-      <button class="filter-chip-btn ${this.selectedCity === c ? 'active' : ''}" onclick="window.rApp.filterByCity('${c}')">${c}</button>
-    `).join('');
-
-    let stationsRowsHtml = filtered.slice(0, 100).map(st => {
-      const isCur = cur && cur.id === st.id;
-      return `
-        <div class="dir-station-row ${isCur ? 'active' : ''}" data-st-id="${st.id}" onclick="window.rApp.audioEngine.playStation(window.rApp.getStationById(${st.id}))">
-          <div class="dir-row-left">
-            <img class="dir-row-logo" src="${st.logo || './assets/brand/favicon.svg'}" alt="${st.name}" loading="lazy">
-            <div class="dir-row-details">
-              <div class="dir-row-name">${st.name}</div>
-              <div class="dir-row-tags">
-                <span class="dir-tag-badge">${st.category}</span>
-                <span class="dir-tag-badge dir-tag-format">${st.format}</span>
-                ${st.isPopular ? '<span class="badge badge-live" style="font-size:9px; padding:1px 5px;">POPÜLER</span>' : ''}
-              </div>
-            </div>
-          </div>
-          <div class="dir-row-right">
-            <button class="dir-mini-play-btn">
-              ${isCur && isPlaying ? '⏸' : '▶'}
-            </button>
-          </div>
-        </div>
-      `;
-    }).join('');
-
     this.dom.viewport.innerHTML = `
       <div class="directory-container">
         
         <div class="dir-top-meta">
           <div>
-            <div class="dir-main-title">Radyo Rehberi</div>
-            <div style="font-size:12px; color:var(--text-tertiary);">Frekanslar, Şehirler ve Kategoriler</div>
+            <div class="dir-main-title">Tüm Radyolar</div>
+            <div style="font-size:12px; color:var(--text-tertiary);">Tek ekranda kesintisiz canlı radyo yayını</div>
           </div>
-          <span class="dir-stats-badge">${filtered.length} İstasyon</span>
+          <span class="dir-stats-badge" id="dirStatsBadge">${this.stations.length} İstasyon</span>
         </div>
 
-        <!-- Search Bar -->
+        <!-- Search Bar (Preserved DOM across keystrokes) -->
         <div class="dir-search-box">
-          <span class="dir-search-lens">🔍</span>
-          <input type="text" placeholder="Radyo adı veya tür yazın..." value="${this.searchQuery}" oninput="window.rApp.onSearchInput(this.value)">
-          ${this.searchQuery ? '<button class="dir-clear-btn" onclick="window.rApp.clearSearch()">✕</button>' : ''}
+          <span class="dir-search-lens">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input id="dirSearchInput" type="text" placeholder="Radyo adı ara..." value="${this.searchQuery}" oninput="window.rApp.onSearchInput(this.value)" autocomplete="off">
+          <button id="dirSearchClearBtn" class="dir-clear-btn" style="display:${this.searchQuery ? 'flex' : 'none'};" onclick="window.rApp.clearSearch()" aria-label="Temizle">✕</button>
         </div>
 
-        <!-- City Horizontal Filter Chips -->
-        <div class="dir-chips-slider">
-          ${cityPills}
-        </div>
-
-        <!-- Station Rows -->
-        <div class="dir-stations-table">
-          ${stationsRowsHtml || '<div style="text-align:center; padding:40px 20px; color:var(--text-tertiary);">Aramanıza uygun radyo bulunamadı.</div>'}
-        </div>
+        <!-- All Stations List -->
+        <div class="dir-stations-table" id="dirStationsTable"></div>
+        <div id="dirLoadMoreSentinel" style="height:32px; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-tertiary);"></div>
 
       </div>
     `;
+
+    this._renderStationList(true);
+    this._setupInfiniteScroll();
   }
 
-  // ==========================================
-  // VIEW: CATEGORIES TAB
-  // ==========================================
-  renderCategoriesTab() {
-    let catCardsHtml = this.categories.map(c => {
-      const count = this.stations.filter(s => s.categoryId === c.id).length;
-      return `
-        <div class="modern-cat-card" style="margin-bottom:8px;" onclick="window.rApp.filterByCategory(${c.id})">
-          <div class="modern-cat-icon">${this._getCategoryEmoji(c.id)}</div>
-          <div class="modern-cat-info" style="flex:1;">
-            <div class="cat-name">${c.name}</div>
-            <div class="cat-count">${count > 0 ? count + ' Canlı İstasyon' : 'Radyoları Keşfet'}</div>
-          </div>
-          <span style="color:var(--text-tertiary); font-size:18px;">›</span>
-        </div>
-      `;
-    }).join('');
+  handleStationRowClick(stationId) {
+    const st = this.getStationById(stationId);
+    if (!st) return;
+    if (this.audioEngine.currentStation && this.audioEngine.currentStation.id === stationId) {
+      this.audioEngine.togglePlayPause();
+    } else {
+      this.audioEngine.playStation(st);
+    }
+  }
 
-    this.dom.viewport.innerHTML = `
-      <div style="padding:16px;">
-        <div class="section-header" style="margin-bottom:16px;">
-          <div class="section-title"><span>🏷️</span> Tüm Radyo Kategorileri (24)</div>
-        </div>
-        <div>
-          ${catCardsHtml}
-        </div>
-      </div>
-    `;
+  toggleRowFavorite(stationId, btnEl) {
+    const isNowFav = RadioStorage.toggleFavorite(stationId);
+    if (btnEl) {
+      btnEl.classList.toggle('is-fav', isNowFav);
+      const svg = btnEl.querySelector('svg');
+      if (svg) {
+        svg.setAttribute('fill', isNowFav ? '#ef4444' : 'none');
+        svg.setAttribute('stroke', isNowFav ? '#ef4444' : 'currentColor');
+      }
+    }
+    if (this.audioEngine.currentStation && this.audioEngine.currentStation.id === stationId) {
+      this._updateFavoriteButton(isNowFav);
+    }
+    this.showToast(isNowFav ? 'Favorilere eklendi ❤️' : 'Favorilerden çıkarıldı 🤍');
   }
 
   // ==========================================
@@ -693,23 +513,24 @@ class RadioApp {
     let favRowsHtml = favStations.map(st => {
       const isCur = cur && cur.id === st.id;
       return `
-        <div class="dir-station-row ${isCur ? 'active' : ''}" data-st-id="${st.id}" onclick="window.rApp.audioEngine.playStation(window.rApp.getStationById(${st.id}))">
+        <div class="dir-station-row ${isCur ? 'active' : ''}" data-st-id="${st.id}" onclick="window.rApp.handleStationRowClick(${st.id})">
           <div class="dir-row-left">
             <img class="dir-row-logo" src="${st.logo || './assets/brand/favicon.svg'}" alt="${st.name}">
             <div class="dir-row-details">
               <div class="dir-row-name">${st.name}</div>
               <div class="dir-row-tags">
-                <span class="dir-tag-badge">${st.category}</span>
-                <span class="dir-tag-badge dir-tag-format">${st.format}</span>
+                <span class="dir-tag-badge dir-tag-format">${(st.format || 'AAC').toUpperCase()}</span>
+                ${st.isPopular ? '<span class="badge badge-live" style="font-size:9px; padding:1px 5px;">POPÜLER</span>' : ''}
               </div>
             </div>
           </div>
           <div class="dir-row-right">
-            <button class="icon-btn" style="width:30px; height:30px; font-size:12px; border:none;" onclick="event.stopPropagation(); window.rApp.removeFavorite(${st.id})">
-              ❤️
+            <button class="dir-fav-btn is-fav" onclick="event.stopPropagation(); window.rApp.removeFavorite(${st.id})" aria-label="Favoriden Çıkar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </button>
-            <button class="dir-mini-play-btn">
-              ${isCur && isPlaying ? '⏸' : '▶'}
+            <button class="dir-mini-play-btn" aria-label="Oynat / Duraklat">
+              <svg class="row-play-svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="${isCur && isPlaying ? 'display:none;' : 'display:block;'}"><polygon points="7,5 19,12 7,19"/></svg>
+              <svg class="row-pause-svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="${isCur && isPlaying ? 'display:block;' : 'display:none;'}"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
             </button>
           </div>
         </div>
@@ -735,53 +556,14 @@ class RadioApp {
   }
 
   // ==========================================
-  // VIEW: SETTINGS TAB (DESIGN SWITCHER & SLEEP TIMER)
+  // VIEW: SETTINGS TAB
   // ==========================================
   renderSettingsTab() {
-    const user = RadioStorage.getUser();
-
     this.dom.viewport.innerHTML = `
-      <div style="padding:16px; display:flex; flex-direction:column; gap:20px;">
+      <div style="padding:16px; display:flex; flex-direction:column; gap:18px;">
         
         <div class="section-header">
           <div class="section-title"><span>⚙️</span> Ayarlar & Tercihler</div>
-        </div>
-
-        <!-- 3 Distinct Designs Selector Card -->
-        <div style="background:var(--surface-card); border:1px solid var(--glass-border-light); border-radius:20px; padding:18px;">
-          <div style="font-size:15px; font-weight:800; margin-bottom:4px;">Arayüz Tasarımı Seçimi</div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-bottom:14px;">
-            Tasarım değişikliği anında uygulanır ve radyo yayını kesilmeden çalmaya devam eder.
-          </div>
-
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            <!-- Modern Card -->
-            <div style="border:2px solid ${this.theme === 'modern' ? 'var(--accent-purple)' : 'var(--glass-border)'}; background:${this.theme === 'modern' ? 'rgba(139,92,246,0.12)' : 'rgba(255,255,255,0.03)'}; border-radius:16px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="window.rApp.applyTheme('modern')">
-              <div>
-                <div style="font-size:14px; font-weight:700;">🎨 Tasarım 1 – Modern</div>
-                <div style="font-size:11px; color:var(--text-secondary);">Renkli kartlar, popüler şeridi, kategori vitrini ve mini oynatıcı</div>
-              </div>
-              ${this.theme === 'modern' ? '<span style="color:var(--accent-purple); font-weight:bold;">✓ Seçili</span>' : ''}
-            </div>
-
-            <!-- Minimal Card -->
-            <div style="border:2px solid ${this.theme === 'minimal' ? 'var(--accent-cyan)' : 'var(--glass-border)'}; background:${this.theme === 'minimal' ? 'rgba(6,182,212,0.12)' : 'rgba(255,255,255,0.03)'}; border-radius:16px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="window.rApp.applyTheme('minimal')">
-              <div>
-                <div style="font-size:14px; font-weight:700;">⚡ Tasarım 2 – Minimal</div>
-                <div style="font-size:11px; color:var(--text-secondary);">Dönen vinil plak, 76px dev buton, sade oynatıcı odaklı ekran</div>
-              </div>
-              ${this.theme === 'minimal' ? '<span style="color:var(--accent-cyan); font-weight:bold;">✓ Seçili</span>' : ''}
-            </div>
-
-            <!-- Directory Card -->
-            <div style="border:2px solid ${this.theme === 'directory' ? 'var(--accent-orange)' : 'var(--glass-border)'}; background:${this.theme === 'directory' ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.03)'}; border-radius:16px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="window.rApp.applyTheme('directory')">
-              <div>
-                <div style="font-size:14px; font-weight:700;">📋 Tasarım 3 – Radyo Rehberi</div>
-                <div style="font-size:11px; color:var(--text-secondary);">Frekans listeleri, 81 il filtresi, hızlı arama ve kompakt satırlar</div>
-              </div>
-              ${this.theme === 'directory' ? '<span style="color:var(--accent-orange); font-weight:bold;">✓ Seçili</span>' : ''}
-            </div>
-          </div>
         </div>
 
         <!-- Sleep Timer Selector -->
@@ -796,24 +578,6 @@ class RadioApp {
                 ${mins === 0 ? 'Kapalı' : mins + ' Dk'}
               </button>
             `).join('')}
-          </div>
-        </div>
-
-        <!-- Account & Security Section -->
-        <div style="background:var(--surface-card); border:1px solid var(--glass-border); border-radius:20px; padding:18px;">
-          <div style="font-size:15px; font-weight:800; margin-bottom:4px;">🔐 Hesap ve Oturum</div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
-            Oturum: <strong>${user ? (user.username || user.email || 'Kullanıcı') : 'Misafir'}</strong> • Durum: <span class="badge ${user && user.status === 'approved' ? 'badge-live' : ''}">${user ? user.status.toUpperCase() : 'YOK'}</span>
-          </div>
-          <div style="display:flex; flex-wrap:wrap; gap:10px;">
-            <button class="filter-chip-btn" onclick="window.rApp.openAuthModal()">
-              Hesap Değiştir / Giriş
-            </button>
-            ${user && user.isAdmin ? `
-              <button class="filter-chip-btn" style="border-color:var(--accent-purple);" onclick="window.rApp.openAdminModal()">
-                👑 Yönetici Onay Paneli
-              </button>
-            ` : ''}
           </div>
         </div>
 
@@ -843,7 +607,7 @@ class RadioApp {
 
         <!-- App Version & Force Reload -->
         <div style="background:var(--surface-card); border:1px solid var(--glass-border); border-radius:20px; padding:18px; text-align:center;">
-          <div style="font-size:14px; font-weight:700; margin-bottom:4px;">🔄 Sürüm Bilgisi (v2.1.2)</div>
+          <div style="font-size:14px; font-weight:700; margin-bottom:4px;">🔄 Sürüm Bilgisi (v2.2.0)</div>
           <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
             En güncel arayüz ve yayın listesini anında çekmek için önbelleği sıfırlayıp yenileyebilirsiniz.
           </div>
@@ -879,12 +643,35 @@ class RadioApp {
     }
   }
 
+  openAboutModal() {
+    if (this.dom.aboutModal) {
+      this.dom.aboutModal.classList.add('open');
+    }
+  }
+
+  closeAboutModal() {
+    if (this.dom.aboutModal) {
+      this.dom.aboutModal.classList.remove('open');
+    }
+  }
+
   toggleCurrentFavorite() {
     if (!this.audioEngine.currentStation) return;
     const isNowFav = RadioStorage.toggleFavorite(this.audioEngine.currentStation.id);
     this._updateFavoriteButton(isNowFav);
     this.showToast(isNowFav ? 'Favorilere eklendi ❤️' : 'Favorilerden çıkarıldı 🤍');
     if (this.activeTab === 'favorites') this.renderFavoritesTab();
+    else if (this.activeTab === 'home') {
+      const row = document.querySelector(`.dir-station-row[data-st-id="${this.audioEngine.currentStation.id}"] .dir-fav-btn`);
+      if (row) {
+        row.classList.toggle('is-fav', isNowFav);
+        const svg = row.querySelector('svg');
+        if (svg) {
+          svg.setAttribute('fill', isNowFav ? '#ef4444' : 'none');
+          svg.setAttribute('stroke', isNowFav ? '#ef4444' : 'currentColor');
+        }
+      }
+    }
   }
 
   removeFavorite(stId) {
@@ -934,54 +721,38 @@ class RadioApp {
     if (this.activeTab === 'settings') this.renderSettingsTab();
   }
 
-  // Filter Helpers
-  filterByCategory(catId) {
-    this.selectedCategory = catId;
-    this.activeTab = 'home';
-    this.applyTheme('directory', false);
-  }
-
-  filterByCity(cityName) {
-    this.selectedCity = cityName;
-    this.renderDirectoryHome();
-  }
-
   onSearchInput(val) {
     this.searchQuery = val;
-    this.renderDirectoryHome();
+    const clearBtn = document.getElementById('dirSearchClearBtn');
+    if (clearBtn) clearBtn.style.display = val ? 'flex' : 'none';
+    this._renderStationList(true);
   }
 
   clearSearch() {
     this.searchQuery = '';
-    this.renderDirectoryHome();
+    const input = document.getElementById('dirSearchInput');
+    const clearBtn = document.getElementById('dirSearchClearBtn');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+    if (clearBtn) clearBtn.style.display = 'none';
+    this._renderStationList(true);
   }
 
   getStationById(id) {
     return this.stations.find(s => s.id === id);
   }
 
-  _getCategoryEmoji(id) {
-    const map = {
-      990: '🎵', 1000: '🎻', 1010: '🌍', 1030: '📰', 1040: '🌙',
-      1050: '🪕', 1060: '📻', 1070: '🕌', 1080: '⚡', 1090: '🎤',
-      1100: '🎷', 1105: '✨', 1110: '🏙️', 1120: '🪘', 1130: '🎹',
-      1140: '🎸', 1150: '🌿', 1160: '☕', 1170: '🔀', 1180: '🎙️',
-      1190: '🌊', 1200: '🧸', 1210: '🇦🇿', 1220: '🎭'
-    };
-    return map[id] || '📻';
-  }
-
   // ==========================================
   // ANTI-COPY & INTELLECTUAL PROPERTY SHIELD
   // ==========================================
   _setupAntiCopyProtections() {
-    // 1. Disable Right-Click Context Menu
     document.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       return false;
     }, { capture: true });
 
-    // 2. Disable Copy & Cut outside input elements
     document.addEventListener('copy', (e) => {
       if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
         e.preventDefault();
@@ -996,13 +767,11 @@ class RadioApp {
       }
     });
 
-    // 3. Disable Dragging of Images & Media
     document.addEventListener('dragstart', (e) => {
       e.preventDefault();
       return false;
     });
 
-    // 4. Disable Text Selection outside input fields
     document.addEventListener('selectstart', (e) => {
       if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
         e.preventDefault();
@@ -1010,299 +779,28 @@ class RadioApp {
       }
     });
 
-    // 5. Intercept DevTools and View-Source Shortcuts
     window.addEventListener('keydown', (e) => {
-      // F12
       if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
         return false;
       }
-      // Ctrl+Shift+I / J / C
       if (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
         e.preventDefault();
         return false;
       }
-      // Ctrl+U (View Source), Ctrl+S (Save Page)
       if (e.ctrlKey && ['u', 'U', 's', 'S'].includes(e.key)) {
         e.preventDefault();
         return false;
       }
     });
 
-    // 6. Anti-Clickjacking / Frame-Busting
     try {
       if (window.top !== window.self) {
         window.top.location = window.self.location;
       }
     } catch (e) {
-      console.warn('[rAdio] Embedded in frame, redirecting...');
       window.location = 'about:blank';
     }
-  }
-
-  // ==========================================
-  // AUTHENTICATION & MANDATORY ACCESS GATE (Section 12)
-  // ==========================================
-  checkAuthAndEnforceGate() {
-    const user = RadioStorage.getUser();
-    const modal = this.dom.authModal;
-    const formFields = document.getElementById('authFormFields');
-    const navTabs = document.getElementById('authNavTabs');
-    const pendingBanner = document.getElementById('authPendingBanner');
-
-    // 1. No Active Session: Lock App Shell and force Login / Access Request
-    if (!user) {
-      if (modal) {
-        modal.classList.add('open', 'gate-locked');
-      }
-      if (formFields) formFields.style.display = 'block';
-      if (navTabs) navTabs.style.display = 'flex';
-      if (pendingBanner) pendingBanner.style.display = 'none';
-      this.switchAuthTab('login');
-      return false;
-    }
-
-    // 2. Pending Approval: Lock App Shell and show Waiting Banner
-    if (user.status === 'pending') {
-      if (modal) {
-        modal.classList.add('open', 'gate-locked');
-      }
-      if (formFields) formFields.style.display = 'none';
-      if (navTabs) navTabs.style.display = 'none';
-      if (pendingBanner) {
-        pendingBanner.style.display = 'block';
-        pendingBanner.innerHTML = `
-          <span class="status-badge-pending">⏳ BAŞVURU BEKLEMEDE</span>
-          <div style="font-size:13px; font-weight:700; color:#fbbf24; margin-bottom:4px;">Başvurunuz İnceleniyor</div>
-          <div style="font-size:12px; color:#cbd5e1; line-height:1.4;">Yönetici onayından sonra radyo yayınları anında açılacaktır.</div>
-          <div style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">Kayıtlı E-posta: <strong>${user.email}</strong></div>
-          <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
-            <button class="filter-chip-btn" style="font-size:11px;" onclick="window.rApp.checkUserAuthStatus()">Durumu Yenile 🔄</button>
-            <button class="filter-chip-btn" style="font-size:11px; color:#ef4444;" onclick="window.rApp.logoutUser()">Çıkış Yap</button>
-          </div>
-        `;
-      }
-      return false;
-    }
-
-    // 3. Rejected Access
-    if (user.status === 'rejected') {
-      if (modal) {
-        modal.classList.add('open', 'gate-locked');
-      }
-      if (formFields) formFields.style.display = 'none';
-      if (navTabs) navTabs.style.display = 'none';
-      if (pendingBanner) {
-        pendingBanner.style.display = 'block';
-        pendingBanner.innerHTML = `
-          <span class="status-badge-pending" style="color:var(--accent-red); border-color:var(--accent-red); background:rgba(239,68,68,0.15);">✕ ERİŞİM REDDEDİLDİ</span>
-          <div style="font-size:13px; font-weight:700; color:#f87171; margin-bottom:4px;">Erişim İptal Edildi</div>
-          <div style="font-size:12px; color:#cbd5e1; line-height:1.4;">Hesap erişiminiz yönetici tarafından durdurulmuştur.</div>
-          <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
-            <button class="filter-chip-btn" style="font-size:11px;" onclick="window.rApp.checkUserAuthStatus()">Tekrar Kontrol Et 🔄</button>
-            <button class="filter-chip-btn" style="font-size:11px; color:#ef4444;" onclick="window.rApp.logoutUser()">Çıkış Yap</button>
-          </div>
-        `;
-      }
-      return false;
-    }
-
-    // 4. Approved User / Admin: Unlock gate!
-    if (user.status === 'approved') {
-      if (modal) {
-        modal.classList.remove('open', 'gate-locked');
-      }
-      if (formFields) formFields.style.display = 'block';
-      if (navTabs) navTabs.style.display = 'flex';
-      if (pendingBanner) pendingBanner.style.display = 'none';
-      return true;
-    }
-
-    return false;
-  }
-
-  switchAuthTab(tab) {
-    const tabLogin = document.getElementById('tabLoginBtn');
-    const tabReq = document.getElementById('tabReqBtn');
-    const actionBtn = document.getElementById('authActionBtn');
-
-    if (tab === 'request') {
-      if (tabLogin) tabLogin.classList.remove('active');
-      if (tabReq) tabReq.classList.add('active');
-      if (actionBtn) {
-        actionBtn.textContent = 'Erişim Talebi Gönder';
-        actionBtn.setAttribute('data-action', 'request');
-      }
-    } else {
-      if (tabLogin) tabLogin.classList.add('active');
-      if (tabReq) tabReq.classList.remove('active');
-      if (actionBtn) {
-        actionBtn.textContent = 'Giriş Yap';
-        actionBtn.setAttribute('data-action', 'login');
-      }
-    }
-  }
-
-  checkUserAuthStatus() {
-    const currentUser = RadioStorage.getUser();
-    if (!currentUser || !currentUser.email) {
-      this.checkAuthAndEnforceGate();
-      return;
-    }
-
-    const users = this.authManager.getAllUsers();
-    const found = users.find(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
-
-    if (found) {
-      if (found.status === 'approved') {
-        const updated = { ...currentUser, status: 'approved' };
-        RadioStorage.setUser(updated);
-        this.authManager.currentUser = updated;
-        this.checkAuthAndEnforceGate();
-        this.showToast('Tebrikler! Hesabınız onaylandı. Keyifli dinlemeler! 🎉', '✓');
-      } else if (found.status === 'rejected') {
-        const updated = { ...currentUser, status: 'rejected' };
-        RadioStorage.setUser(updated);
-        this.authManager.currentUser = updated;
-        this.checkAuthAndEnforceGate();
-        this.showToast('Başvurunuz onaylanmadı.', '✕');
-      } else {
-        this.showToast('Başvurunuz henüz onay beklemektedir. Lütfen bekleyin.', '⏳');
-      }
-    } else {
-      this.showToast('Kullanıcı kaydı bulunamadı. Lütfen yeni başvuru yapın.', '⚠️');
-      this.logoutUser();
-    }
-  }
-
-  logoutUser() {
-    this.authManager.logout();
-    if (this.audioEngine.isPlaying) {
-      this.audioEngine.pause();
-    }
-    const emailInput = document.getElementById('authEmailInput');
-    const passInput = document.getElementById('authPasswordInput');
-    if (emailInput) emailInput.value = '';
-    if (passInput) passInput.value = '';
-
-    this.checkAuthAndEnforceGate();
-    if (this.activeTab === 'settings') this.renderSettingsTab();
-    this.showToast('Oturum kapatıldı.', 'ℹ️');
-  }
-
-  // Auth & Admin Modals
-  openAuthModal() {
-    if (this.dom.authModal) {
-      this.checkAuthAndEnforceGate();
-      this.dom.authModal.classList.add('open');
-    }
-  }
-
-  closeAuthModal() {
-    const user = RadioStorage.getUser();
-    if (!user || user.status !== 'approved') {
-      this.showToast('Uygulamayı kullanmak için giriş yapmanız gerekmektedir.', '🔒');
-      return;
-    }
-    if (this.dom.authModal) {
-      this.dom.authModal.classList.remove('open', 'gate-locked');
-    }
-  }
-
-  openAdminModal() {
-    if (this.dom.adminModal) {
-      this.renderAdminRequests();
-      this.dom.adminModal.classList.add('open');
-    }
-  }
-
-  closeAdminModal() {
-    if (this.dom.adminModal) this.dom.adminModal.classList.remove('open');
-  }
-
-  // About & Legal Modal
-  openAboutModal() {
-    if (this.dom.aboutModal) {
-      this.dom.aboutModal.classList.add('open');
-    }
-  }
-
-  closeAboutModal() {
-    if (this.dom.aboutModal) {
-      this.dom.aboutModal.classList.remove('open');
-    }
-  }
-
-  openSettingsModal() {
-    this.switchTab('settings');
-  }
-
-  // Handle Form Submission
-  async handleAuthSubmit(action) {
-    const emailInput = document.getElementById('authEmailInput');
-    const passInput = document.getElementById('authPasswordInput');
-    if (!emailInput || !passInput) return;
-
-    const email = emailInput.value.trim();
-    const pass = passInput.value.trim();
-
-    if (!email) {
-      this.showToast('Lütfen kullanıcı adınızı girin.', '⚠️');
-      return;
-    }
-    if (!pass) {
-      this.showToast('Lütfen şifrenizi girin.', '⚠️');
-      return;
-    }
-
-    if (action === 'request') {
-      const res = await this.authManager.requestAccess(email, pass);
-      this.showToast(res.message, res.success ? '✓' : '⚠️');
-      this.checkAuthAndEnforceGate();
-    } else {
-      const res = await this.authManager.login(email, pass);
-      this.showToast(res.message, res.success ? '✓' : '⚠️');
-      this.checkAuthAndEnforceGate();
-    }
-    if (this.activeTab === 'settings') this.renderSettingsTab();
-  }
-
-  renderAdminRequests() {
-    const container = document.getElementById('adminRequestsContainer');
-    if (!container) return;
-
-    const users = this.authManager.getAllUsers();
-    container.innerHTML = users.map(u => {
-      let badgeColor = u.status === 'approved' ? 'var(--accent-green)' : (u.status === 'rejected' ? 'var(--accent-red)' : 'var(--accent-orange)');
-      let badgeText = u.status === 'approved' ? 'ONAYLANDI' : (u.status === 'rejected' ? 'REDDEDİLDİ' : 'BEKLEMEDE');
-      return `
-        <div class="admin-request-card">
-          <div class="admin-req-top">
-            <span class="admin-req-email">${u.email}</span>
-            <span class="badge" style="color:${badgeColor}; font-weight:800;">${badgeText}</span>
-          </div>
-          <div class="admin-req-time">Kayıt: ${u.date} • Rol: ${u.role || 'user'}</div>
-          <div class="admin-action-buttons">
-            <button class="btn-admin-approve" onclick="window.rApp.adminApproveUser('${u.id}')">✓ Onayla</button>
-            <button class="btn-admin-reject" onclick="window.rApp.adminRejectUser('${u.id}')">✕ Reddet / İptal</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  adminApproveUser(id) {
-    this.authManager.approveUser(id);
-    this.renderAdminRequests();
-    this.showToast('Kullanıcı onaylandı! Yayın erişimi açıldı.', '✓');
-    this.checkAuthAndEnforceGate();
-  }
-
-  adminRejectUser(id) {
-    this.authManager.rejectUser(id);
-    this.renderAdminRequests();
-    this.showToast('Kullanıcı erişimi durduruldu.', '✕');
-    this.checkAuthAndEnforceGate();
   }
 
   // Toast Notification
@@ -1377,7 +875,7 @@ class RadioApp {
   _registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=2.1.2').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=2.2.0').then((reg) => {
           console.log('[rAdio] Service Worker registered with scope:', reg.scope);
           reg.update();
         }).catch((err) => {

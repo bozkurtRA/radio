@@ -1,5 +1,5 @@
 // rAdio PWA Service Worker
-const CACHE_NAME = 'radio-v2.1.2';
+const CACHE_NAME = 'radio-v2.2.0';
 
 // Core assets to pre-cache on install
 const PRECACHE_ASSETS = [
@@ -8,7 +8,6 @@ const PRECACHE_ASSETS = [
   './manifest.webmanifest',
   './css/main.css',
   './css/modern.css',
-  './css/minimal.css',
   './css/directory.css',
   './css/player.css',
   './css/auth.css',
@@ -16,10 +15,7 @@ const PRECACHE_ASSETS = [
   './js/metadata-service.js',
   './js/audio-engine.js',
   './js/storage.js',
-  './js/auth-manager.js',
-  './data/categories.json',
-  './data/popular.json',
-  './data/cities.json',
+  './data/stations.json',
   './assets/brand/logo.svg',
   './assets/brand/icon.svg',
   './assets/brand/favicon.svg',
