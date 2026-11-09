@@ -1,6 +1,6 @@
 # rAdio – Mobil ve Masaüstü Canlı Radyo Platformu
 
-![rAdio Logo](./assets/brand/logo.svg)
+<img src="./assets/brand/readme-logo.svg" alt="rAdio – Mobil ve Masaüstü Canlı Radyo" width="374">
 
 ---
 

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 374 96" width="374" height="96" role="img" aria-label="rAdio – Mobil ve Masaüstü Canlı Radyo">
+  <defs>
+    <linearGradient id="readmeCardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d1b" />
+      <stop offset="55%" stop-color="#111830" />
+      <stop offset="100%" stop-color="#0d1326" />
+    </linearGradient>
+
+    <linearGradient id="readmeBorderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5" />
+      <stop offset="50%" stop-color="#a855f7" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0.5" />
+    </linearGradient>
+
+    <linearGradient id="logoWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A855F7" />
+      <stop offset="45%" stop-color="#3B82F6" />
+      <stop offset="75%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#F97316" />
+    </linearGradient>
+
+    <linearGradient id="textOrange" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF5E62" />
+      <stop offset="100%" stop-color="#FF9966" />
+    </linearGradient>
+
+    <filter id="logoGlow" x="-120%" y="-120%" width="340%" height="340%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Contrast-safe Obsidian Card for Light & Dark Themes -->
+  <rect x="2" y="2" width="370" height="92" rx="22" fill="url(#readmeCardBg)" stroke="url(#readmeBorderGrad)" stroke-width="1.5" />
+
+  <!-- Left Symbol Mark -->
+  <g transform="translate(18, 13)">
+    <path d="M 22 24 A 20 20 0 0 0 22 46" fill="none" stroke="url(#logoWaveGrad)" stroke-width="3.5" stroke-linecap="round" opacity="0.95"/>
+    <path d="M 14 17 A 30 30 0 0 0 14 53" fill="none" stroke="url(#logoWaveGrad)" stroke-width="2.8" stroke-linecap="round" opacity="0.65"/>
+
+    <path d="M 48 24 A 20 20 0 0 1 48 46" fill="none" stroke="url(#logoWaveGrad)" stroke-width="3.5" stroke-linecap="round" opacity="0.95"/>
+    <path d="M 56 17 A 30 30 0 0 1 56 53" fill="none" stroke="url(#logoWaveGrad)" stroke-width="2.8" stroke-linecap="round" opacity="0.65"/>
+
+    <rect x="26" y="26" width="3.5" height="18" rx="1.75" fill="#06B6D4" />
+    <rect x="32" y="19" width="3.5" height="32" rx="1.75" fill="#3B82F6" />
+    <rect x="38" y="13" width="4" height="44" rx="2" fill="url(#logoWaveGrad)" filter="url(#logoGlow)" />
+    <rect x="44" y="21" width="3.5" height="28" rx="1.75" fill="#F97316" />
+
+    <circle cx="40" cy="9" r="3" fill="#FF9966" filter="url(#logoGlow)"/>
+  </g>
+
+  <!-- Brand Typography -->
+  <text x="102" y="51" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="38" letter-spacing="0.4" fill="#FFFFFF">
+    r<tspan fill="url(#textOrange)">A</tspan><tspan fill="#FFFFFF">dio</tspan>
+  </text>
+
+  <!-- Tagline / Subtitle -->
+  <text x="104" y="72" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif" font-weight="700" font-size="10.5" letter-spacing="1.6" fill="#CBD5E1">
+    MOBİL &amp; MASAÜSTÜ CANLI RADYO
+  </text>
+</svg>
