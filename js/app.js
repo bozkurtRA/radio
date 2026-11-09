@@ -607,7 +607,7 @@ class RadioApp {
 
         <!-- App Version & Force Reload -->
         <div style="background:var(--surface-card); border:1px solid var(--glass-border); border-radius:20px; padding:18px; text-align:center;">
-          <div style="font-size:14px; font-weight:700; margin-bottom:4px;">🔄 Sürüm Bilgisi (v2.2.0)</div>
+          <div style="font-size:14px; font-weight:700; margin-bottom:4px;">🔄 Sürüm Bilgisi (v2.2.1)</div>
           <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
             En güncel arayüz ve yayın listesini anında çekmek için önbelleği sıfırlayıp yenileyebilirsiniz.
           </div>
@@ -875,7 +875,7 @@ class RadioApp {
   _registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=2.2.0').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=2.2.1').then((reg) => {
           console.log('[rAdio] Service Worker registered with scope:', reg.scope);
           reg.update();
         }).catch((err) => {
