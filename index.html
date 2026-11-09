@@ -2,17 +2,41 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <!-- iPhone Safe Area & No Scalable Viewport -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>rAdio – Mobil Canlı Radyo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>rAdio – Canlı Radyo (Mobil &amp; Masaüstü)</title>
 
-  <!-- iOS PWA Meta Tags -->
+  <!-- Pre-paint View Mode Resolution (Prevents flash across Mobile / PC UIs) -->
+  <script>
+    (function () {
+      var mode = 'auto';
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var qp = params.get('view');
+        if (qp === 'mobile' || qp === 'desktop' || qp === 'auto') {
+          mode = qp;
+        } else {
+          var saved = localStorage.getItem('radio_view_mode');
+          if (saved === 'mobile' || saved === 'desktop' || saved === 'auto') {
+            mode = saved;
+          }
+        }
+      } catch (e) {}
+
+      var effective = mode === 'auto'
+        ? (window.innerWidth >= 960 ? 'desktop' : 'mobile')
+        : mode;
+      document.documentElement.dataset.uiView = effective;
+      document.documentElement.dataset.uiPref = mode;
+    })();
+  </script>
+
+  <!-- iOS & Mobile PWA Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="rAdio">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0a0c16">
-  <meta name="description" content="iOS öncelikli modern, hızlı ve kesintisiz mobil canlı radyo uygulaması.">
+  <meta name="description" content="Mobil ve masaüstü cihazlara özel modern, hızlı ve kesintisiz canlı radyo platformu.">
 
   <!-- Icons & Manifest -->
   <link rel="icon" type="image/svg+xml" href="./assets/brand/favicon.svg">
@@ -21,95 +45,103 @@
   <link rel="manifest" href="./manifest.webmanifest">
 
   <!-- Stylesheets with versioning -->
-  <link rel="stylesheet" href="./css/main.css?v=2.2.2">
-  <link rel="stylesheet" href="./css/modern.css?v=2.2.2">
-  <link rel="stylesheet" href="./css/directory.css?v=2.2.2">
-  <link rel="stylesheet" href="./css/player.css?v=2.2.2">
-  <link rel="stylesheet" href="./css/auth.css?v=2.2.2">
+  <link rel="stylesheet" href="./css/main.css?v=2.3.0">
+  <link rel="stylesheet" href="./css/modern.css?v=2.3.0">
+  <link rel="stylesheet" href="./css/directory.css?v=2.3.0">
+  <link rel="stylesheet" href="./css/player.css?v=2.3.0">
+  <link rel="stylesheet" href="./css/auth.css?v=2.3.0">
+  <link rel="stylesheet" href="./css/desktop.css?v=2.3.0">
 
-  <!-- Hls.js fallback for non-Safari browsers (Safari plays HLS natively) -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
+  <!-- Hls.js for non-Safari browsers (Safari & iOS use native hardware HLS) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
 </head>
 <body>
 
-  <!-- Main Mobile App Shell -->
+  <!-- Shared Persistent Audio Element (Preserves uninterrupted playback across Mobile/PC switch) -->
+  <audio id="radioMasterAudio" preload="none" playsinline hidden></audio>
+
+  <!-- =========================================================
+       MOBILE SHELL (Design 3 Preserved)
+       ========================================================= -->
   <div id="app">
-    
-    <!-- Top Safe Area App Header -->
     <header class="app-header">
-      <div class="app-brand" onclick="window.rApp.switchTab('home')" style="cursor:pointer;" title="Ana Sayfa">
-        <img src="./assets/brand/logo.svg" alt="rAdio">
-      </div>
+      <button type="button" class="app-brand" id="mobileBrandBtn" style="background:transparent; border:0; cursor:pointer;" aria-label="rAdio Ana Sayfa">
+        <img src="./assets/brand/logo.svg" alt="rAdio" width="106" height="36">
+      </button>
       <div class="header-actions">
-        <button class="icon-btn" onclick="window.rApp.focusSearch()" title="Radyo Ara" aria-label="Arama">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <button type="button" class="icon-btn" id="mobileToPcBtn" title="Masaüstü (PC) Görünümüne Geç" aria-label="PC Görünümü">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
         </button>
-        <button class="icon-btn" onclick="window.rApp.openAboutModal()" title="Hakkında & Yasal Bilgilendirme / Telif" aria-label="Hakkında">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <button type="button" class="icon-btn" id="mobileSearchFocusBtn" title="Radyo Ara" aria-label="Arama">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="mobileAboutBtn" title="Hakkında &amp; Yasal Bilgilendirme / Telif" aria-label="Hakkında">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         </button>
       </div>
     </header>
 
-    <!-- Dynamic Main Content Viewport -->
-    <main class="main-viewport" id="mainViewport">
-      <!-- Active tab content rendered here by JavaScript -->
+    <main class="main-viewport" id="mainViewport" aria-label="Mobil Radyo Listesi">
+      <!-- Active tab content rendered dynamically -->
     </main>
 
     <!-- Floating Modern Mini Player (Sticky above tab bar) -->
-    <div class="modern-mini-player-bar" id="modernMiniPlayer" onclick="window.rApp.openPlayerModal()">
+    <div class="modern-mini-player-bar" id="modernMiniPlayer" role="button" tabindex="0" aria-label="Tam Ekran Oynatıcıyı Aç">
       <div class="mini-media-info">
-        <img id="miniLogo" src="./assets/brand/favicon.svg" alt="Logo">
+        <img id="miniLogo" src="./assets/brand/favicon.svg" alt="" width="44" height="44">
         <div class="mini-media-text">
           <div class="mini-title" id="miniTitle">Power Türk</div>
           <div class="mini-subtitle" id="miniSubtitle">● CANLI YAYIN</div>
         </div>
       </div>
-      <div class="mini-controls-wrap" onclick="event.stopPropagation()">
-        <button class="mini-play-btn" id="miniPlayBtn" onclick="window.rApp.audioEngine.togglePlayPause()" aria-label="Oynat / Duraklat">
-          <svg class="mini-play-svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="7,5 19,12 7,19"/></svg>
-          <svg class="mini-pause-svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+      <div class="mini-controls-wrap">
+        <button type="button" class="mini-play-btn" id="miniPlayBtn" aria-label="Oynat veya Duraklat">
+          <svg class="mini-play-svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="7,5 19,12 7,19"/></svg>
+          <svg class="mini-pause-svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none;" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
         </button>
       </div>
     </div>
 
     <!-- iOS Bottom Navigation Tab Bar -->
-    <nav class="modern-tab-nav" id="modernTabNav">
-      <button class="tab-nav-btn active" data-tab="home" onclick="window.rApp.switchTab('home')">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12c0 1.1.89 2 2 2h16c1.11 0 2-.9 2-2V8c0-1.11-.89-2-2-2H8.3l8.26-3.34-.75-1.85-12.57 5.34zM7 20c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-8h-2v-2h-2v2H4V8h16v4z"/></svg>
+    <nav class="modern-tab-nav" id="modernTabNav" aria-label="Mobil Gezinme">
+      <button type="button" class="tab-nav-btn active" data-tab="home">
+        <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.24 6.15C2.51 6.43 2 7.17 2 8v12c0 1.1.89 2 2 2h16c1.11 0 2-.9 2-2V8c0-1.11-.89-2-2-2H8.3l8.26-3.34-.75-1.85-12.57 5.34zM7 20c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-8h-2v-2h-2v2H4V8h16v4z"/></svg>
         <span>Radyolar</span>
       </button>
-      <button class="tab-nav-btn" data-tab="favorites" onclick="window.rApp.switchTab('favorites')">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      <button type="button" class="tab-nav-btn" data-tab="favorites">
+        <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
         <span>Favoriler</span>
       </button>
-      <button class="tab-nav-btn" data-tab="settings" onclick="window.rApp.switchTab('settings')">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <button type="button" class="tab-nav-btn" data-tab="settings">
+        <svg fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
         <span>Ayarlar</span>
       </button>
     </nav>
-
   </div>
 
-  <!-- Fullscreen Player Modal Bottom-Sheet -->
-  <div class="player-sheet-modal" id="playerSheetModal">
+  <!-- Mobile Fullscreen Player Modal Bottom-Sheet -->
+  <div class="player-sheet-modal" id="playerSheetModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="sheet-top-bar">
-      <button class="icon-btn modal-dismiss-btn" onclick="window.rApp.closePlayerModal()" aria-label="Kapat">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <button type="button" class="icon-btn modal-dismiss-btn" id="modalDismissBtn" aria-label="Oynatıcıyı Kapat">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
-      <div class="sheet-handle-pill" onclick="window.rApp.closePlayerModal()"></div>
-      <button class="icon-btn modal-fav-btn" id="modalFavBtn" onclick="window.rApp.toggleCurrentFavorite()" aria-label="Favori">
-        <svg class="heart-icon empty" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <svg class="heart-icon filled" width="22" height="22" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <div class="sheet-handle-pill" id="modalHandlePill" aria-hidden="true"></div>
+      <button type="button" class="icon-btn modal-fav-btn" id="modalFavBtn" aria-label="Favorilere Ekle">
+        <svg class="heart-icon empty" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <svg class="heart-icon filled" width="22" height="22" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
     </div>
 
-    <!-- Artwork Deck with Ambient Glow & Visualizer -->
     <div class="player-art-stage">
       <div class="player-ambient-glow" id="playerAmbientGlow"></div>
       <div class="player-art-frame">
-        <img id="modalLogo" src="./assets/brand/favicon.svg" alt="Artwork">
+        <img id="modalLogo" src="./assets/brand/favicon.svg" alt="" width="200" height="200">
       </div>
-      <div class="player-visualizer">
+      <div class="player-visualizer" aria-hidden="true">
         <div class="viz-bar"></div>
         <div class="viz-bar"></div>
         <div class="viz-bar"></div>
@@ -119,14 +151,12 @@
       </div>
     </div>
 
-    <!-- Station Details & Prominent Now Playing Badge -->
     <div class="player-details-block">
       <div class="player-st-title" id="modalTitle">Power Türk</div>
 
-      <!-- Live Track Now-Playing Card -->
       <div class="player-track-box" id="modalTrackBox">
         <div class="player-track-badge">
-          <span class="pulse-dot"></span>
+          <span class="pulse-dot" aria-hidden="true"></span>
           <span>CANLI YAYINDA ÇALIYOR</span>
         </div>
         <div class="player-track-title" id="modalTrackTitle">Canlı Akış Yükleniyor...</div>
@@ -135,45 +165,49 @@
 
       <div class="player-st-genre" id="modalGenre">Pop • Canlı Radyo</div>
       <div class="player-st-codec" id="modalCodec">HLS Akışı • 128 kbps • HTTPS</div>
+
+      <div class="modal-status-banner" id="modalStatusBanner" role="status" aria-live="polite">
+        <span id="modalStatusBannerText"></span>
+        <button type="button" class="modal-retry-btn" id="modalRetryBtn">Tekrar Dene</button>
+      </div>
     </div>
 
-    <!-- Controls Cluster with High-End Glassmorphism Buttons -->
     <div class="player-main-controls">
-      <button class="player-ctrl-btn player-skip-btn" onclick="window.rApp.playAdjacentStation(-1)" title="Önceki İstasyon" aria-label="Önceki İstasyon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="player-ctrl-btn player-skip-btn" id="modalPrevBtn" title="Önceki İstasyon" aria-label="Önceki İstasyon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polygon points="19 20 9 12 19 4 19 20"></polygon>
           <line x1="5" y1="19" x2="5" y2="5"></line>
         </svg>
       </button>
 
-      <button class="player-big-play" id="modalPlayBtn" onclick="window.rApp.audioEngine.togglePlayPause()" aria-label="Oynat / Duraklat">
-        <svg class="play-svg" width="34" height="34" viewBox="0 0 24 24" fill="#ffffff">
+      <button type="button" class="player-big-play" id="modalPlayBtn" aria-label="Oynat veya Duraklat">
+        <svg class="play-svg" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <polygon points="7,4 21,12 7,20"></polygon>
         </svg>
-        <svg class="pause-svg" width="34" height="34" viewBox="0 0 24 24" fill="#ffffff" style="display:none;">
+        <svg class="pause-svg" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style="display:none;" aria-hidden="true">
           <rect x="6" y="4" width="4" height="16" rx="1.5"></rect>
           <rect x="14" y="4" width="4" height="16" rx="1.5"></rect>
         </svg>
       </button>
 
-      <button class="player-ctrl-btn player-skip-btn" onclick="window.rApp.playAdjacentStation(1)" title="Sonraki İstasyon" aria-label="Sonraki İstasyon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="player-ctrl-btn player-skip-btn" id="modalNextBtn" title="Sonraki İstasyon" aria-label="Sonraki İstasyon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polygon points="5 4 15 12 5 20 5 4"></polygon>
           <line x1="19" y1="5" x2="19" y2="19"></line>
         </svg>
       </button>
     </div>
 
-    <!-- Volume Slider Bar with SVG Audio Icons -->
     <div class="player-volume-container">
-      <button class="player-vol-icon-btn" onclick="window.rApp.audioEngine.setVolume(0)" aria-label="Sesi Kapat">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="player-vol-icon-btn" id="modalVolMinBtn" aria-label="Sesi Kapat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
         </svg>
       </button>
-      <input type="range" class="player-vol-slider" id="modalVolSlider" min="0" max="1" step="0.01" value="0.85" oninput="window.rApp.onVolumeChange(this.value)">
-      <button class="player-vol-icon-btn" onclick="window.rApp.audioEngine.setVolume(1)" aria-label="Maksimum Ses">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <label class="visually-hidden" for="modalVolSlider">Ses Düzeyi</label>
+      <input type="range" class="player-vol-slider" id="modalVolSlider" min="0" max="1" step="0.01" value="0.85">
+      <button type="button" class="player-vol-icon-btn" id="modalVolMaxBtn" aria-label="Maksimum Ses">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
           <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
@@ -181,31 +215,285 @@
       </button>
     </div>
 
-    <!-- Sleep Timer Bar Button -->
-    <div class="sleep-timer-bar" onclick="window.rApp.switchTab('settings'); window.rApp.closePlayerModal();">
+    <button type="button" class="sleep-timer-bar" id="modalSleepBar">
       <span>🌙 <span id="sleepTimerText">Uyku: Kapalı</span></span>
       <span style="color:var(--accent-cyan); font-weight:700;">Ayarla ›</span>
-    </div>
+    </button>
   </div>
 
-  <!-- About & Legal / DMCA Disclaimer Modal -->
-  <div class="about-modal" id="aboutModal">
+  <!-- =========================================================
+       DESKTOP (PC) STUDIO SHELL
+       ========================================================= -->
+  <div id="desktopShell" class="pc-shell">
+    <a href="#pcMainHeading" class="pc-skip-link visually-hidden">İçeriğe geç</a>
+
+    <!-- Desktop Top Workspace Bar -->
+    <header class="pc-topbar">
+      <button type="button" class="pc-brand-btn" id="pcBrandBtn" aria-label="rAdio Tüm Radyolar">
+        <svg class="pc-brand-svg" width="112" height="32" viewBox="0 0 218 58" role="img" aria-label="rAdio">
+          <defs>
+            <linearGradient id="pcLogoWaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#A855F7" />
+              <stop offset="45%" stop-color="#3B82F6" />
+              <stop offset="75%" stop-color="#06B6D4" />
+              <stop offset="100%" stop-color="#F97316" />
+            </linearGradient>
+            <linearGradient id="pcTextOrange" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#FF5E62" />
+              <stop offset="100%" stop-color="#FF9966" />
+            </linearGradient>
+          </defs>
+          <g transform="translate(2, 0)">
+            <path d="M 18 20 A 16 16 0 0 0 18 39" fill="none" stroke="url(#pcLogoWaveGrad)" stroke-width="3.2" stroke-linecap="round" opacity="0.95"/>
+            <path d="M 11 14 A 24 24 0 0 0 11 45" fill="none" stroke="url(#pcLogoWaveGrad)" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/>
+            <path d="M 42 20 A 16 16 0 0 1 42 39" fill="none" stroke="url(#pcLogoWaveGrad)" stroke-width="3.2" stroke-linecap="round" opacity="0.95"/>
+            <path d="M 49 14 A 24 24 0 0 1 49 45" fill="none" stroke="url(#pcLogoWaveGrad)" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/>
+            <rect x="21" y="21" width="3" height="16" rx="1.5" fill="#06B6D4" />
+            <rect x="26.5" y="15" width="3" height="28" rx="1.5" fill="#3B82F6" />
+            <rect x="32" y="10" width="3.5" height="38" rx="1.75" fill="url(#pcLogoWaveGrad)" />
+            <rect x="38" y="17" width="3" height="24" rx="1.5" fill="#F97316" />
+            <circle cx="33.75" cy="6" r="2.6" fill="#FF9966" />
+          </g>
+          <text x="66" y="40" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif" font-weight="900" font-size="38" letter-spacing="0.4" fill="#FFFFFF">
+            r<tspan fill="url(#pcTextOrange)">A</tspan><tspan fill="#FFFFFF">dio</tspan>
+          </text>
+        </svg>
+        <span class="pc-brand-tag">MASAÜSTÜ CANLI RADYO</span>
+      </button>
+
+      <search class="pc-search-region">
+        <div class="pc-search-wrap">
+          <span class="pc-search-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <label class="visually-hidden" for="pcSearchInput">Radyo veya kategori ara</label>
+          <input id="pcSearchInput" type="search" placeholder="Radyo adı, müzik türü veya etiket ara..." autocomplete="off">
+          <button type="button" id="pcSearchClearBtn" class="pc-search-clear" aria-label="Aramayı temizle">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <span class="pc-search-kbd" aria-hidden="true">/</span>
+        </div>
+      </search>
+
+      <div class="pc-topbar-actions">
+        <div class="pc-live-pill" id="pcLiveStatusPill" data-state="idle" role="status" aria-live="polite">
+          <span class="pc-live-dot" aria-hidden="true"></span>
+          <span id="pcLiveStatusText">HAZIR</span>
+        </div>
+
+        <button type="button" class="pc-action-btn" id="pcToMobileBtn" aria-label="Mobil Görünüme Geç">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+          <span>Mobil Görünüm</span>
+        </button>
+
+        <button type="button" class="pc-action-btn pc-action-icon" id="pcAboutBtn" title="Hakkında &amp; Telif Hakları (DMCA)" aria-label="Hakkında ve Telif Bildirimi">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Desktop Left Navigation & Categories Sidebar -->
+    <aside class="pc-sidebar" aria-label="Kategoriler ve Kütüphane">
+      <nav aria-label="Ana Kitaplık">
+        <div class="pc-nav-section-title">Kitaplık</div>
+        <ul class="pc-nav-list" id="pcPrimaryNavList"></ul>
+      </nav>
+
+      <nav aria-label="Radyo Kategorileri">
+        <div class="pc-nav-section-title">Kategoriler</div>
+        <ul class="pc-cat-list" id="pcCategoryList"></ul>
+      </nav>
+
+      <section class="pc-sleep-card" aria-label="Uyku Zamanlayıcısı">
+        <div class="pc-sleep-head">
+          <span class="pc-sleep-head-left">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <span>Uyku Zamanlayıcısı</span>
+          </span>
+          <span class="pc-sleep-remaining" id="pcSleepRemaining">Kapalı</span>
+        </div>
+        <div class="pc-sleep-grid" id="pcSleepGrid">
+          <button type="button" class="pc-sleep-btn" data-pc-sleep="0" aria-pressed="true">Kapalı</button>
+          <button type="button" class="pc-sleep-btn" data-pc-sleep="15" aria-pressed="false">15 Dk</button>
+          <button type="button" class="pc-sleep-btn" data-pc-sleep="30" aria-pressed="false">30 Dk</button>
+          <button type="button" class="pc-sleep-btn" data-pc-sleep="45" aria-pressed="false">45 Dk</button>
+          <button type="button" class="pc-sleep-btn" data-pc-sleep="60" aria-pressed="false">60 Dk</button>
+          <button type="button" class="pc-sleep-btn" data-pc-sleep="90" aria-pressed="false">90 Dk</button>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Desktop Main Content Grid -->
+    <main class="pc-main" id="pcMainPane">
+      <div class="pc-workspace-head">
+        <div class="pc-title-group">
+          <div class="pc-title-row">
+            <h1 class="pc-page-title" id="pcMainHeading" tabindex="-1">Tüm Radyolar</h1>
+            <span class="pc-count-pill" id="pcMainCount">0 İstasyon</span>
+          </div>
+          <p class="pc-page-subtitle" id="pcMainSubtitle">Geniş ekran masaüstü radyo istasyonu kataloğu</p>
+        </div>
+
+        <div class="pc-density-group" role="group" aria-label="Görünüm Yoğunluğu">
+          <button type="button" class="pc-density-btn" id="pcDensityGridBtn" aria-pressed="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Kartlar</span>
+          </button>
+          <button type="button" class="pc-density-btn" id="pcDensityListBtn" aria-pressed="false">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <span>Liste</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pc-toolbar">
+        <div class="pc-filter-pills" id="pcFormatFilters" role="group" aria-label="Yayın Formatı Filtresi">
+          <button type="button" class="pc-pill-btn" data-pc-format="all" aria-pressed="true">Tümü</button>
+          <button type="button" class="pc-pill-btn" data-pc-format="hls" aria-pressed="false">HLS (m3u8)</button>
+          <button type="button" class="pc-pill-btn" data-pc-format="aac" aria-pressed="false">AAC</button>
+          <button type="button" class="pc-pill-btn" data-pc-format="mp3" aria-pressed="false">MP3</button>
+          <button type="button" class="pc-pill-btn" data-pc-format="stream" aria-pressed="false">Canlı Akış</button>
+        </div>
+      </div>
+
+      <section class="pc-featured-strip" id="pcFeaturedStrip" aria-label="Hızlı Popüler İstasyonlar">
+        <div class="pc-featured-head">
+          <h2 class="pc-featured-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+            <span>Hızlı Seçim — Öne Çıkanlar</span>
+          </h2>
+        </div>
+        <div class="pc-featured-row" id="pcFeaturedRow"></div>
+      </section>
+
+      <div class="pc-stations-grid" id="pcStationsGrid"></div>
+
+      <div class="pc-load-more-wrap" id="pcLoadMoreWrap" style="display:none;">
+        <button type="button" class="pc-action-btn" id="pcLoadMoreBtn">Daha Fazla Göster</button>
+      </div>
+      <div id="pcLoadMoreSentinel" style="block-size:1px;" aria-hidden="true"></div>
+    </main>
+
+    <!-- Desktop Right Studio Player Inspector -->
+    <aside class="pc-player-deck" aria-label="Masaüstü Oynatıcı Konsolu">
+      <div class="pc-deck-top">
+        <div class="pc-deck-art-stage">
+          <div class="pc-deck-glow" id="pcDeckGlow"></div>
+          <div class="pc-deck-art-frame" id="pcDeckArtFrame">
+            <img id="pcDeckLogo" src="./assets/brand/favicon.svg" alt="" width="184" height="184">
+            <span class="pc-logo-fallback">
+              <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg>
+            </span>
+          </div>
+          <div class="pc-deck-visualizer" aria-hidden="true">
+            <div class="pc-viz-bar"></div>
+            <div class="pc-viz-bar"></div>
+            <div class="pc-viz-bar"></div>
+            <div class="pc-viz-bar"></div>
+            <div class="pc-viz-bar"></div>
+            <div class="pc-viz-bar"></div>
+          </div>
+        </div>
+
+        <div class="pc-deck-station-info">
+          <h2 class="pc-deck-title" id="pcDeckTitle">Power Türk</h2>
+          <div class="pc-deck-meta" id="pcDeckMeta">Pop • Hazır</div>
+          <div class="pc-deck-codec" id="pcDeckCodec">HLS Akışı • HTTPS Güvenli</div>
+        </div>
+
+        <div class="pc-track-card">
+          <div class="pc-track-badge">
+            <span class="pulse-dot" aria-hidden="true"></span>
+            <span id="pcDeckTrackBadgeText">MASAÜSTÜ OYNATICI</span>
+          </div>
+          <div class="pc-track-title" id="pcDeckTrackTitle">Çalmak için Oynat düğmesine basın</div>
+          <div class="pc-track-artist" id="pcDeckTrackArtist">Power Türk</div>
+        </div>
+
+        <div class="pc-deck-alert" id="pcDeckAlert" role="alert">
+          <div id="pcDeckAlertText"></div>
+          <button type="button" class="pc-retry-btn" id="pcDeckRetryBtn">Tekrar Dene</button>
+        </div>
+      </div>
+
+      <div class="pc-deck-controls-zone">
+        <div class="pc-transport-row">
+          <button type="button" class="pc-ctrl-circle" id="pcPrevBtn" title="Önceki İstasyon" aria-label="Önceki İstasyon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="19 20 9 12 19 4 19 20"></polygon>
+              <line x1="5" y1="19" x2="5" y2="5"></line>
+            </svg>
+          </button>
+
+          <button type="button" class="pc-play-primary" id="pcPlayBtn" aria-label="Oynat">
+            <svg class="pc-play-svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <polygon points="7,4 21,12 7,20"></polygon>
+            </svg>
+            <svg class="pc-pause-svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style="display:none;" aria-hidden="true">
+              <rect x="6" y="4" width="4" height="16" rx="1.5"></rect>
+              <rect x="14" y="4" width="4" height="16" rx="1.5"></rect>
+            </svg>
+          </button>
+
+          <button type="button" class="pc-ctrl-circle" id="pcNextBtn" title="Sonraki İstasyon" aria-label="Sonraki İstasyon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="5 4 15 12 5 20 5 4"></polygon>
+              <line x1="19" y1="5" x2="19" y2="19"></line>
+            </svg>
+          </button>
+
+          <button type="button" class="pc-ctrl-circle" id="pcDeckFavBtn" aria-pressed="false" aria-label="Favorilere ekle">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+
+        <div class="pc-volume-row">
+          <button type="button" class="pc-mute-btn" id="pcMuteBtn" aria-label="Sessize Al" aria-pressed="false">
+            <svg class="vol-on-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <svg class="vol-off-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+          </button>
+          <label class="visually-hidden" for="pcVolSlider">Ses Düzeyi</label>
+          <input type="range" class="pc-range-slider" id="pcVolSlider" min="0" max="1" step="0.01" value="0.85">
+          <span class="pc-vol-percent" id="pcVolPercent">%85</span>
+        </div>
+
+        <div class="pc-shortcuts-hint">
+          Boşluk: Oynat/Duraklat • ←/→: İstasyon • M: Sessiz • /: Ara
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Shared About & Legal / DMCA Disclaimer Modal -->
+  <div class="about-modal" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" aria-hidden="true">
     <div class="about-card-panel">
       <div class="about-header-top">
         <div class="about-app-brand">
-          <img src="./assets/brand/logo.svg" alt="rAdio">
-          <span class="about-version-badge">v2.2.2 PWA</span>
+          <img src="./assets/brand/logo.svg" alt="rAdio" width="94" height="32">
+          <span class="about-version-badge" id="aboutModalTitle">v2.3.0 PWA</span>
         </div>
-        <button class="icon-btn" onclick="window.rApp.closeAboutModal()" aria-label="Kapat">✕</button>
+        <button type="button" class="icon-btn" id="aboutCloseTopBtn" aria-label="Kapat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
 
       <div class="about-legal-section">
         <div class="about-legal-item">
           <div class="about-item-title">
-            <span>📻</span> <span>Hizmet & Platform Tanımı</span>
+            <span>📻</span> <span>Hizmet &amp; Platform Tanımı</span>
           </div>
           <div class="about-item-text">
-            <strong>rAdio</strong>, internet ortamında radyo kuruluşları ve bağımsız platformlar tarafından halka açık, lisanslı ve ücretsiz (open public stream) olarak sunulan canlı radyo yayın akışlarını tek bir modern arayüzde bir araya getiren bağımsız bir radyo oynatıcı ve dizin hizmetidir.
+            <strong>rAdio</strong>, internet ortamında radyo kuruluşları ve bağımsız platformlar tarafından halka açık, lisanslı ve ücretsiz (open public stream) olarak sunulan canlı radyo yayın akışlarını mobil ve masaüstü arayüzlerde bir araya getiren bağımsız bir radyo oynatıcı ve dizin hizmetidir.
           </div>
         </div>
 
@@ -229,7 +517,7 @@
 
         <div class="about-legal-item">
           <div class="about-item-title">
-            <span>📩</span> <span>Telif Bildirimi & DMCA Prosedürü</span>
+            <span>📩</span> <span>Telif Bildirimi &amp; DMCA Prosedürü</span>
           </div>
           <div class="about-item-text">
             rAdio, telif haklarına ve yasal düzenlemelere azami hassasiyet ve saygı göstermektedir. Telif hakkı sahibi veya yetkili yasal temsilcisi olduğunuz bir yayının veya bilginin dizinden kaldırılmasını talep ediyorsanız, hak sahipliği teyidiyle birlikte bize bildirmeniz halinde en geç <strong>24-48 saat</strong> içerisinde ilgili istasyon sistemden derhal ve kalıcı olarak kaldırılacaktır.
@@ -237,12 +525,12 @@
         </div>
 
         <div class="about-contact-box">
-          <div style="font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:4px;">Yasal & İletişim Masası</div>
+          <div style="font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:4px;">Yasal &amp; İletişim Masası</div>
           <div style="font-size:11px; color:#94a3b8; margin-bottom:8px; line-height:1.4;">
             Telif talepleri, bildirim ve hak sahipliği teyidi için aşağıdaki adrese e-posta iletebilirsiniz:
           </div>
           <div style="display:flex; justify-content:center; align-items:center; margin:6px 0;">
-            <img src="./assets/brand/dmca-contact.png" alt="İletişim Masası" style="max-width:280px; width:100%; height:auto; display:block; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.45);" />
+            <img src="./assets/brand/dmca-contact.png" alt="Yasal İletişim Masası" width="280" height="58" style="max-width:280px; width:100%; height:auto; display:block; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.45);">
           </div>
           <div style="font-size:10px; color:#64748b; margin-top:6px;">
             (Spam ve otomatik bot koruması amacıyla e-posta adresi görsel olarak sunulmaktadır.)
@@ -251,7 +539,7 @@
       </div>
 
       <div style="text-align:center; padding-top:4px;">
-        <button class="filter-chip-btn" style="width:100%; padding:10px; font-weight:700;" onclick="window.rApp.closeAboutModal()">
+        <button type="button" class="filter-chip-btn" id="aboutCloseBottomBtn" style="width:100%; padding:10px; font-weight:700;">
           Anladım ve Kapat
         </button>
       </div>
@@ -259,7 +547,7 @@
   </div>
 
   <!-- Toast Notifications Container -->
-  <div class="toast-container" id="toastContainer"></div>
+  <div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
 
   <!-- iOS Add to Home Screen (A2HS) Modal Prompt -->
   <div class="a2hs-banner" id="a2hsBanner" style="display:none;">
@@ -268,7 +556,7 @@
         <span>📱</span>
         <span>rAdio'yu Ana Ekrana Ekleyin</span>
       </div>
-      <button class="icon-btn" style="width:28px; height:28px; font-size:12px;" onclick="window.rApp.dismissA2HS()">✕</button>
+      <button type="button" class="icon-btn" id="a2hsDismissBtn" style="width:28px; height:28px; font-size:12px;" aria-label="Kılavuzu Kapat">✕</button>
     </div>
     <div class="a2hs-steps">
       1. Safari altındaki <span class="icon">Paylaş</span> simgesine dokunun.<br>
@@ -303,7 +591,7 @@
         var isStandalone = window.navigator.standalone === true ||
           (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
 
-        if (!isAppleTouch || !isStandalone) {
+        if (!isAppleTouch || !isStandalone || root.dataset.uiView === 'desktop') {
           root.style.setProperty('--app-height', '100dvh');
           delete root.dataset.iosGapFix;
           return;
@@ -336,9 +624,10 @@
   </script>
 
   <!-- JavaScript Modules with versioning -->
-  <script src="./js/storage.js?v=2.2.2"></script>
-  <script src="./js/metadata-service.js?v=2.2.2"></script>
-  <script src="./js/audio-engine.js?v=2.2.2"></script>
-  <script src="./js/app.js?v=2.2.2"></script>
+  <script src="./js/storage.js?v=2.3.0"></script>
+  <script src="./js/metadata-service.js?v=2.3.0"></script>
+  <script src="./js/audio-engine.js?v=2.3.0"></script>
+  <script src="./js/desktop-ui.js?v=2.3.0"></script>
+  <script src="./js/app.js?v=2.3.0"></script>
 </body>
 </html>

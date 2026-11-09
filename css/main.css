@@ -84,6 +84,19 @@ body {
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
 }
 
+@media (min-width: 600px) {
+  html[data-ui-view="mobile"] #app {
+    border-inline: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+#app :is(button, a, input, [tabindex]):focus-visible,
+.player-sheet-modal :is(button, input):focus-visible,
+.about-modal :is(button):focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
 /* iOS Top Safe Area Header */
 .app-header {
   flex-shrink: 0;
@@ -123,8 +136,8 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -132,9 +145,7 @@ body {
   font-size: 16px;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -246,20 +257,18 @@ body {
 /* iOS Add to Home Screen (A2HS) Modal Prompt */
 .a2hs-banner {
   position: fixed;
-  bottom: calc(var(--safe-bottom) + 16px);
-  left: 16px;
-  right: 16px;
-  background: rgba(22, 28, 48, 0.96);
+  bottom: calc(var(--tabbar-height) + var(--miniplayer-height) + 18px);
+  left: 14px;
+  right: 14px;
+  background: rgba(18, 24, 44, 0.99);
   border: 1px solid var(--accent-orange);
   border-radius: 20px;
-  padding: 16px 20px;
-  z-index: 900;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+  padding: 14px 18px;
+  z-index: 120;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.85);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   animation: slide-up 0.4s ease;
 }
 

@@ -75,7 +75,7 @@
     "name": "Slow Türk",
     "categoryId": 104,
     "url": "https://radyo.duhnet.tv/ak_dtvh_slowturk",
-    "format": "hls",
+    "format": "aac",
     "isHttps": true,
     "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/slowturk3.png",
     "logoKey": "slowturk3",
@@ -249,7 +249,7 @@
     "id": 12,
     "name": "Kral Pop",
     "categoryId": 100,
-    "url": "https://dygedge2.radyotvonline.net/kralpop/playlist.m3u8",
+    "url": "https://dygedge.radyotvonline.net/kralpop/playlist.m3u8",
     "format": "hls",
     "isHttps": true,
     "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kralpop2.png",
@@ -1487,7 +1487,7 @@
     "id": 552,
     "name": "Dream Türk",
     "categoryId": 100,
-    "url": "https://live.duhnet.tv//S2/HLS_LIVE/dreamturknp/playlist.m3u8",
+    "url": "https://moondigitaledge2.radyotvonline.net/dreamturk/playlist.m3u8",
     "format": "hls",
     "isHttps": true,
     "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/dreamturk3.png",
@@ -2211,24 +2211,6 @@
     "isVerifiedAlive": true
   },
   {
-    "id": 578,
-    "name": "Türkiye Polis Radyosu",
-    "categoryId": 100,
-    "url": "https://m.egm.gov.tr:8093/;",
-    "format": "aac",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/turkiyepolisradyosu.png",
-    "logoKey": "turkiyepolisradyosu",
-    "tags": [
-      "pop",
-      "slow"
-    ],
-    "order": 181,
-    "isPopular": true,
-    "category": "Pop",
-    "isVerifiedAlive": true
-  },
-  {
     "id": 573,
     "name": "Türkülerle Türkiye",
     "categoryId": 105,
@@ -2573,24 +2555,6 @@
     "order": 217,
     "isPopular": true,
     "category": "Pop",
-    "isVerifiedAlive": true
-  },
-  {
-    "id": 2113,
-    "name": "Tele1 TV",
-    "categoryId": 0,
-    "url": "https://tele1-live.ercdn.net/tele1/tele1.m3u8",
-    "format": "hls",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/tele1tv.png",
-    "logoKey": "tele1tv",
-    "tags": [
-      "haber",
-      "tivi"
-    ],
-    "order": 218,
-    "isPopular": true,
-    "category": "Haber - Spor",
     "isVerifiedAlive": true
   },
   {
@@ -4862,9 +4826,9 @@
     "id": 255,
     "name": "Hatay Melodi Fm",
     "categoryId": 1031,
-    "url": "http://radyomelodi.80.yayin.com.tr/stream",
+    "url": "https://radyomelodi.80.yayin.com.tr/stream",
     "format": "aac",
-    "isHttps": false,
+    "isHttps": true,
     "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/hataymelodifm2.png",
     "logoKey": "hataymelodifm2",
     "tags": [],
@@ -5357,23 +5321,6 @@
     "isVerifiedAlive": true
   },
   {
-    "id": 310,
-    "name": "Kastamonu Cihan Fm",
-    "categoryId": 1037,
-    "url": "https://radyo.yayin.com.tr:5942/;",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kastamonucihanfm2.png",
-    "logoKey": "kastamonucihanfm2",
-    "tags": [
-      "karışık"
-    ],
-    "order": 489,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": true
-  },
-  {
     "id": 311,
     "name": "Kastamonu Radyo 37",
     "categoryId": 1037,
@@ -5596,23 +5543,6 @@
     "isVerifiedAlive": true
   },
   {
-    "id": 335,
-    "name": "Kocaeli Radyo Mavi",
-    "categoryId": 1041,
-    "url": "http://yayin.netyayin.net:8070/;stream.mp3",
-    "format": "aac",
-    "isHttps": false,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kocaeliradyomavi2.png",
-    "logoKey": "kocaeliradyomavi2",
-    "tags": [
-      "karışık"
-    ],
-    "order": 516,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": true
-  },
-  {
     "id": 343,
     "name": "Konya Ribat Fm",
     "categoryId": 1042,
@@ -5642,6 +5572,23 @@
     "order": 525,
     "isPopular": false,
     "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 345,
+    "name": "Radyo Gençlik",
+    "categoryId": 1042,
+    "url": "http://canli.radyogenclik.com:9000/stream",
+    "format": "stream",
+    "isHttps": false,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/konyaradyogenclik2.png",
+    "logoKey": "konyaradyogenclik2",
+    "tags": [
+      "dini"
+    ],
+    "order": 535,
+    "isPopular": false,
+    "category": "Dini",
     "isVerifiedAlive": true
   },
   {
@@ -5935,6 +5882,23 @@
     "order": 578,
     "isPopular": false,
     "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 380,
+    "name": "Mardin Cemre Fm",
+    "categoryId": 1047,
+    "url": "https://anadolu.liderhost.com.tr:8170/stream",
+    "format": "mp3",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/mardincemrefm2.png",
+    "logoKey": "mardincemrefm2",
+    "tags": [
+      "dini"
+    ],
+    "order": 580,
+    "isPopular": false,
+    "category": "Dini",
     "isVerifiedAlive": true
   },
   {
@@ -7913,9 +7877,9 @@
     "id": 755,
     "name": "Metropol Fm",
     "categoryId": "",
-    "url": "http://metropol-fm.api.radiosphere.io/channels/MetropolFM/stream.mp3?quality=4",
+    "url": "https://metropol-fm.api.radiosphere.io/channels/MetropolFM/stream.mp3?quality=4",
     "format": "mp3",
-    "isHttps": false,
+    "isHttps": true,
     "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/metropolfmde2.png",
     "logoKey": "metropolfmde2",
     "tags": [
@@ -8047,6 +8011,23 @@
     "isVerifiedAlive": true
   },
   {
+    "id": 768,
+    "name": "Osmaniye Radyo 80",
+    "categoryId": 1080,
+    "url": "https://stream.turkiyeradyolari.com/radyo80/stream",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/osmaniyeradyo802.png",
+    "logoKey": "osmaniyeradyo802",
+    "tags": [
+      "karışık"
+    ],
+    "order": 913,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
     "id": 772,
     "name": "Play Fm",
     "categoryId": "",
@@ -8142,6 +8123,21 @@
     "order": 925,
     "isPopular": false,
     "category": "Dini",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 796,
+    "name": "Osmaniye Radyo Gönül",
+    "categoryId": 1080,
+    "url": "https://sslyayin.netyayin.net/gonulfm/stream",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/osmaniyeradyogonul2.png",
+    "logoKey": "osmaniyeradyogonul2",
+    "tags": [],
+    "order": 926,
+    "isPopular": false,
+    "category": "Pop",
     "isVerifiedAlive": true
   },
   {
@@ -8274,6 +8270,23 @@
     "order": 963,
     "isPopular": false,
     "category": "Nostalji",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 816,
+    "name": "Radyo Vatan Türkü",
+    "categoryId": "",
+    "url": "https://turku.radyovatankktc.com:9300/turkuvatan",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyovatankıbrıs.png",
+    "logoKey": "radyovatankıbrıs",
+    "tags": [
+      "halkmüzik"
+    ],
+    "order": 965,
+    "isPopular": false,
+    "category": "Halk Müziği",
     "isVerifiedAlive": true
   },
   {
@@ -8485,6 +8498,24 @@
     "logoKey": "tekirdagradyocan2",
     "tags": [],
     "order": 1001,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 844,
+    "name": "Trakya Fm",
+    "categoryId": "",
+    "url": "https://stream.netradyom.com/listen/trakyafm/radio.mp3",
+    "format": "mp3",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/trakyafm2.png",
+    "logoKey": "trakyafm2",
+    "tags": [
+      "pop",
+      "slow"
+    ],
+    "order": 1004,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": true
@@ -9050,6 +9081,21 @@
     "logoKey": "konyaradyouniversite",
     "tags": [],
     "order": 1089,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 998,
+    "name": "Radyo Çanakkale",
+    "categoryId": 1017,
+    "url": "https://radyo2.fkbs.com.tr:8018/;",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyocanakkale2.png",
+    "logoKey": "radyocanakkale2",
+    "tags": [],
+    "order": 1090,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": true
@@ -9633,21 +9679,6 @@
     "order": 1191,
     "isPopular": false,
     "category": "Yabancı Pop",
-    "isVerifiedAlive": true
-  },
-  {
-    "id": 1095,
-    "name": "Adana Radyo Güney",
-    "categoryId": 1001,
-    "url": "https://stream.radyolarburada.com:8250/stream",
-    "format": "aac",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/adanaradyoguney.png",
-    "logoKey": "adanaradyoguney",
-    "tags": [],
-    "order": 1192,
-    "isPopular": false,
-    "category": "Pop",
     "isVerifiedAlive": true
   },
   {
@@ -11218,6 +11249,23 @@
     "isVerifiedAlive": true
   },
   {
+    "id": 1642,
+    "name": "Cevheri Musiki",
+    "categoryId": 0,
+    "url": "http://server1024.streamplus.de/stream",
+    "format": "mp3",
+    "isHttps": false,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/tasavvufmusikiradyo.png",
+    "logoKey": "tasavvufmusikiradyo",
+    "tags": [
+      "dini"
+    ],
+    "order": 1710,
+    "isPopular": false,
+    "category": "Dini",
+    "isVerifiedAlive": true
+  },
+  {
     "id": 1654,
     "name": "Adana Radyo Deva",
     "categoryId": 1001,
@@ -11486,6 +11534,21 @@
     "isVerifiedAlive": true
   },
   {
+    "id": 1692,
+    "name": "Fethiye Tur Fm",
+    "categoryId": 1048,
+    "url": "https://sslyayin.netyayin.net:10981/stream",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/fethiyeturfm.png",
+    "logoKey": "fethiyeturfm",
+    "tags": [],
+    "order": 1739,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
     "id": 1693,
     "name": "Gençlik Radyosu",
     "categoryId": 0,
@@ -11517,21 +11580,6 @@
       "yabancı"
     ],
     "order": 1744,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": true
-  },
-  {
-    "id": 1701,
-    "name": "Elazığ Radyo Fırat",
-    "categoryId": 1023,
-    "url": "https://anadolu.liderhost.com.tr:10912/;",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyofirat2.png",
-    "logoKey": "radyofirat2",
-    "tags": [],
-    "order": 1750,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": true
@@ -11909,6 +11957,21 @@
     "logoKey": "aksaraymaviradyo2",
     "tags": [],
     "order": 1793,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 1757,
+    "name": "Amasya Art Fm",
+    "categoryId": 1005,
+    "url": "https://yayin1.canlitv.fun:8014/stream?/;stream.mp3",
+    "format": "mp3",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/amasyaartfm2.png",
+    "logoKey": "amasyaartfm2",
+    "tags": [],
+    "order": 1798,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": true
@@ -12637,23 +12700,6 @@
     "isVerifiedAlive": true
   },
   {
-    "id": 1828,
-    "name": "Polis Radyosu TSM",
-    "categoryId": 0,
-    "url": "https://m.egm.gov.tr:8095/;",
-    "format": "aac",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/turkiyepolisradyosu.png",
-    "logoKey": "turkiyepolisradyosu",
-    "tags": [
-      "nostalji"
-    ],
-    "order": 1878,
-    "isPopular": false,
-    "category": "Nostalji",
-    "isVerifiedAlive": true
-  },
-  {
     "id": 1829,
     "name": "Şanlı Urfa Harran Fm",
     "categoryId": 1063,
@@ -13106,6 +13152,23 @@
     "isVerifiedAlive": true
   },
   {
+    "id": 1888,
+    "name": "Hakkari Fm",
+    "categoryId": 1030,
+    "url": "https://radyo.slmbilisim.net/8004/stream;",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/hakkarifm.png",
+    "logoKey": "hakkarifm",
+    "tags": [
+      "kürtçe"
+    ],
+    "order": 1923,
+    "isPopular": false,
+    "category": "Kürtçe",
+    "isVerifiedAlive": true
+  },
+  {
     "id": 1894,
     "name": "Radyo Mucizem",
     "categoryId": 0,
@@ -13241,6 +13304,21 @@
     "isVerifiedAlive": true
   },
   {
+    "id": 1910,
+    "name": "Amasya Dost Fm",
+    "categoryId": 1005,
+    "url": "https://yayin1.canlitv.fun:8020/stream",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/amasyaradyodost2.png",
+    "logoKey": "amasyaradyodost2",
+    "tags": [],
+    "order": 1949,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
     "id": 2462,
     "name": "Ulusal Türkçe Rock",
     "categoryId": 0,
@@ -13272,23 +13350,6 @@
     "order": 1951,
     "isPopular": false,
     "category": "Pop",
-    "isVerifiedAlive": true
-  },
-  {
-    "id": 1913,
-    "name": "Miraç Fm",
-    "categoryId": 0,
-    "url": "https://anadolu.liderhost.com.tr/9416/stream",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/miracfm.png",
-    "logoKey": "miracfm",
-    "tags": [
-      "dini"
-    ],
-    "order": 1952,
-    "isPopular": false,
-    "category": "Dini",
     "isVerifiedAlive": true
   },
   {
@@ -14414,6 +14475,21 @@
     "logoKey": "beydiliradyo",
     "tags": [],
     "order": 2089,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 2082,
+    "name": "Radyo Bir Dünya",
+    "categoryId": 0,
+    "url": "https://live2.radyo.in/8014/stream",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyobirdunya.png",
+    "logoKey": "radyobirdunya",
+    "tags": [],
+    "order": 2090,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": true
@@ -16104,6 +16180,23 @@
     "isVerifiedAlive": true
   },
   {
+    "id": 2253,
+    "name": "ANS ÇM Radio",
+    "categoryId": 0,
+    "url": "https://live.ansradio.ws:8443/mp3_128",
+    "format": "mp3",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/anscmradio.png",
+    "logoKey": "anscmradio",
+    "tags": [
+      "azeri"
+    ],
+    "order": 2253,
+    "isPopular": false,
+    "category": "Azerbaycan",
+    "isVerifiedAlive": true
+  },
+  {
     "id": 2255,
     "name": "Radyo Sibiraya - Радио Сибирь",
     "categoryId": 0,
@@ -16169,9 +16262,9 @@
     "id": 2264,
     "name": "Metropol Fm Dans",
     "categoryId": 0,
-    "url": "http://metropol-fm.api.radiosphere.io/channels/Dans/stream.mp3?quality=4",
+    "url": "https://metropol-fm.api.radiosphere.io/channels/Dans/stream.mp3?quality=4",
     "format": "mp3",
-    "isHttps": false,
+    "isHttps": true,
     "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/metropolfmde2.png",
     "logoKey": "metropolfmde2",
     "tags": [],
@@ -16349,21 +16442,6 @@
     "logoKey": "radyoorjinal",
     "tags": [],
     "order": 2279,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": true
-  },
-  {
-    "id": 2280,
-    "name": "Bozok Fm",
-    "categoryId": 1066,
-    "url": "http://radyo.bozok.edu.tr/canli/stream",
-    "format": "stream",
-    "isHttps": false,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/bozokfm.png",
-    "logoKey": "bozokfm",
-    "tags": [],
-    "order": 2280,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": true
@@ -16955,23 +17033,6 @@
     "order": 2331,
     "isPopular": false,
     "category": "Haber - Spor",
-    "isVerifiedAlive": true
-  },
-  {
-    "id": 2332,
-    "name": "Radio Day.Az",
-    "categoryId": 0,
-    "url": "https://radio.day.az:9443/192",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radiodayaz.png",
-    "logoKey": "radiodayaz",
-    "tags": [
-      "azeri"
-    ],
-    "order": 2332,
-    "isPopular": false,
-    "category": "Azerbaycan",
     "isVerifiedAlive": true
   },
   {
@@ -18492,23 +18553,6 @@
     "isVerifiedAlive": true
   },
   {
-    "id": 2470,
-    "name": "Radyo 3 Hilal",
-    "categoryId": 0,
-    "url": "https://uchilal.com:8443/live",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyo3hilal2.png",
-    "logoKey": "radyo3hilal2",
-    "tags": [
-      "halkmüzik"
-    ],
-    "order": 2470,
-    "isPopular": false,
-    "category": "Halk Müziği",
-    "isVerifiedAlive": true
-  },
-  {
     "id": 2473,
     "name": "Hoçwan Radyo",
     "categoryId": 0,
@@ -18724,6 +18768,23 @@
     "order": 2490,
     "isPopular": false,
     "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 2502,
+    "name": "Radyo MegaStar 102.7",
+    "categoryId": 1009,
+    "url": "https://sslyayin.radyoyayini.com:7039/stream?type=http&nocache=3",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/aydinradyomegastar.png",
+    "logoKey": "aydinradyomegastar",
+    "tags": [
+      "arabesk"
+    ],
+    "order": 2491,
+    "isPopular": false,
+    "category": "Arabesk",
     "isVerifiedAlive": true
   },
   {
@@ -18964,21 +19025,6 @@
     "isVerifiedAlive": true
   },
   {
-    "id": 2514,
-    "name": "Radyo Horoz",
-    "categoryId": 1020,
-    "url": "https://dinle.radyohoroz.com/8008/stream",
-    "format": "aac",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyohoroz.png",
-    "logoKey": "radyohoroz",
-    "tags": [],
-    "order": 2514,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": true
-  },
-  {
     "id": 2515,
     "name": "Kent Deha Radyo",
     "categoryId": 1020,
@@ -19146,21 +19192,6 @@
     "isVerifiedAlive": true
   },
   {
-    "id": 2530,
-    "name": "Kocaeli Radyo Şahin",
-    "categoryId": 1041,
-    "url": "https://sslyayin.netyayin.net/8070/stream/;stream.mp3",
-    "format": "aac",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kocaeliradyosahin.png",
-    "logoKey": "kocaeliradyosahin",
-    "tags": [],
-    "order": 2530,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": true
-  },
-  {
     "id": 2531,
     "name": "Radyo Nikomedya",
     "categoryId": 1041,
@@ -19291,6 +19322,21 @@
     "logoKey": "mersinsunradyo",
     "tags": [],
     "order": 2541,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
+    "id": 2543,
+    "name": "Likya Class Fm",
+    "categoryId": 1048,
+    "url": "https://yayin1.canlitv.fun:8026/stream?/;stream.mp3",
+    "format": "mp3",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/likyaclassfm.png",
+    "logoKey": "likyaclassfm",
+    "tags": [],
+    "order": 2543,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": true
@@ -20145,40 +20191,6 @@
     "isVerifiedAlive": true
   },
   {
-    "id": 2603,
-    "name": "BAE Star Fm",
-    "categoryId": 0,
-    "url": "https://admn-radio-cdn-lb.starzplayarabia.com/out/v1/admn_radio_enc/star_fm/star_fm_hls_nd/index.m3u8",
-    "format": "hls",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/baestarfm.png",
-    "logoKey": "baestarfm",
-    "tags": [
-      "yabancı"
-    ],
-    "order": 2603,
-    "isPopular": false,
-    "category": "Yabancı Pop",
-    "isVerifiedAlive": true
-  },
-  {
-    "id": 2604,
-    "name": "BAE Emarat Fm",
-    "categoryId": 0,
-    "url": "https://admn-radio-cdn-lb.starzplayarabia.com/out/v1/admn_radio_enc/emarat_fm/emarat_fm_hls_nd/index.m3u8",
-    "format": "hls",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/baeemaratfm.png",
-    "logoKey": "baeemaratfm",
-    "tags": [
-      "yabancı"
-    ],
-    "order": 2604,
-    "isPopular": false,
-    "category": "Yabancı Pop",
-    "isVerifiedAlive": true
-  },
-  {
     "id": 2605,
     "name": "Grace Fm",
     "categoryId": 0,
@@ -20619,23 +20631,6 @@
     "order": 2645,
     "isPopular": false,
     "category": "Slow",
-    "isVerifiedAlive": true
-  },
-  {
-    "id": 2646,
-    "name": "Viyana Fm 90lar",
-    "categoryId": 0,
-    "url": "https://radyo.viyanafm.at/90lar/stream",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/viyanafmdoksanlar.png",
-    "logoKey": "viyanafmdoksanlar",
-    "tags": [
-      "nostalji"
-    ],
-    "order": 2646,
-    "isPopular": false,
-    "category": "Nostalji",
     "isVerifiedAlive": true
   },
   {
@@ -21110,6 +21105,21 @@
     "isVerifiedAlive": true
   },
   {
+    "id": 2679,
+    "name": "Arab Nights Radio",
+    "categoryId": 0,
+    "url": "https://arabnights-prod.live-streams.nl:18020/live",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/arabnightsradio.png",
+    "logoKey": "arabnightsradio",
+    "tags": [],
+    "order": 2679,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": true
+  },
+  {
     "id": 2680,
     "name": "Avaz Farsi Music Radio",
     "categoryId": 0,
@@ -21484,23 +21494,6 @@
     "isVerifiedAlive": true
   },
   {
-    "id": 2704,
-    "name": "Radyo Serik",
-    "categoryId": 0,
-    "url": "https://live.sinirsizhost.com.tr:8040/stream",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyoserik.png",
-    "logoKey": "radyoserik",
-    "tags": [
-      "oyunhavası"
-    ],
-    "order": 2704,
-    "isPopular": false,
-    "category": "Oyun Havası",
-    "isVerifiedAlive": true
-  },
-  {
     "id": 2705,
     "name": "Eroticos(Ερωτικός 9.48) Radio",
     "categoryId": 0,
@@ -21729,24 +21722,6 @@
     "order": 2723,
     "isPopular": false,
     "category": "Özgün Müzik",
-    "isVerifiedAlive": true
-  },
-  {
-    "id": 2724,
-    "name": "ATV",
-    "categoryId": 0,
-    "url": "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv_720p.m3u8",
-    "format": "hls",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/atv.png",
-    "logoKey": "atv",
-    "tags": [
-      "tivi",
-      "haber"
-    ],
-    "order": 2724,
-    "isPopular": false,
-    "category": "Haber - Spor",
     "isVerifiedAlive": true
   },
   {
@@ -22327,6 +22302,42 @@
     "isVerifiedAlive": true
   },
   {
+    "id": 578,
+    "name": "Türkiye Polis Radyosu",
+    "categoryId": 100,
+    "url": "https://m.egm.gov.tr:8093/;",
+    "format": "aac",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/turkiyepolisradyosu.png",
+    "logoKey": "turkiyepolisradyosu",
+    "tags": [
+      "pop",
+      "slow"
+    ],
+    "order": 181,
+    "isPopular": true,
+    "category": "Pop",
+    "isVerifiedAlive": false
+  },
+  {
+    "id": 2113,
+    "name": "Tele1 TV",
+    "categoryId": 0,
+    "url": "https://tele1-live.ercdn.net/tele1/tele1.m3u8",
+    "format": "hls",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/tele1tv.png",
+    "logoKey": "tele1tv",
+    "tags": [
+      "haber",
+      "tivi"
+    ],
+    "order": 218,
+    "isPopular": true,
+    "category": "Haber - Spor",
+    "isVerifiedAlive": false
+  },
+  {
     "id": 2474,
     "name": "Dada Radyo",
     "categoryId": 1035,
@@ -22378,20 +22389,37 @@
     "isVerifiedAlive": false
   },
   {
-    "id": 345,
-    "name": "Radyo Gençlik",
-    "categoryId": 1042,
-    "url": "http://canli.radyogenclik.com:9000/stream",
+    "id": 310,
+    "name": "Kastamonu Cihan Fm",
+    "categoryId": 1037,
+    "url": "https://radyo.yayin.com.tr:5942/;",
     "format": "stream",
-    "isHttps": false,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/konyaradyogenclik2.png",
-    "logoKey": "konyaradyogenclik2",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kastamonucihanfm2.png",
+    "logoKey": "kastamonucihanfm2",
     "tags": [
-      "dini"
+      "karışık"
     ],
-    "order": 535,
+    "order": 489,
     "isPopular": false,
-    "category": "Dini",
+    "category": "Pop",
+    "isVerifiedAlive": false
+  },
+  {
+    "id": 335,
+    "name": "Kocaeli Radyo Mavi",
+    "categoryId": 1041,
+    "url": "http://yayin.netyayin.net:8070/;stream.mp3",
+    "format": "aac",
+    "isHttps": false,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kocaeliradyomavi2.png",
+    "logoKey": "kocaeliradyomavi2",
+    "tags": [
+      "karışık"
+    ],
+    "order": 516,
+    "isPopular": false,
+    "category": "Pop",
     "isVerifiedAlive": false
   },
   {
@@ -22437,23 +22465,6 @@
     "order": 579,
     "isPopular": false,
     "category": "Pop",
-    "isVerifiedAlive": false
-  },
-  {
-    "id": 380,
-    "name": "Mardin Cemre Fm",
-    "categoryId": 1047,
-    "url": "https://anadolu.liderhost.com.tr/8170/stream",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/mardincemrefm2.png",
-    "logoKey": "mardincemrefm2",
-    "tags": [
-      "dini"
-    ],
-    "order": 580,
-    "isPopular": false,
-    "category": "Dini",
     "isVerifiedAlive": false
   },
   {
@@ -22555,23 +22566,6 @@
     "isVerifiedAlive": false
   },
   {
-    "id": 768,
-    "name": "Osmaniye Radyo 80",
-    "categoryId": 1080,
-    "url": "https://stream.turkiyeradyolari.com/radyo80/stream",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/osmaniyeradyo802.png",
-    "logoKey": "osmaniyeradyo802",
-    "tags": [
-      "karışık"
-    ],
-    "order": 913,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": false
-  },
-  {
     "id": 786,
     "name": "Ankara Radyo Başkent",
     "categoryId": 1006,
@@ -22587,38 +22581,6 @@
     "isVerifiedAlive": false
   },
   {
-    "id": 796,
-    "name": "Osmaniye Radyo Gönül",
-    "categoryId": 1080,
-    "url": "https://sslyayin.netyayin.net/gonulfm/stream",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/osmaniyeradyogonul2.png",
-    "logoKey": "osmaniyeradyogonul2",
-    "tags": [],
-    "order": 926,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": false
-  },
-  {
-    "id": 816,
-    "name": "Radyo Vatan Türkü",
-    "categoryId": "",
-    "url": "https://turku.radyovatankktc.com:9300/turkuvatan",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyovatankıbrıs.png",
-    "logoKey": "radyovatankıbrıs",
-    "tags": [
-      "halkmüzik"
-    ],
-    "order": 965,
-    "isPopular": false,
-    "category": "Halk Müziği",
-    "isVerifiedAlive": false
-  },
-  {
     "id": 842,
     "name": "Tokat Yöre Fm",
     "categoryId": 1060,
@@ -22629,24 +22591,6 @@
     "logoKey": "tokatyorefm2",
     "tags": [],
     "order": 1002,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": false
-  },
-  {
-    "id": 844,
-    "name": "Trakya Fm",
-    "categoryId": "",
-    "url": "https://stream.netradyom.com/listen/trakyafm/radio.mp3",
-    "format": "mp3",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/trakyafm2.png",
-    "logoKey": "trakyafm2",
-    "tags": [
-      "pop",
-      "slow"
-    ],
-    "order": 1004,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": false
@@ -22699,21 +22643,6 @@
     "isVerifiedAlive": false
   },
   {
-    "id": 998,
-    "name": "Radyo Çanakkale",
-    "categoryId": 1017,
-    "url": "https://radyo2.fkbs.com.tr:8018/;",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyocanakkale2.png",
-    "logoKey": "radyocanakkale2",
-    "tags": [],
-    "order": 1090,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": false
-  },
-  {
     "id": 1003,
     "name": "Radyo Tokat",
     "categoryId": 1060,
@@ -22739,6 +22668,21 @@
     "logoKey": "samsunradyogercek",
     "tags": [],
     "order": 1123,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": false
+  },
+  {
+    "id": 1095,
+    "name": "Adana Radyo Güney",
+    "categoryId": 1001,
+    "url": "https://stream.radyolarburada.com:8250/stream",
+    "format": "aac",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/adanaradyoguney.png",
+    "logoKey": "adanaradyoguney",
+    "tags": [],
+    "order": 1192,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": false
@@ -22793,38 +22737,6 @@
     "isVerifiedAlive": false
   },
   {
-    "id": 1642,
-    "name": "Cevheri Musiki",
-    "categoryId": 0,
-    "url": "http://server1024.streamplus.de",
-    "format": "stream",
-    "isHttps": false,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/tasavvufmusikiradyo.png",
-    "logoKey": "tasavvufmusikiradyo",
-    "tags": [
-      "dini"
-    ],
-    "order": 1710,
-    "isPopular": false,
-    "category": "Dini",
-    "isVerifiedAlive": false
-  },
-  {
-    "id": 1692,
-    "name": "Fethiye Tur Fm",
-    "categoryId": 1048,
-    "url": "https://sslyayin.netyayin.net:10981/stream",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/fethiyeturfm.png",
-    "logoKey": "fethiyeturfm",
-    "tags": [],
-    "order": 1739,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": false
-  },
-  {
     "id": 1696,
     "name": "Elbistan Kent Fm",
     "categoryId": 1046,
@@ -22835,6 +22747,21 @@
     "logoKey": "elbistankentfm",
     "tags": [],
     "order": 1741,
+    "isPopular": false,
+    "category": "Pop",
+    "isVerifiedAlive": false
+  },
+  {
+    "id": 1701,
+    "name": "Elazığ Radyo Fırat",
+    "categoryId": 1023,
+    "url": "https://anadolu.liderhost.com.tr:10912/;",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyofirat2.png",
+    "logoKey": "radyofirat2",
+    "tags": [],
+    "order": 1750,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": false
@@ -22865,21 +22792,6 @@
     "logoKey": "malatyaradyozafer",
     "tags": [],
     "order": 1794,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": false
-  },
-  {
-    "id": 1757,
-    "name": "Amasya Art Fm",
-    "categoryId": 1005,
-    "url": "https://yayin1.canlitv.fun:8014/stream?/;stream.mp3",
-    "format": "mp3",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/amasyaartfm2.png",
-    "logoKey": "amasyaartfm2",
-    "tags": [],
-    "order": 1798,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": false
@@ -22918,6 +22830,23 @@
     "isVerifiedAlive": false
   },
   {
+    "id": 1828,
+    "name": "Polis Radyosu TSM",
+    "categoryId": 0,
+    "url": "https://m.egm.gov.tr:8095/;",
+    "format": "aac",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/turkiyepolisradyosu.png",
+    "logoKey": "turkiyepolisradyosu",
+    "tags": [
+      "nostalji"
+    ],
+    "order": 1878,
+    "isPopular": false,
+    "category": "Nostalji",
+    "isVerifiedAlive": false
+  },
+  {
     "id": 1846,
     "name": "Mavi Radyo Adana",
     "categoryId": 1001,
@@ -22933,35 +22862,20 @@
     "isVerifiedAlive": false
   },
   {
-    "id": 1888,
-    "name": "Hakkari Fm",
-    "categoryId": 1030,
-    "url": "https://radyo.slmbilisim.net/8004/stream;",
+    "id": 1913,
+    "name": "Miraç Fm",
+    "categoryId": 0,
+    "url": "https://anadolu.liderhost.com.tr/9416/stream",
     "format": "stream",
     "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/hakkarifm.png",
-    "logoKey": "hakkarifm",
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/miracfm.png",
+    "logoKey": "miracfm",
     "tags": [
-      "kürtçe"
+      "dini"
     ],
-    "order": 1923,
+    "order": 1952,
     "isPopular": false,
-    "category": "Kürtçe",
-    "isVerifiedAlive": false
-  },
-  {
-    "id": 1910,
-    "name": "Amasya Dost Fm",
-    "categoryId": 1005,
-    "url": "https://yayin1.canlitv.fun:8020/stream",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/amasyaradyodost2.png",
-    "logoKey": "amasyaradyodost2",
-    "tags": [],
-    "order": 1949,
-    "isPopular": false,
-    "category": "Pop",
+    "category": "Dini",
     "isVerifiedAlive": false
   },
   {
@@ -23007,21 +22921,6 @@
     "logoKey": "radyokkirikkale",
     "tags": [],
     "order": 2077,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": false
-  },
-  {
-    "id": 2082,
-    "name": "Radyo Bir Dünya",
-    "categoryId": 0,
-    "url": "https://live2.radyo.in/8014/stream",
-    "format": "stream",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyobirdunya.png",
-    "logoKey": "radyobirdunya",
-    "tags": [],
-    "order": 2090,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": false
@@ -23143,20 +23042,18 @@
     "isVerifiedAlive": false
   },
   {
-    "id": 2253,
-    "name": "ANS ÇM Radio",
-    "categoryId": 0,
-    "url": "https://live.ansradio.ws:8443/mp3_128",
-    "format": "mp3",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/anscmradio.png",
-    "logoKey": "anscmradio",
-    "tags": [
-      "azeri"
-    ],
-    "order": 2253,
+    "id": 2280,
+    "name": "Bozok Fm",
+    "categoryId": 1066,
+    "url": "http://radyo.bozok.edu.tr/canli/stream",
+    "format": "stream",
+    "isHttps": false,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/bozokfm.png",
+    "logoKey": "bozokfm",
+    "tags": [],
+    "order": 2280,
     "isPopular": false,
-    "category": "Azerbaycan",
+    "category": "Pop",
     "isVerifiedAlive": false
   },
   {
@@ -23261,6 +23158,23 @@
     "isVerifiedAlive": false
   },
   {
+    "id": 2332,
+    "name": "Radio Day.Az",
+    "categoryId": 0,
+    "url": "https://radio.day.az:9443/192",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radiodayaz.png",
+    "logoKey": "radiodayaz",
+    "tags": [
+      "azeri"
+    ],
+    "order": 2332,
+    "isPopular": false,
+    "category": "Azerbaycan",
+    "isVerifiedAlive": false
+  },
+  {
     "id": 2352,
     "name": "rateau fm",
     "categoryId": 0,
@@ -23327,6 +23241,23 @@
     "isVerifiedAlive": false
   },
   {
+    "id": 2470,
+    "name": "Radyo 3 Hilal",
+    "categoryId": 0,
+    "url": "https://uchilal.com:8443/live",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyo3hilal2.png",
+    "logoKey": "radyo3hilal2",
+    "tags": [
+      "halkmüzik"
+    ],
+    "order": 2470,
+    "isPopular": false,
+    "category": "Halk Müziği",
+    "isVerifiedAlive": false
+  },
+  {
     "id": 2486,
     "name": "Coast 70s",
     "categoryId": 0,
@@ -23342,20 +23273,33 @@
     "isVerifiedAlive": false
   },
   {
-    "id": 2502,
-    "name": "Radyo MegaStar 102.7",
-    "categoryId": 1009,
-    "url": "https://sslyayin.radyoyayini.com:7039/stream?type=http&nocache=3",
-    "format": "stream",
+    "id": 2514,
+    "name": "Radyo Horoz",
+    "categoryId": 1020,
+    "url": "https://dinle.radyohoroz.com/8008/stream",
+    "format": "aac",
     "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/aydinradyomegastar.png",
-    "logoKey": "aydinradyomegastar",
-    "tags": [
-      "arabesk"
-    ],
-    "order": 2491,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyohoroz.png",
+    "logoKey": "radyohoroz",
+    "tags": [],
+    "order": 2514,
     "isPopular": false,
-    "category": "Arabesk",
+    "category": "Pop",
+    "isVerifiedAlive": false
+  },
+  {
+    "id": 2530,
+    "name": "Kocaeli Radyo Şahin",
+    "categoryId": 1041,
+    "url": "https://sslyayin.netyayin.net/8070/stream/;stream.mp3",
+    "format": "aac",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/kocaeliradyosahin.png",
+    "logoKey": "kocaeliradyosahin",
+    "tags": [],
+    "order": 2530,
+    "isPopular": false,
+    "category": "Pop",
     "isVerifiedAlive": false
   },
   {
@@ -23369,21 +23313,6 @@
     "logoKey": "turgutluegefm",
     "tags": [],
     "order": 2538,
-    "isPopular": false,
-    "category": "Pop",
-    "isVerifiedAlive": false
-  },
-  {
-    "id": 2543,
-    "name": "Likya Class Fm",
-    "categoryId": 1048,
-    "url": "https://yayin1.canlitv.fun:8026/stream?/;stream.mp3",
-    "format": "mp3",
-    "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/likyaclassfm.png",
-    "logoKey": "likyaclassfm",
-    "tags": [],
-    "order": 2543,
     "isPopular": false,
     "category": "Pop",
     "isVerifiedAlive": false
@@ -23436,6 +23365,40 @@
     "isVerifiedAlive": false
   },
   {
+    "id": 2603,
+    "name": "BAE Star Fm",
+    "categoryId": 0,
+    "url": "https://admn-radio-cdn-lb.starzplayarabia.com/out/v1/admn_radio_enc/star_fm/star_fm_hls_nd/index.m3u8",
+    "format": "hls",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/baestarfm.png",
+    "logoKey": "baestarfm",
+    "tags": [
+      "yabancı"
+    ],
+    "order": 2603,
+    "isPopular": false,
+    "category": "Yabancı Pop",
+    "isVerifiedAlive": false
+  },
+  {
+    "id": 2604,
+    "name": "BAE Emarat Fm",
+    "categoryId": 0,
+    "url": "https://admn-radio-cdn-lb.starzplayarabia.com/out/v1/admn_radio_enc/emarat_fm/emarat_fm_hls_nd/index.m3u8",
+    "format": "hls",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/baeemaratfm.png",
+    "logoKey": "baeemaratfm",
+    "tags": [
+      "yabancı"
+    ],
+    "order": 2604,
+    "isPopular": false,
+    "category": "Yabancı Pop",
+    "isVerifiedAlive": false
+  },
+  {
     "id": 2618,
     "name": "Radyo Sılakeş",
     "categoryId": 0,
@@ -23453,18 +23416,20 @@
     "isVerifiedAlive": false
   },
   {
-    "id": 2679,
-    "name": "Arab Nights Radio",
+    "id": 2646,
+    "name": "Viyana Fm 90lar",
     "categoryId": 0,
-    "url": "https://arabnights-prod.live-streams.nl:18020/live",
+    "url": "https://radyo.viyanafm.at/90lar/stream",
     "format": "stream",
     "isHttps": true,
-    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/arabnightsradio.png",
-    "logoKey": "arabnightsradio",
-    "tags": [],
-    "order": 2679,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/viyanafmdoksanlar.png",
+    "logoKey": "viyanafmdoksanlar",
+    "tags": [
+      "nostalji"
+    ],
+    "order": 2646,
     "isPopular": false,
-    "category": "Pop",
+    "category": "Nostalji",
     "isVerifiedAlive": false
   },
   {
@@ -23480,6 +23445,41 @@
     "order": 2702,
     "isPopular": false,
     "category": "Pop",
+    "isVerifiedAlive": false
+  },
+  {
+    "id": 2704,
+    "name": "Radyo Serik",
+    "categoryId": 0,
+    "url": "https://live.sinirsizhost.com.tr:8040/stream",
+    "format": "stream",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/radyoserik.png",
+    "logoKey": "radyoserik",
+    "tags": [
+      "oyunhavası"
+    ],
+    "order": 2704,
+    "isPopular": false,
+    "category": "Oyun Havası",
+    "isVerifiedAlive": false
+  },
+  {
+    "id": 2724,
+    "name": "ATV",
+    "categoryId": 0,
+    "url": "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv_720p.m3u8",
+    "format": "hls",
+    "isHttps": true,
+    "logo": "https://nebyanradio.ams3.cdn.digitaloceanspaces.com/images/turkey/atv.png",
+    "logoKey": "atv",
+    "tags": [
+      "tivi",
+      "haber"
+    ],
+    "order": 2724,
+    "isPopular": false,
+    "category": "Haber - Spor",
     "isVerifiedAlive": false
   },
   {

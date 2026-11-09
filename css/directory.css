@@ -40,9 +40,9 @@
   background: rgba(18, 24, 44, 0.9);
   border: 1px solid var(--glass-border-light);
   border-radius: 14px;
-  padding: 12px 14px 12px 42px;
+  padding: 11px 38px 11px 42px;
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
 }

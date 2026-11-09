@@ -11,15 +11,13 @@
   height: 100dvh;
   height: var(--app-height, 100dvh);
   max-height: var(--app-height, 100dvh);
-  background: rgba(8, 10, 18, 0.98);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background: radial-gradient(circle at 50% 12%, rgba(28, 22, 54, 0.98) 0%, rgba(8, 10, 18, 0.99) 70%);
   z-index: 500;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: calc(var(--safe-top) + 10px) 20px calc(var(--safe-bottom) + 14px);
-  transform: translateY(100%);
+  transform: translate3d(0, 100%, 0);
   visibility: hidden;
   pointer-events: none;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
@@ -29,7 +27,7 @@
 }
 
 .player-sheet-modal.open {
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0);
   visibility: visible;
   pointer-events: auto;
 }
@@ -47,16 +45,14 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -195,8 +191,6 @@
   padding: 8px 18px;
   margin: 6px auto 8px;
   max-width: 320px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   animation: fadeInTrack 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -278,17 +272,15 @@
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -301,7 +293,7 @@
 .player-ctrl-btn.player-skip-btn svg {
   width: 26px !important;
   height: 26px !important;
-  display: block !important;
+  display: block;
   flex-shrink: 0;
   stroke: #ffffff !important;
   fill: none !important;
@@ -326,7 +318,7 @@
 .player-big-play svg {
   width: 34px !important;
   height: 34px !important;
-  display: block !important;
+  display: block;
   flex-shrink: 0;
   fill: #ffffff !important;
 }
@@ -376,24 +368,133 @@
 }
 
 .player-vol-slider {
+  --slider-track-size: 6px;
+  --slider-thumb-size: 18px;
+  --slider-track-radius: 999px;
+  --slider-thumb-radius: 50%;
+  --slider-track-color: rgba(255, 255, 255, 0.18);
+  --slider-fill-color: #38bdf8;
+  --slider-thumb-color: #ffffff;
+  --slider-direction: to right;
+  --attr-min: 0;
+  --attr-max: 1;
+  --control-value: 0.85;
+  --slider-progress: calc(
+    progress(var(--control-value), var(--attr-min), var(--attr-max)) * 100%
+  );
+
   flex: 1;
   -webkit-appearance: none;
   appearance: none;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.18);
-  outline: none;
+  block-size: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+@supports not (opacity: progress(1, 0, 100)) {
+  .player-vol-slider {
+    --slider-progress: calc(
+      (var(--control-value) - var(--attr-min)) /
+      (var(--attr-max) - var(--attr-min)) * 100%
+    );
+  }
+}
+
+.player-vol-slider::-webkit-slider-runnable-track {
+  block-size: var(--slider-track-size);
+  border: 0;
+  border-radius: var(--slider-track-radius);
+  background: linear-gradient(
+    var(--slider-direction),
+    var(--slider-fill-color) var(--slider-progress),
+    var(--slider-track-color) var(--slider-progress)
+  );
 }
 
 .player-vol-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #ffffff;
+  inline-size: var(--slider-thumb-size);
+  block-size: var(--slider-thumb-size);
+  margin-block-start: calc((var(--slider-track-size) - var(--slider-thumb-size)) / 2);
+  border: 0;
+  border-radius: var(--slider-thumb-radius);
+  background: var(--slider-thumb-color);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.player-vol-slider::-moz-range-track {
+  block-size: var(--slider-track-size);
+  border: 0;
+  border-radius: var(--slider-track-radius);
+  background: var(--slider-track-color);
+}
+
+.player-vol-slider::-moz-range-progress {
+  block-size: var(--slider-track-size);
+  border-radius: var(--slider-track-radius);
+  background: var(--slider-fill-color);
+}
+
+.player-vol-slider::-moz-range-thumb {
+  inline-size: var(--slider-thumb-size);
+  block-size: var(--slider-thumb-size);
+  border: 0;
+  border-radius: var(--slider-thumb-radius);
+  background: var(--slider-thumb-color);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.player-vol-slider:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 4px;
+}
+
+.modal-status-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  max-inline-size: 320px;
+  margin: 6px auto 2px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: start;
+}
+
+.modal-status-banner.visible {
+  display: flex;
+}
+
+.modal-status-banner[data-tone="reconnecting"] {
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fde68a;
+}
+
+.modal-status-banner[data-tone="error"] {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  color: #fecaca;
+}
+
+.modal-retry-btn {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 /* Sleep Timer Quick Button */

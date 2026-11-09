@@ -7,6 +7,7 @@ class RadioMetadataService {
     this.listeners = [];
     this.POLL_SECONDS = 15;
     this.coverCache = new Map();
+    this._sessionController = null;
   }
 
   onTrackChange(callback) {
@@ -16,13 +17,14 @@ class RadioMetadataService {
   }
 
   _notify(track) {
-    if (!track) return;
+    if (!track || !this.currentStation || this.currentStation.id !== track.stationId) return;
 
-    // Avoid redundant notifications if song hasn't changed
-    if (this.lastTrack && 
-        this.lastTrack.title === track.title && 
-        this.lastTrack.artist === track.artist &&
-        this.lastTrack.stationId === track.stationId) {
+    if (
+      this.lastTrack &&
+      this.lastTrack.title === track.title &&
+      this.lastTrack.artist === track.artist &&
+      this.lastTrack.stationId === track.stationId
+    ) {
       return;
     }
 
@@ -41,11 +43,9 @@ class RadioMetadataService {
     this.stop();
     this.currentStation = station;
     this.lastTrack = null;
+    this._sessionController = new AbortController();
 
-    // 1. Immediate fetch
     this.fetchMetadata(station);
-
-    // 2. Periodic poll every 15s while playing
     this.pollInterval = setInterval(() => {
       if (this.currentStation && this.currentStation.id === station.id) {
         this.fetchMetadata(station);
@@ -58,79 +58,93 @@ class RadioMetadataService {
       clearInterval(this.pollInterval);
       this.pollInterval = null;
     }
+    if (this._sessionController) {
+      try { this._sessionController.abort(); } catch {}
+      this._sessionController = null;
+    }
     this.currentStation = null;
     this.lastTrack = null;
   }
 
+  async _fetchWithTimeout(url, options = {}, timeoutMs = 4000) {
+    const parentSignal = this._sessionController ? this._sessionController.signal : null;
+    if (parentSignal && parentSignal.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const onParentAbort = () => controller.abort();
+    if (parentSignal) {
+      parentSignal.addEventListener('abort', onParentAbort, { once: true });
+    }
+
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+      if (parentSignal) {
+        parentSignal.removeEventListener('abort', onParentAbort);
+      }
+    }
+  }
+
   async fetchMetadata(station) {
     if (!station || !station.url) return;
+    if (!this.currentStation || this.currentStation.id !== station.id) return;
 
     try {
       const urlLower = (station.url || '').toLowerCase();
       const nameLower = (station.name || '').toLowerCase();
+      let track = null;
 
-      // Source 1: TurkMedya (Alem FM, Alem Slow, Alem Farabesk, Alem Plaktan, Alem Atmosfer, Lig Radyo)
-      if (urlLower.includes('turkmedya.radyotvonline.net') || 
-          urlLower.includes('alemfm') || 
-          nameLower.includes('alem fm') ||
-          nameLower.includes('lig radyo')) {
-        const track = await this._fetchTurkMedya(station);
-        if (track) {
-          this._notify(track);
-          return;
-        }
+      // 1. TurkMedya (Alem FM, Lig Radyo)
+      if (
+        urlLower.includes('turkmedya.radyotvonline.net') ||
+        urlLower.includes('alemfm') ||
+        nameLower.includes('alem fm') ||
+        nameLower.includes('lig radyo')
+      ) {
+        track = await this._fetchTurkMedya(station);
+      }
+      // 2. Power Group
+      else if (urlLower.includes('powerapp.com.tr') || nameLower.includes('power')) {
+        track = await this._fetchPowerGroup(station);
+      }
+      // 3. Radyo Fenomen Group
+      else if (urlLower.includes('radyofenomen.com') || nameLower.includes('fenomen')) {
+        track = await this._fetchFenomen(station);
+      }
+      // 4. Triton / StreamTheWorld / Karnaval
+      else if (urlLower.includes('streamtheworld.com')) {
+        track = await this._fetchTriton(station);
+      }
+      // 5. Kral Grubu
+      else if (
+        nameLower.includes('kral fm') ||
+        nameLower.includes('kral pop') ||
+        urlLower.includes('kralfm') ||
+        urlLower.includes('kralpop')
+      ) {
+        track = await this._fetchKralGroup(station);
       }
 
-      // Source 2: Power Group (Power Türk, Power FM, Power Pop, Power Love, etc.)
-      if (urlLower.includes('powerapp.com.tr') || nameLower.includes('power')) {
-        const track = await this._fetchPowerGroup(station);
-        if (track) {
-          this._notify(track);
-          return;
-        }
-      }
-
-      // Source 3: Triton / StreamTheWorld / Karnaval (Süper FM, Joy FM, Joy Türk, Metro FM, Virgin Radio, Retro Türk)
-      if (urlLower.includes('streamtheworld.com')) {
-        const track = await this._fetchTriton(station);
-        if (track) {
-          this._notify(track);
-          return;
-        }
-      }
-
-      // Source 4: Kral Grubu (Kral FM, Kral Pop)
-      if (nameLower.includes('kral fm') || nameLower.includes('kral pop') || urlLower.includes('kralfm') || urlLower.includes('kralpop')) {
-        const track = await this._fetchKralGroup(station);
-        if (track) {
-          this._notify(track);
-          return;
-        }
-      }
-
-      // Source 5: Generic Icecast status-json.xsl fallback
-      if (urlLower.startsWith('https://') && !urlLower.includes('.m3u8')) {
-        const track = await this._fetchGenericIcecast(station);
-        if (track) {
-          this._notify(track);
-          return;
-        }
+      if (track && this.currentStation && this.currentStation.id === station.id) {
+        this._notify(track);
       }
     } catch (err) {
-      // Non-blocking catch for stream continuity
-      console.warn('[MetadataService] Notice:', err.message || err);
+      if (err && err.name === 'AbortError') return;
+      // Silent non-blocking fallback so metadata unavailability never breaks audio or spams DevTools
     }
   }
 
-  // ==========================================
-  // SOURCE 1: TURKMEDYA (Alem FM, Lig Radyo)
-  // ==========================================
   async _fetchTurkMedya(station) {
     try {
-      const resp = await fetch('https://turkmedya.radyotvonline.net/status-json.xsl', {
-        headers: { 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(4000)
-      });
+      const resp = await this._fetchWithTimeout(
+        'https://turkmedya.radyotvonline.net/status-json.xsl',
+        { headers: { Accept: 'application/json' } },
+        4000
+      );
       if (!resp.ok) return null;
 
       const data = await resp.json();
@@ -150,7 +164,7 @@ class RadioMetadataService {
       if (!match) return null;
 
       const rawTitle = (match.title || match.yp_currently_playing || '').trim();
-      if (!rawTitle || rawTitle.toLowerCase().includes('alem fm') && rawTitle.length < 10) return null;
+      if (!rawTitle || (rawTitle.toLowerCase().includes('alem fm') && rawTitle.length < 10)) return null;
 
       let artist = '';
       let song = rawTitle;
@@ -160,42 +174,39 @@ class RadioMetadataService {
         song = parts.slice(1).join(' - ').trim();
       }
 
-      // Clean casing (e.g. SEMICENK -> Semicenk or capitalize)
       const cleanArtist = this._formatArtistTitle(artist) || station.name;
       const cleanTitle = this._formatArtistTitle(song) || 'Canlı Müzik';
-
-      // Look up high-res album cover from Apple iTunes
-      const coverUrl = await this._fetchCoverArt(cleanArtist, cleanTitle) || station.logo;
+      const coverUrl = (await this._fetchCoverArt(cleanArtist, cleanTitle)) || station.logo;
 
       return {
         stationId: station.id,
         stationName: station.name,
         title: cleanTitle,
         artist: cleanArtist,
-        coverUrl: coverUrl,
+        coverUrl,
         source: 'turkmedya'
       };
-    } catch (e) {
+    } catch {
       return null;
     }
   }
 
-  // ==========================================
-  // SOURCE 2: POWER GROUP API
-  // ==========================================
   async _fetchPowerGroup(station) {
     try {
       const slug = this._getPowerSlug(station);
       if (!slug) return null;
 
-      const resp = await fetch(`https://api.powergroup.com.tr/v3/Route/get?url=/radios/${slug}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'client=web&lang=tr&version=23&devicePlatform=1&deviceType=0',
-        signal: AbortSignal.timeout(4000)
-      });
-
+      const resp = await this._fetchWithTimeout(
+        `https://api.powergroup.com.tr/v3/Route/get?url=/radios/${slug}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'client=web&lang=tr&version=23&devicePlatform=1&deviceType=0'
+        },
+        4000
+      );
       if (!resp.ok) return null;
+
       const json = await resp.json();
       if (json && json.data && Array.isArray(json.data.timeline) && json.data.timeline.length > 0) {
         const item = json.data.timeline[0];
@@ -216,7 +227,7 @@ class RadioMetadataService {
           coverUrl = item.image.prefix.replace(/\/+$/, '') + '/' + item.image.suffix.replace(/^\/+/, '');
         }
         if (!coverUrl) {
-          coverUrl = await this._fetchCoverArt(artist, title) || station.logo;
+          coverUrl = (await this._fetchCoverArt(artist, title)) || station.logo;
         }
 
         return {
@@ -224,12 +235,12 @@ class RadioMetadataService {
           stationName: station.name,
           title: this._formatArtistTitle(title) || 'Canlı Yayın',
           artist: this._formatArtistTitle(artist) || station.name,
-          coverUrl: coverUrl,
+          coverUrl,
           source: 'powergroup'
         };
       }
       return null;
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -243,22 +254,82 @@ class RadioMetadataService {
     if (u.includes('powerpop') || name.includes('pop')) return 'powerpop';
     if (u.includes('powerlove') || name.includes('love')) return 'powerlove';
     if (u.includes('powerplus') || name.includes('plus')) return 'powerplus';
+    if (u.includes('powergold') || name.includes('gold')) return 'powergold';
     if (u.includes('powerfm') || name.includes('fm')) return 'powerfm';
     return 'powerturk';
   }
 
-  // ==========================================
-  // SOURCE 3: TRITON DIGITAL (Karnaval)
-  // ==========================================
+  async _fetchFenomen(station) {
+    try {
+      const slug = this._getFenomenSlug(station);
+      if (!slug) return null;
+
+      const resp = await this._fetchWithTimeout(
+        `https://api.radyofenomen.com/Channels/${slug}?appRef=FenomenWebV2`,
+        { headers: { Accept: 'application/json' } },
+        4000
+      );
+      if (!resp.ok) return null;
+
+      const json = await resp.json();
+      const timeline = json && json.response && Array.isArray(json.response.timeline) ? json.response.timeline : null;
+      if (!timeline || timeline.length === 0) return null;
+
+      const item = timeline[0];
+      const title = (item.songTitle || '').trim();
+      const artist = (item.artistTitle || '').trim();
+      if (!title && !artist) return null;
+
+      const coverUrl =
+        item.albumCoverIMG ||
+        item.albumCoverIMGSmall ||
+        (await this._fetchCoverArt(artist, title)) ||
+        station.logo;
+
+      return {
+        stationId: station.id,
+        stationName: station.name,
+        title: this._formatArtistTitle(title) || 'Canlı Yayın',
+        artist: this._formatArtistTitle(artist) || station.name,
+        coverUrl,
+        source: 'fenomen'
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  _getFenomenSlug(station) {
+    const u = (station.url || '').toLowerCase();
+    const n = (station.name || '').toLowerCase();
+    if (u.includes('fenomenturkyeniler') || n.includes('yeniler')) return 'fenomenturkyeniler';
+    if (u.includes('fenomenturktrpop') || n.includes('tr-pop') || n.includes('tr pop')) return 'fenomenturktrpop';
+    if (u.includes('fenomenturk') || n.includes('fenomen türk') || n.includes('fenomen turk')) return 'fenomenturk';
+    if (u.includes('fenomenkpop') || n.includes('k-pop') || n.includes('kpop')) return 'fenomenkpop';
+    if (u.includes('fenomenafro') || n.includes('afro')) return 'fenomenafro';
+    if (u.includes('fenomenkarisik') || n.includes('karışık') || n.includes('karisik')) return 'fenomenkarisik';
+    if (u.includes('fenomenpop') || n.includes('fenomen pop')) return 'fenomenpop';
+    if (u.includes('fenomendans') || n.includes('dans')) return 'fenomendans';
+    if (u.includes('fenomen2010') || n.includes('2010')) return 'fenomen2010';
+    if (u.includes('clubbin') || n.includes('clubbin')) return 'clubbin';
+    if (u.includes('fenomenakustik') || n.includes('akustik')) return 'fenomenakustik';
+    if (u.includes('fenomenkanyon') || n.includes('kanyon')) return 'fenomenkanyon';
+    if (u.includes('fenomengreece') || n.includes('greece')) return 'fenomengreece';
+    if (u.includes('fenomen/') || n.includes('radyo fenomen') || n.trim() === 'fenomen') return 'radyofenomen';
+    return null;
+  }
+
   async _fetchTriton(station) {
     try {
-      const match = station.url.match(/livestream-redirect\/([A-Za-z0-9_-]+)\.(aac|mp3)/i);
+      const match = station.url.match(/livestream-redirect\/([A-Za-z0-9_-]+)/i);
       if (!match || !match[1]) return null;
       const mount = match[1];
 
-      const resp = await fetch(`https://np.tritondigital.com/public/nowplaying?mountName=${mount}&numberToFetch=1`, {
-        signal: AbortSignal.timeout(4000)
-      });
+      const resp = await this._fetchWithTimeout(
+        `https://np.tritondigital.com/public/nowplaying?mountName=${encodeURIComponent(mount)}&numberToFetch=1`,
+        {},
+        4000
+      );
       if (!resp.ok) return null;
 
       const xmlText = await resp.text();
@@ -266,7 +337,9 @@ class RadioMetadataService {
       const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
       const properties = xmlDoc.querySelectorAll('property');
 
-      let title = '', artist = '', coverUrl = '';
+      let title = '';
+      let artist = '';
+      let coverUrl = '';
       properties.forEach(p => {
         const attr = p.getAttribute('name');
         if (attr === 'cue_title') title = p.textContent.trim();
@@ -275,9 +348,8 @@ class RadioMetadataService {
       });
 
       if (!title && !artist) return null;
-
       if (!coverUrl) {
-        coverUrl = await this._fetchCoverArt(artist, title) || station.logo;
+        coverUrl = (await this._fetchCoverArt(artist, title)) || station.logo;
       }
 
       return {
@@ -285,25 +357,23 @@ class RadioMetadataService {
         stationName: station.name,
         title: this._formatArtistTitle(title) || 'Canlı Müzik',
         artist: this._formatArtistTitle(artist) || station.name,
-        coverUrl: coverUrl,
+        coverUrl,
         source: 'triton'
       };
-    } catch (e) {
+    } catch {
       return null;
     }
   }
 
-  // ==========================================
-  // SOURCE 4: KRAL GRUBU (Kral FM, Kral Pop)
-  // ==========================================
   async _fetchKralGroup(station) {
     try {
       const name = (station.name || '').toLowerCase();
-      const radioId = (name.includes('pop')) ? 2 : 1;
-      const resp = await fetch(`https://www.kralmuzik.com.tr/rds/mobile?radio_id=${radioId}`, {
-        headers: { 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(3500)
-      });
+      const radioId = name.includes('pop') ? 2 : 1;
+      const resp = await this._fetchWithTimeout(
+        `https://www.kralmuzik.com.tr/rds/mobile?radio_id=${radioId}`,
+        { headers: { Accept: 'application/json' } },
+        3500
+      );
       if (!resp.ok) return null;
 
       const json = await resp.json();
@@ -318,7 +388,7 @@ class RadioMetadataService {
         coverUrl = json.ServiceItuneResponse.artworkUrl100.replace('100x100bb', '600x600bb');
       }
       if (!coverUrl) {
-        coverUrl = await this._fetchCoverArt(artist, song) || station.logo;
+        coverUrl = (await this._fetchCoverArt(artist, song)) || station.logo;
       }
 
       return {
@@ -326,65 +396,14 @@ class RadioMetadataService {
         stationName: station.name,
         title: this._formatArtistTitle(song) || 'Canlı Yayın',
         artist: this._formatArtistTitle(artist) || station.name,
-        coverUrl: coverUrl,
+        coverUrl,
         source: 'kral'
       };
-    } catch (e) {
+    } catch {
       return null;
     }
   }
 
-  // ==========================================
-  // SOURCE 5: GENERIC ICECAST status-json.xsl
-  // ==========================================
-  async _fetchGenericIcecast(station) {
-    try {
-      const parsed = new URL(station.url);
-      const origin = parsed.origin;
-      const resp = await fetch(`${origin}/status-json.xsl`, {
-        headers: { 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(2500)
-      });
-      if (!resp.ok) return null;
-
-      const data = await resp.json();
-      const sources = data && data.icestats ? data.icestats.source : null;
-      if (!sources) return null;
-
-      const list = Array.isArray(sources) ? sources : [sources];
-      const path = parsed.pathname.toLowerCase().replace(/^\/+/, '');
-      const match = list.find(s => (s.listenurl || '').toLowerCase().includes(path)) || list[0];
-      if (!match) return null;
-
-      const raw = (match.title || match.yp_currently_playing || '').trim();
-      if (!raw || raw.length < 3) return null;
-
-      let artist = station.name;
-      let title = raw;
-      if (raw.includes(' - ')) {
-        const parts = raw.split(' - ');
-        artist = parts[0].trim();
-        title = parts.slice(1).join(' - ').trim();
-      }
-
-      const coverUrl = await this._fetchCoverArt(artist, title) || station.logo;
-
-      return {
-        stationId: station.id,
-        stationName: station.name,
-        title: this._formatArtistTitle(title),
-        artist: this._formatArtistTitle(artist),
-        coverUrl: coverUrl,
-        source: 'icecast'
-      };
-    } catch (e) {
-      return null;
-    }
-  }
-
-  // ==========================================
-  // ITUNES ALBUM ARTWORK RESOLVER (CORS OPEN)
-  // ==========================================
   async _fetchCoverArt(artist, title) {
     if (!artist || !title) return null;
     const cleanA = artist.replace(/\b(radyo|fm|official|canli)\b/gi, '').trim();
@@ -398,9 +417,11 @@ class RadioMetadataService {
 
     try {
       const q = encodeURIComponent(`${cleanA} ${cleanT}`);
-      const resp = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&limit=1`, {
-        signal: AbortSignal.timeout(3000)
-      });
+      const resp = await this._fetchWithTimeout(
+        `https://itunes.apple.com/search?term=${q}&media=music&limit=1`,
+        {},
+        3000
+      );
       if (!resp.ok) return null;
 
       const json = await resp.json();
@@ -412,18 +433,16 @@ class RadioMetadataService {
           return hiRes;
         }
       }
-    } catch (e) {
+    } catch {
       // Non-blocking fallback
     }
     this.coverCache.set(cacheKey, null);
     return null;
   }
 
-  // Clean and format all-caps song/artist strings
   _formatArtistTitle(str) {
     if (!str) return '';
-    let s = str.trim();
-    // If string is ALL CAPS, convert to Title Case for elegant typography
+    const s = str.trim();
     if (s.length > 3 && s === s.toUpperCase() && !s.includes('http')) {
       return s.toLowerCase().replace(/(^|\s|\/|-)(\p{L})/gu, (m, p1, p2) => p1 + p2.toUpperCase());
     }
