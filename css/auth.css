@@ -267,7 +267,14 @@
 /* About & Legal / DMCA Disclaimer Modal */
 .about-modal {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  height: 100vh;
+  height: 100dvh;
+  height: var(--app-height, 100dvh);
+  max-height: var(--app-height, 100dvh);
   background: rgba(8, 10, 18, 0.96);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
@@ -276,6 +283,7 @@
   flex-direction: column;
   padding: calc(var(--safe-top) + 16px) 18px calc(var(--safe-bottom) + 24px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;

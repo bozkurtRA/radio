@@ -235,12 +235,10 @@
 
 /* Floating Modern Mini Player */
 .modern-mini-player-bar {
-  position: fixed;
+  position: absolute;
   bottom: calc(var(--tabbar-height) + 6px);
   left: 10px;
   right: 10px;
-  max-width: 520px;
-  margin: 0 auto;
   height: var(--miniplayer-height);
   background: rgba(18, 24, 46, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -256,6 +254,7 @@
   cursor: pointer;
   transition: transform 0.2s;
   box-sizing: border-box;
+  touch-action: manipulation;
 }
 
 .modern-mini-player-bar:active {
@@ -325,16 +324,13 @@
   fill: #ffffff;
 }
 
-/* iOS Bottom Tab Bar */
+/* iOS Bottom Tab Bar (Flex-anchored at bottom of #app to reach physical screen edge) */
 .modern-tab-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 540px;
-  margin: 0 auto;
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
   height: var(--tabbar-height);
-  padding-top: 5px;
+  padding-top: 6px;
   padding-bottom: var(--tab-safe-gap);
   box-sizing: border-box;
   background: rgba(10, 12, 24, 0.98);
@@ -345,6 +341,7 @@
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   z-index: 85;
+  touch-action: manipulation;
 }
 
 .tab-nav-btn {

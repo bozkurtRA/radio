@@ -19,6 +19,7 @@ class RadioApp {
 
   async init() {
     this._cacheDom();
+    this._setupViewportSync();
     this._setupAntiCopyProtections();
 
     this._registerServiceWorker();
@@ -607,7 +608,7 @@ class RadioApp {
 
         <!-- App Version & Force Reload -->
         <div style="background:var(--surface-card); border:1px solid var(--glass-border); border-radius:20px; padding:18px; text-align:center;">
-          <div style="font-size:14px; font-weight:700; margin-bottom:4px;">🔄 Sürüm Bilgisi (v2.2.1)</div>
+          <div style="font-size:14px; font-weight:700; margin-bottom:4px;">🔄 Sürüm Bilgisi (v2.2.2)</div>
           <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
             En güncel arayüz ve yayın listesini anında çekmek için önbelleği sıfırlayıp yenileyebilirsiniz.
           </div>
@@ -872,10 +873,46 @@ class RadioApp {
     }, 400);
   }
 
+  _setupViewportSync() {
+    const sync = () => {
+      if (typeof window.__syncRadioViewport === 'function') {
+        window.__syncRadioViewport();
+      }
+      if (document.documentElement.dataset.iosGapFix === '1' && window.scrollY !== 0) {
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        if (!['INPUT', 'TEXTAREA'].includes(activeTag)) {
+          window.scrollTo(0, 0);
+        }
+      }
+    };
+
+    sync();
+    window.addEventListener('resize', sync);
+    window.addEventListener('orientationchange', () => setTimeout(sync, 120));
+    window.addEventListener('pageshow', () => setTimeout(sync, 60));
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', sync);
+    }
+    document.addEventListener('focusout', () => {
+      setTimeout(() => {
+        if (window.scrollY !== 0) window.scrollTo(0, 0);
+        sync();
+      }, 120);
+    });
+    window.addEventListener('scroll', () => {
+      if (document.documentElement.dataset.iosGapFix === '1' && window.scrollY !== 0) {
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        if (!['INPUT', 'TEXTAREA'].includes(activeTag)) {
+          window.scrollTo(0, 0);
+        }
+      }
+    }, { passive: true });
+  }
+
   _registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=2.2.1').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=2.2.2').then((reg) => {
           console.log('[rAdio] Service Worker registered with scope:', reg.scope);
           reg.update();
         }).catch((err) => {

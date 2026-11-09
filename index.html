@@ -21,11 +21,11 @@
   <link rel="manifest" href="./manifest.webmanifest">
 
   <!-- Stylesheets with versioning -->
-  <link rel="stylesheet" href="./css/main.css?v=2.2.1">
-  <link rel="stylesheet" href="./css/modern.css?v=2.2.1">
-  <link rel="stylesheet" href="./css/directory.css?v=2.2.1">
-  <link rel="stylesheet" href="./css/player.css?v=2.2.1">
-  <link rel="stylesheet" href="./css/auth.css?v=2.2.1">
+  <link rel="stylesheet" href="./css/main.css?v=2.2.2">
+  <link rel="stylesheet" href="./css/modern.css?v=2.2.2">
+  <link rel="stylesheet" href="./css/directory.css?v=2.2.2">
+  <link rel="stylesheet" href="./css/player.css?v=2.2.2">
+  <link rel="stylesheet" href="./css/auth.css?v=2.2.2">
 
   <!-- Hls.js fallback for non-Safari browsers (Safari plays HLS natively) -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
@@ -194,7 +194,7 @@
       <div class="about-header-top">
         <div class="about-app-brand">
           <img src="./assets/brand/logo.svg" alt="rAdio">
-          <span class="about-version-badge">v2.2.1 PWA</span>
+          <span class="about-version-badge">v2.2.2 PWA</span>
         </div>
         <button class="icon-btn" onclick="window.rApp.closeAboutModal()" aria-label="Kapat">✕</button>
       </div>
@@ -277,10 +277,68 @@
     </div>
   </div>
 
+  <!-- iOS Standalone Viewport Gap Sync (Before Paint) -->
+  <script>
+    (function () {
+      function getSafeInsets() {
+        var el = document.getElementById('__safeAreaProbe');
+        if (!el && document.body) {
+          el = document.createElement('div');
+          el.id = '__safeAreaProbe';
+          el.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);';
+          document.body.appendChild(el);
+        }
+        if (!el) return { top: 0, bottom: 0 };
+        var cs = window.getComputedStyle(el);
+        return {
+          top: parseFloat(cs.paddingTop) || 0,
+          bottom: parseFloat(cs.paddingBottom) || 0
+        };
+      }
+
+      window.__syncRadioViewport = function () {
+        var root = document.documentElement;
+        var isAppleTouch = /iP(hone|od|ad)/.test(navigator.platform) ||
+          (/Mac/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+        var isStandalone = window.navigator.standalone === true ||
+          (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+
+        if (!isAppleTouch || !isStandalone) {
+          root.style.setProperty('--app-height', '100dvh');
+          delete root.dataset.iosGapFix;
+          return;
+        }
+
+        var isLandscape = window.innerWidth > window.innerHeight;
+        var physHeight = isLandscape
+          ? Math.min(window.screen.width, window.screen.height)
+          : Math.max(window.screen.width, window.screen.height);
+        var layoutHeight = window.innerHeight;
+        var gap = physHeight - layoutHeight;
+        var insets = getSafeInsets();
+
+        var matchesSafeTop = insets.top >= 18 && Math.abs(gap - insets.top) <= 14;
+        var matchesSafeBottom = insets.bottom >= 18 && Math.abs(gap - insets.bottom) <= 10;
+
+        if (gap > 16 && gap <= 100 && physHeight >= 560 && (matchesSafeTop || matchesSafeBottom)) {
+          root.style.setProperty('--app-height', physHeight + 'px');
+          root.dataset.iosGapFix = '1';
+        } else if (root.dataset.iosGapFix === '1' && document.activeElement && ['INPUT', 'TEXTAREA'].indexOf(document.activeElement.tagName) !== -1) {
+          return;
+        } else {
+          root.style.setProperty('--app-height', '100dvh');
+          delete root.dataset.iosGapFix;
+        }
+      };
+
+      window.__syncRadioViewport();
+    })();
+  </script>
+
   <!-- JavaScript Modules with versioning -->
-  <script src="./js/storage.js?v=2.2.1"></script>
-  <script src="./js/metadata-service.js?v=2.2.1"></script>
-  <script src="./js/audio-engine.js?v=2.2.1"></script>
-  <script src="./js/app.js?v=2.2.1"></script>
+  <script src="./js/storage.js?v=2.2.2"></script>
+  <script src="./js/metadata-service.js?v=2.2.2"></script>
+  <script src="./js/audio-engine.js?v=2.2.2"></script>
+  <script src="./js/app.js?v=2.2.2"></script>
 </body>
 </html>
